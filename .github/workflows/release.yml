@@ -81,6 +81,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-${{ matrix.os }}-${{ matrix.arch }}
+          evict-old-files: 1d
 
       - name: Build
         id: cmake_build
@@ -165,6 +166,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-${{ matrix.os }}-cpu
+          evict-old-files: 1d
 
       - name: Build
         id: cmake_build
@@ -250,6 +252,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-${{ matrix.os }}-vulkan
+          evict-old-files: 1d
 
       - name: Build
         id: cmake_build
@@ -476,6 +479,7 @@ jobs:
       #  uses: ggml-org/ccache-action@v1.2.24
       #  with:
       #    key: release-android-arm64
+      #    evict-old-files: 1d
 
       - name: Build
         id: cmake_build
@@ -530,8 +534,8 @@ jobs:
 
     env:
       # Sync versions in build-openvino.yml, build-self-hosted.yml, release.yml, build-cache.yml, .devops/openvino.Dockerfile
-      OPENVINO_VERSION_MAJOR: "2026.3.1"
-      OPENVINO_VERSION_FULL: "2026.3.1.22476.56d9685302d"
+      OPENVINO_VERSION_MAJOR: "2026.4"
+      OPENVINO_VERSION_FULL: "2026.4.0.22959.99c81491cc3"
 
     steps:
       - name: Set OpenVINO version output
@@ -554,6 +558,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-ubuntu-24.04-openvino-release-no-preset-v1
+          evict-old-files: 1d
 
       - name: Dependencies
         run: |
@@ -644,8 +649,8 @@ jobs:
 
     env:
       # Sync versions in build-openvino.yml, build-self-hosted.yml, release.yml, build-cache.yml, .devops/openvino.Dockerfile
-      OPENVINO_VERSION_MAJOR: "2026.3.1"
-      OPENVINO_VERSION_FULL: "2026.3.1.22476.56d9685302d"
+      OPENVINO_VERSION_MAJOR: "2026.4"
+      OPENVINO_VERSION_FULL: "2026.4.0.22959.99c81491cc3"
 
     steps:
       - name: Set OpenVINO version output
@@ -797,6 +802,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-windows-2025-vs2026-${{ matrix.arch }}-cpu
+          evict-old-files: 1d
 
       - name: Build
         shell: cmd
@@ -1041,6 +1047,7 @@ jobs:
       #  uses: ggml-org/ccache-action@v1.2.24
       #  with:
       #    key: release-windows-2025-${{ matrix.arch }}-${{ matrix.backend }}
+      #    evict-old-files: 1d
 
       - name: Install OpenCL Headers and Libs
         id: install_opencl
@@ -1129,6 +1136,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-windows-2022-${{ matrix.arch }}-cuda-${{ matrix.cuda }}
+          evict-old-files: 1d
 
       - name: Build
         id: cmake_build
@@ -1225,6 +1233,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-windows-2022-x64-sycl
+          evict-old-files: 1d
 
       - name: Build
         id: cmake_build
@@ -1343,6 +1352,7 @@ jobs:
         uses: ggml-org/ccache-action@v1.2.24
         with:
           key: release-ubuntu-24.04-sycl-${{ matrix.build }}
+          evict-old-files: 1d
 
       - name: Build
         id: cmake_build
