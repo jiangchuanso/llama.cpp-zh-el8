@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { File, Image, MessageSquare, Mic, Plus, Video } from '@lucide/svelte';
-	import { ChatFormActionAddToolsSubmenu, McpLogo } from '$lib/components/app';
+	import {
+		ChatFormActionAddReasoningSubmenu,
+		ChatFormActionAddToolsSubmenu,
+		McpLogo
+	} from '$lib/components/app';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Tooltip from '$lib/components/ui/tooltip';
@@ -14,6 +18,7 @@
 	import { AttachmentAction, AttachmentItemEnabledWhen } from '$lib/enums';
 	import { useAttachmentMenu } from '$lib/hooks/use-attachment-menu.svelte';
 	import { t } from '$lib/i18n';
+	import { serverStore } from '$lib/stores';
 
 	interface Props {
 		class?: string;
@@ -93,6 +98,13 @@
 				}
 			}}
 		>
+			<!-- in router mode the models selector owns the reasoning submenu -->
+			{#if !serverStore.isRouterMode}
+				<ChatFormActionAddReasoningSubmenu />
+
+				<DropdownMenu.Separator />
+			{/if}
+
 			<DropdownMenu.Item
 				class="flex cursor-pointer items-center gap-2"
 				onclick={() => attachmentMenu.callbacks[AttachmentAction.FILE_UPLOAD]()}
