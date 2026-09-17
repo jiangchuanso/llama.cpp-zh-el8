@@ -65,7 +65,7 @@
 								showVersion={false}
 							/>
 						{:else}
-							<TruncatedText class="font-medium" text={group.label} />
+							<TruncatedText class="font-medium" text={t(group.label)} />
 						{/if}
 					</span>
 

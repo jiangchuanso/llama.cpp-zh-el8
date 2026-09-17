@@ -268,7 +268,7 @@
 			/>
 		{/if}
 
-		<span class="min-w-0 flex-1 truncate text-sm font-medium">{group.label}</span>
+		<span class="min-w-0 flex-1 truncate text-sm font-medium">{t(group.label)}</span>
 
 		<span class="shrink-0 text-xs text-muted-foreground">
 			{enabledCount}/{group.tools.length}

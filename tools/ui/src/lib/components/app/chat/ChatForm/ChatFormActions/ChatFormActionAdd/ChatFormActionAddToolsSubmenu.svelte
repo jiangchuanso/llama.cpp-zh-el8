@@ -114,7 +114,7 @@
 						/>
 					{/if}
 
-					<span class="truncate">{group.label}</span>
+					<span class="truncate">{t(group.label)}</span>
 				</span>
 
 				<span class="ml-auto shrink-0 text-xs text-muted-foreground">
