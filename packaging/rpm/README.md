@@ -63,6 +63,36 @@ ExecStart=/opt/llama-cpu/bin/llama-server \
 模型单独设置 ctx / 线程 / 预加载（`load-on-startup`）时，在 ini 里加一个以模型 id 命名的
 小节即可。模型目录为空也能启动，只是 `/v1/models` 列表为空。
 
+### 线程数
+
+`models.ini` 的 `[*]` 段随包设置了两个线程参数，数值**按架构在打包时写入**：
+
+| 架构 | `threads`（生成） | `threads-batch`（prompt 处理） |
+| ---- | ---- | ---- |
+| x86_64（Intel Xeon / 海光） | 16 | 32 |
+| aarch64（飞腾） | 8 | 32 |
+
+这两项不设时，llama-server 会使用**全部逻辑核**，在核多的机器上反而极慢：飞腾
+S5000C（128 核）的生成速度会从 8 线程的 32.5 t/s 掉到 128 线程的 2.3 t/s。
+
+上表数值是用 1B Q8_0 模型在 Xeon E5-2620 v4、Hygon C86-3G 5380、Phytium S5000C
+上实测得到的。x86_64 一档要同时兼容前两者，而它们的生成侧最优分别是 32 和 4 线程，
+16 是折中；prompt 处理两侧都偏好 32。换用明显更大的模型后建议按 `llama-bench`
+重新测一遍：
+
+```sh
+/opt/llama-cpu/bin/llama-bench -m /var/lib/llama-cpu/models/<model>.gguf \
+  -p 512 -n 128 -t 4,8,16,32,64 -r 3 -o md
+```
+
+路由模式下**每个模型是独立的子进程**，各自持有自己的线程池，所以 `--models-max`
+（默认 4）个模型同时推理时线程总数会成倍增长。若确定会有多个模型并发，可把
+`threads-batch` 调低。
+
+注意 `models.ini` 是 `%config(noreplace)`：`rpm -Uvh` 升级**不会**覆盖你改过的文件。
+从旧版本升级后，若想用新的线程默认值，需要手动同步这一段，或删掉该文件后
+`rpm reinstal`。
+
 要退回**单模型模式**，把 `-m /var/lib/llama-cpu/models/model.gguf` 加回
 `llama-server.service` 的 `ExecStart` 即可。
 

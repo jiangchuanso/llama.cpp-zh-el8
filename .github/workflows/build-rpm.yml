@@ -47,7 +47,7 @@ jobs:
       - name: Install rpm build tools
         run: |
           dnf -y install --setopt=install_weak_deps=False \
-            rpm-build systemd-rpm-macros shadow-utils
+            rpm-build systemd-rpm-macros shadow-utils cpio
 
       - name: Build RPM
         run: |
@@ -85,6 +85,18 @@ jobs:
           rpm -qpl "$rpm"
           if rpm -qp --requires "$rpm" | grep -E 'GLIBCXX_|CXXABI_|GOMP_'; then
             echo "error: package requires a bundled C++ runtime symbol, it would not install on Kylin V10"
+            exit 1
+          fi
+
+          # the preset carries per-architecture thread counts substituted by the
+          # spec; a leftover placeholder is not a valid number and makes the
+          # server refuse to start, so fail the build instead of shipping it
+          tmp="$(mktemp -d)"
+          rpm2cpio "$rpm" | (cd "$tmp" && cpio -idm --quiet ./etc/llama-cpu/models.ini)
+          echo "== preset threads =="
+          grep -E '^threads' "$tmp/etc/llama-cpu/models.ini"
+          if grep -q '@' "$tmp/etc/llama-cpu/models.ini"; then
+            echo "error: models.ini still contains unsubstituted placeholders"
             exit 1
           fi
 

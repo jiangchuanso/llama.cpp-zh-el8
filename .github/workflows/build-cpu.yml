@@ -2,6 +2,23 @@ name: CI (cpu)
 
 on:
   workflow_dispatch: # allows manual triggering
+    inputs:
+      # A/B experiments only. Both affect the el8 (ubuntu job) build alone and
+      # evaluate to a no-op for push/pull_request runs, so the normal build is
+      # unchanged.
+      opt_flags:
+        description: 'Extra C/CXX flags for the el8 build. @MTUNE@ expands per arch (linux: x86_64=haswell, aarch64=cortex-a76), e.g. -fno-semantic-interposition -mtune=@MTUNE@'
+        required: false
+        default: ''
+      opt_flags_arm64:
+        description: 'Extra C/CXX flags applied to the aarch64 el8 build only, e.g. -mno-outline-atomics'
+        required: false
+        default: ''
+      lto:
+        description: 'Build the el8 binaries with LTO (-DGGML_LTO=ON)'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - master
@@ -57,6 +74,8 @@ jobs:
   # it can reuse the artifacts of the `ubuntu` job without recompiling.
   rpm:
     needs: ubuntu
+    # experimental artifacts carry a different name and must not become RPMs
+    if: ${{ inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto }}
     uses: ./.github/workflows/build-rpm.yml
 
   ubuntu:
@@ -135,7 +154,22 @@ jobs:
 
       - name: Build
         id: cmake_build
+        env:
+          OPT_FLAGS: ${{ inputs.opt_flags }}
+          OPT_FLAGS_ARM64: ${{ inputs.opt_flags_arm64 }}
+          OPT_LTO: ${{ inputs.lto && 'ON' || 'OFF' }}
         run: |
+          # -mtune values are arch specific; -mno-outline-atomics exists on ARM only,
+          # hence the separate arm64 input instead of one shared flag string
+          mtune=generic
+          arch_flags=""
+          case "$(uname -m)" in
+            x86_64)  mtune=haswell ;;
+            aarch64) mtune=cortex-a76; arch_flags="$OPT_FLAGS_ARM64" ;;
+          esac
+          FLAGS="${OPT_FLAGS//@MTUNE@/$mtune} $arch_flags"
+          if [ -n "${FLAGS// /}" ]; then echo "experimental C/CXX flags: $FLAGS"; fi
+          if [ "$OPT_LTO" = ON ]; then echo "experimental: LTO enabled"; fi
           # $ORIGIN: prefer the gcc-toolset runtimes bundled below over the system ones
           cmake -B build \
             -DGGML_NATIVE=OFF \
@@ -143,6 +177,9 @@ jobs:
             -DGGML_CPU_ALL_VARIANTS=ON \
             -DLLAMA_FATAL_WARNINGS=ON \
             -DGGML_RPC=ON \
+            -DGGML_LTO="$OPT_LTO" \
+            -DCMAKE_C_FLAGS="$FLAGS" \
+            -DCMAKE_CXX_FLAGS="$FLAGS" \
             -DLLAMA_USE_PREBUILT_UI=OFF \
             -DCMAKE_BUILD_RPATH='$ORIGIN'
           time cmake --build build --config Release -j $(nproc)
@@ -230,13 +267,16 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v6
         with:
-          name: llama-cpu-${{ matrix.dist }}
+          # experiments get a distinct name so the default artifact stays intact
+          name: llama-cpu-${{ matrix.dist }}${{ (inputs.opt_flags != '' || inputs.opt_flags_arm64 != '' || inputs.lto) && '-opt' || '' }}
           path: build/bin
 
   windows:
     name: windows / ${{ matrix.build }}
     runs-on: windows-2025
     needs: ui-build
+    # an experiment only needs the el8 artifacts
+    if: ${{ inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto }}
 
     env:
       OPENBLAS_VERSION: 0.3.23
@@ -357,7 +397,7 @@ jobs:
   windows-extra:
     name: windows-extra / ${{ matrix.build }}
     runs-on: windows-2025
-    if: github.event_name == 'workflow_dispatch'
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto }}
 
     env:
       OPENBLAS_VERSION: 0.3.23
@@ -440,11 +480,13 @@ jobs:
   release:
     name: Publish to Release
     needs: [build-cmake-pkg, ubuntu, windows, rpm]
-    # Only on pushes to master (or manual dispatch), never on pull requests
+    # Only on pushes to master (or manual dispatch), never on pull requests and
+    # never for an A/B experiment build
     if: >-
       ${{
-        github.event_name == 'workflow_dispatch' ||
-        (github.event_name == 'push' && github.ref == 'refs/heads/master')
+        inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto &&
+        (github.event_name == 'workflow_dispatch' ||
+         (github.event_name == 'push' && github.ref == 'refs/heads/master'))
       }}
     runs-on: ubuntu-latest
     permissions:

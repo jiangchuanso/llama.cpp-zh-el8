@@ -22,6 +22,20 @@ AutoReqProv:    no
 # binaries, archives and libraries are shipped exactly as built: do not strip
 %global __os_install_post %{nil}
 
+# Thread counts substituted into llama-cpu-models.ini below. Left unset,
+# llama-server uses every logical core, which is a bad default on many-core
+# hosts: a 128-core Phytium S5000C generates 32.5 t/s with 8 threads but only
+# 2.3 t/s with 128. x86_64 has to cover both the Xeon E5-2620 v4 and the Hygon
+# C86-3G 5380, whose generation optima differ (32 vs 4 threads), so 16 is the
+# compromise; both prefer 32 for batch processing.
+%ifarch aarch64
+%global preset_threads         8
+%global preset_threads_batch  32
+%else
+%global preset_threads        16
+%global preset_threads_batch  32
+%endif
+
 Requires:       glibc >= 2.28
 Requires:       systemd
 Requires(pre):  shadow-utils
@@ -63,7 +77,10 @@ install -d %{buildroot}%{_unitdir}
 install -m 0644 %{SOURCE0} %{buildroot}%{_unitdir}/llama-server.service
 
 install -d %{buildroot}%{_sysconfdir}/llama-cpu
-install -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/llama-cpu/models.ini
+sed -e 's/@THREADS@/%{preset_threads}/' \
+    -e 's/@THREADS_BATCH@/%{preset_threads_batch}/' \
+    %{SOURCE3} > %{buildroot}%{_sysconfdir}/llama-cpu/models.ini
+chmod 0644 %{buildroot}%{_sysconfdir}/llama-cpu/models.ini
 
 install -d %{buildroot}%{_docdir}/llama-cpu
 install -m 0644 %{SOURCE2} %{buildroot}%{_docdir}/llama-cpu/README.md
