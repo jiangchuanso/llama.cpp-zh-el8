@@ -492,9 +492,9 @@ jobs:
           dry-run: ${{ github.event_name != 'push' || github.ref != 'refs/heads/master' }}
 
   # Publish the CPU build artifacts as a "nightly" pre-release. Reuses the
-  # artifacts already uploaded by the build jobs (no rebuild). If the tag has
-  # been promoted to a full release in the meantime the publish is skipped, so
-  # a promoted release is never replaced.
+  # artifacts already uploaded by the build jobs (no rebuild). Promoting the
+  # nightly to a full release never stops the flow: the promoted release is
+  # left untouched and the next run publishes on a fallback tag instead.
   release:
     name: Publish to Release
     needs: [build-cmake-pkg, ubuntu, windows, rpm]
@@ -524,36 +524,49 @@ jobs:
       #
       # Only drafts and prereleases are ours to replace. A nightly that has been
       # promoted to a full release (prerelease unchecked) is a published
-      # artifact others may already depend on: it is left untouched, its tag is
-      # not deleted, and the publish is skipped rather than overwriting it.
-      - name: Remove previous nightly release, unless promoted
+      # artifact others may already depend on, so it is never touched - but the
+      # nightly still has to go out, so it moves to a rolling fallback tag
+      # rather than being dropped. Re-tagging the promoted release frees the
+      # canonical tag and the next run returns to it on its own.
+      - name: Remove previous nightly release and pick the publish tag
         id: nightly
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           repo="${{ github.repository }}"
           list="repos/$repo/releases"
+          fallback=nightly-cpu-latest
 
-          # our own previous nightlies: drafts and prereleases on this tag
-          ids=$(gh api --paginate "$list" \
-            --jq '.[] | select(.tag_name == "nightly-cpu" and (.draft or .prerelease)) | .id')
-          for id in $ids; do
-            echo "deleting previous nightly release $id"
-            gh api -X DELETE "repos/$repo/releases/$id"
+          # tags carrying a promoted (non-draft, non-prerelease) release: those
+          # are published artifacts and must never be overwritten or re-tagged
+          promoted=$(gh api --paginate "$list" \
+            --jq '.[] | select((.tag_name == "nightly-cpu" or .tag_name == "nightly-cpu-latest") and .draft == false and .prerelease == false) | .tag_name')
+
+          # ours to replace: drafts and prereleases on either nightly tag
+          for t in nightly-cpu "$fallback"; do
+            ids=$(gh api --paginate "$list" \
+              --jq ".[] | select(.tag_name == \"$t\" and (.draft or .prerelease)) | .id")
+            for id in $ids; do
+              echo "deleting previous nightly release $id (tag $t)"
+              gh api -X DELETE "repos/$repo/releases/$id"
+            done
           done
 
-          # a published release still holding the tag means it was promoted
-          kept=$(gh api --paginate "$list" \
-            --jq '.[] | select(.tag_name == "nightly-cpu" and .draft == false and .prerelease == false) | .id')
-          if [ -n "$kept" ]; then
-            echo "promoted=1" >> "$GITHUB_OUTPUT"
-            echo "::warning::nightly-cpu is a published release; leaving it untouched and skipping the nightly publish"
-            exit 0
+          if echo "$promoted" | grep -qx nightly-cpu; then
+            tag="$fallback"
+            echo "::warning::nightly-cpu is owned by a published release; publishing this nightly on $fallback. Re-tag that release to the version it carries to free nightly-cpu, e.g. gh api -X PATCH repos/$repo/releases/<release-id> -f tag_name=<version>"
+          else
+            tag=nightly-cpu
           fi
-          echo "promoted=0" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-          # nothing has claimed the tag, so start clean
-          gh api -X DELETE "repos/$repo/git/refs/tags/nightly-cpu" || true
+          # start clean so the tag moves onto this commit; never touch a tag
+          # that a published release owns
+          if echo "$promoted" | grep -qx "$tag"; then
+            echo "::warning::$tag is owned by a published release; leaving its tag alone"
+          else
+            gh api -X DELETE "repos/$repo/git/refs/tags/$tag" || true
+          fi
 
       # Bundle each platform into a single archive. Uploading hundreds of loose
       # binaries individually trips GitHub's secondary rate limit and causes
@@ -563,7 +576,6 @@ jobs:
       # carries the version-release of this build, like the RPMs do, so the
       # assets are self-describing.
       - name: Package artifacts
-        if: steps.nightly.outputs.promoted == '0'
         run: |
           cd artifacts
           # llama-cpu-<version>-<release>.<dist>.<arch>.rpm -> <version>-<release>
@@ -588,10 +600,9 @@ jobs:
           find . -mindepth 2 -name '*.rpm' -exec cp -v {} . \;
 
       - name: Publish CPU build to nightly release
-        if: steps.nightly.outputs.promoted == '0'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nightly-cpu
+          tag_name: ${{ steps.nightly.outputs.tag }}
           name: CPU Nightly Build
           prerelease: true
           overwrite_files: true
