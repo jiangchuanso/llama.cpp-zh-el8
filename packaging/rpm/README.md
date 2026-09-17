@@ -20,18 +20,17 @@
 
 ## 安装
 
-x86_64 有**两个变体**，只装与 CPU 匹配的那一个。两者的文件布局完全相同，差异只在编译时用的 `-mtune`：
+按架构选包：
 
-| CPU | 要装的包 |
+| 架构 | 要装的包 |
 | --- | --- |
-| Intel | `llama-cpu-<版本>.<release>.el8.x86_64.rpm` |
-| AMD / 海光 | `llama-cpu-<版本>.<release>.amd.el8.x86_64.rpm` |
-| 飞腾 / aarch64 | `llama-cpu-<版本>.<release>.el8.aarch64.rpm`（只有一个，无需区分） |
+| x86_64（Intel / AMD / 海光） | `llama-cpu-<版本>.<release>.el8.x86_64.rpm` |
+| aarch64（飞腾） | `llama-cpu-<版本>.<release>.el8.aarch64.rpm` |
 
-用 `lscpu` 的厂商字段判断：`GenuineIntel` 装第一个，`AuthenticAMD` / `Hygon` 装第二个。**两者不能同时安装**（会互相覆盖）；装错不会报错，只是拿不到针对该 CPU 的指令调度优化。
+x86_64 只有一个包：AVX2 / AVX512 / AMX 等指令集变体由运行时按 CPUID 自动选择，无需按厂商区分。
 
 ```sh
-# 按 CPU 选一个装（下面以 Intel 为例）
+# 安装
 sudo rpm -ivh llama-cpu-0.4.1-1.b11053.el8.x86_64.rpm
 # 或者升级到新版本
 sudo rpm -Uvh llama-cpu-0.4.1-1.b11054.el8.x86_64.rpm
@@ -163,5 +162,3 @@ Web UI 地址为 `http://<host>:8080/`（已内置中文界面）。不用的话
 sudo rpm -Uvh llama-cpu-<new>.rpm   # /etc/llama-cpu/models.ini 等配置保留（noreplace）
 sudo rpm -e llama-cpu               # 保留 /var/lib/llama-cpu 及其模型
 ```
-
-从 Intel 版换成 amd 版（或反过来）用 `rpm -Uvh` 直接覆盖即可：两者的包名相同（`llama-cpu`），只是 release 串不同。

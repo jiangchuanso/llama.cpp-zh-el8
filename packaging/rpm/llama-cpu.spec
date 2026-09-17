@@ -1,9 +1,7 @@
 Name:           llama-cpu
 # these defines are passed by .github/workflows/build-rpm.yml
 Version:        %{?llama_version}%{!?llama_version:0.0.0}
-# llama_release_suffix is set to ".amd" by build-rpm.yml for the Zen-tuned x86_64
-# variant; without it the two x86_64 packages would share one NEVRA
-Release:        1.b%{?llama_build}%{!?llama_build:0}%{?llama_release_suffix}%{?dist}
+Release:        1.b%{?llama_build}%{!?llama_build:0}%{?dist}
 Summary:        llama.cpp CPU inference server (EL8 / Kylin V10 build)
 
 License:        MIT
@@ -27,16 +25,11 @@ AutoReqProv:    no
 # Thread counts substituted into llama-cpu-models.ini below. Left unset,
 # llama-server uses every logical core, which is a bad default on many-core
 # hosts: a 128-core Phytium S5000C generates 32.5 t/s with 8 threads but only
-# 2.3 t/s with 128. x86_64 has to cover both the Xeon E5-2620 v4 and the Hygon
-# C86-3G 5380, whose generation optima differ (32 vs 4 threads), so 16 is the
-# compromise; both prefer 32 for batch processing.
-%ifarch aarch64
-%global preset_threads         8
-%global preset_threads_batch  32
-%else
+# 2.3 t/s with 128. The optimum is per-CPU, not per-architecture, so instead of
+# a table of guesses models.ini documents the benchmark command that measures
+# it on the target host. 16/32 is a middle ground.
 %global preset_threads        16
 %global preset_threads_batch  32
-%endif
 
 Requires:       glibc >= 2.28
 Requires:       systemd
@@ -49,11 +42,6 @@ Prebuilt CPU-only llama.cpp serving stack for EL8 and compatible systems
 The binaries and their runtime libraries (including libstdc++ and libgomp) are
 bundled under /opt/llama-cpu and loaded through an $ORIGIN rpath, so the package
 does not depend on the host C++ runtime version.
-
-The x86_64 package comes in two variants that differ only in the -mtune value
-used at build time: the plain one targets Intel, the ".amd" release targets
-AMD/Hygon (Zen). Install the variant matching the CPU; the two cannot be
-installed side by side.
 
 A systemd unit (llama-server.service) is installed but not enabled. The default
 configuration runs llama-server in router mode: every .gguf found in

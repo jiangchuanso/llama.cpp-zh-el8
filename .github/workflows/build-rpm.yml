@@ -16,17 +16,8 @@ jobs:
         include:
           - os: ubuntu-22.04
             dist: el8-x64
-            rpm_suffix: ''
-          # the amd tree is built from identical sources with a different -mtune;
-          # without a suffix both packages would claim the same NEVRA (same name,
-          # version, release and arch) and installing one would silently replace
-          # the other
-          - os: ubuntu-22.04
-            dist: el8-x64-amd
-            rpm_suffix: '.amd'
           - os: ubuntu-24.04-arm
             dist: el8-arm64
-            rpm_suffix: ''
 
     # Same AlmaLinux 8 base as the binary build, so rpmbuild's macros and the
     # generated glibc requirement match the EL8/Kylin V10 target.
@@ -79,7 +70,6 @@ jobs:
             --define "_topdir $(pwd)/rpmbuild" \
             --define "llama_version $version" \
             --define "llama_build $build_number" \
-            --define "llama_release_suffix ${{ matrix.rpm_suffix }}" \
             --define "dist .el8"
 
       # Guard the whole point of the exercise: if an auto-generated dependency
@@ -98,9 +88,9 @@ jobs:
             exit 1
           fi
 
-          # the preset carries per-architecture thread counts substituted by the
-          # spec; a leftover placeholder is not a valid number and makes the
-          # server refuse to start, so fail the build instead of shipping it
+          # the preset carries thread counts substituted by the spec; a leftover
+          # placeholder is not a valid number and makes the server refuse to
+          # start, so fail the build instead of shipping it
           tmp="$(mktemp -d)"
           rpm2cpio "$rpm" | (cd "$tmp" && cpio -idm --quiet ./etc/llama-cpu/models.ini)
           echo "== preset threads =="

@@ -3,15 +3,15 @@ name: CI (cpu)
 on:
   workflow_dispatch: # allows manual triggering
     inputs:
-      # A/B experiments only. Both affect the el8 (ubuntu job) build alone and
+      # A/B experiments only. They affect the el8 (ubuntu job) build alone and
       # evaluate to a no-op for push/pull_request runs, so the normal build is
       # unchanged.
       opt_flags:
-        description: 'Extra C/CXX flags for the el8 build, on top of the per-variant -mtune. @MTUNE@ still expands to that same value if you want to spell it out, e.g. -fno-semantic-interposition'
+        description: 'Extra C/CXX flags for both el8 trees, e.g. -fno-semantic-interposition'
         required: false
         default: ''
       opt_flags_x64:
-        description: 'Extra C/CXX flags applied to the x86_64 el8 build only, e.g. -mtune=znver1'
+        description: 'Extra C/CXX flags applied to the x86_64 el8 build only, e.g. -fno-plt'
         required: false
         default: ''
       opt_flags_arm64:
@@ -87,22 +87,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # No -mtune on either tree. The per-CPU part is resolved at run time
+        # instead: GGML_CPU_ALL_VARIANTS ships one .so per ISA level and the
+        # loader picks the best the host CPU reports, which a build-time tuning
+        # guess cannot do (the CI runner is not the machine that runs the
+        # binary). Both guesses tried here measured at best neutral - znver1 for
+        # x86_64 (0% on Hygon, -4.8% tg on Intel) and cortex-a76 for arm64 -
+        # because the hot kernels are hand-written intrinsics that leave the
+        # instruction scheduler little to reorder.
         include:
           - build: 'x64'
             os: ubuntu-22.04
             dist: 'el8-x64'
-            mtune: 'haswell'
-          # Hygon (Zen) and Intel have different scheduling models, so they get
-          # separate trees with their own -mtune. Same layout otherwise, which
-          # is why the RPM release needs a suffix to stay distinguishable.
-          - build: 'x64-amd'
-            os: ubuntu-22.04
-            dist: 'el8-x64-amd'
-            mtune: 'znver1'
           - build: 'arm64'
             os: ubuntu-24.04-arm
             dist: 'el8-arm64'
-            mtune: 'cortex-a76'
 
     # GitHub-hosted runner acts as the host; the build runs inside an
     # AlmaLinux 8 container (binary-compatible CentOS 8 replacement), so the
@@ -172,20 +171,19 @@ jobs:
           OPT_FLAGS_X64: ${{ inputs.opt_flags_x64 }}
           OPT_FLAGS_ARM64: ${{ inputs.opt_flags_arm64 }}
           OPT_LTO: ${{ inputs.lto && 'ON' || 'OFF' }}
-          VARIANT_MTUNE: ${{ matrix.mtune }}
         run: |
-          # -mtune is per matrix entry (Intel and Hygon share x86_64 but not the
-          # scheduling model); some flags exist on one arch only, hence the
-          # separate per-arch inputs instead of one shared flag string
-          mtune="${VARIANT_MTUNE:-generic}"
+          # some flags exist on one arch only, hence the separate per-arch
+          # inputs instead of one shared flag string
           arch_flags=""
           case "$(uname -m)" in
             x86_64)  arch_flags="$OPT_FLAGS_X64" ;;
             aarch64) arch_flags="$OPT_FLAGS_ARM64" ;;
           esac
-          # -mtune belongs to the default build, not only to experiments: without
-          # it here the two x86_64 variants come out byte-identical
-          FLAGS="-mtune=$mtune ${OPT_FLAGS//@MTUNE@/$mtune} $arch_flags"
+          # No -mtune: the variant is picked at run time from the host CPUID
+          # (see the matrix comment), and the x86 ones are built from individual
+          # -m<feature> flags rather than -march, so without an explicit -mtune
+          # every variant keeps GCC's balanced generic tuning
+          FLAGS="$OPT_FLAGS $arch_flags"
           echo "C/CXX flags:$FLAGS"
           if [ "$OPT_LTO" = ON ]; then echo "experimental: LTO enabled"; fi
           # $ORIGIN: prefer the gcc-toolset runtimes bundled below over the system ones
@@ -494,7 +492,9 @@ jobs:
           dry-run: ${{ github.event_name != 'push' || github.ref != 'refs/heads/master' }}
 
   # Publish the CPU build artifacts as a "nightly" pre-release. Reuses the
-  # artifacts already uploaded by the build jobs (no rebuild).
+  # artifacts already uploaded by the build jobs (no rebuild). If the tag has
+  # been promoted to a full release in the meantime the publish is skipped, so
+  # a promoted release is never replaced.
   release:
     name: Publish to Release
     needs: [build-cmake-pkg, ubuntu, windows, rpm]
@@ -521,17 +521,38 @@ jobs:
       # drafts count too: they carry the same tag and make the publish step
       # below fail with "already_exists / tag_name". This job has no checkout,
       # so gh needs the repo spelled out, and drafts are only reachable by id.
-      - name: Remove previous nightly release (if any)
+      #
+      # Only drafts and prereleases are ours to replace. A nightly that has been
+      # promoted to a full release (prerelease unchecked) is a published
+      # artifact others may already depend on: it is left untouched, its tag is
+      # not deleted, and the publish is skipped rather than overwriting it.
+      - name: Remove previous nightly release, unless promoted
+        id: nightly
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           repo="${{ github.repository }}"
-          ids=$(gh api --paginate "repos/$repo/releases" \
-            --jq '.[] | select(.tag_name == "nightly-cpu") | .id')
+          list="repos/$repo/releases"
+
+          # our own previous nightlies: drafts and prereleases on this tag
+          ids=$(gh api --paginate "$list" \
+            --jq '.[] | select(.tag_name == "nightly-cpu" and (.draft or .prerelease)) | .id')
           for id in $ids; do
-            echo "deleting release $id"
+            echo "deleting previous nightly release $id"
             gh api -X DELETE "repos/$repo/releases/$id"
           done
+
+          # a published release still holding the tag means it was promoted
+          kept=$(gh api --paginate "$list" \
+            --jq '.[] | select(.tag_name == "nightly-cpu" and .draft == false and .prerelease == false) | .id')
+          if [ -n "$kept" ]; then
+            echo "promoted=1" >> "$GITHUB_OUTPUT"
+            echo "::warning::nightly-cpu is a published release; leaving it untouched and skipping the nightly publish"
+            exit 0
+          fi
+          echo "promoted=0" >> "$GITHUB_OUTPUT"
+
+          # nothing has claimed the tag, so start clean
           gh api -X DELETE "repos/$repo/git/refs/tags/nightly-cpu" || true
 
       # Bundle each platform into a single archive. Uploading hundreds of loose
@@ -542,12 +563,13 @@ jobs:
       # carries the version-release of this build, like the RPMs do, so the
       # assets are self-describing.
       - name: Package artifacts
+        if: steps.nightly.outputs.promoted == '0'
         run: |
           cd artifacts
           # llama-cpu-<version>-<release>.<dist>.<arch>.rpm -> <version>-<release>
-          # the amd variant carries an extra release suffix; use the plain x64 RPM
-          # as the version reference so every archive keeps one version string
-          rpm_file=$(find . -name 'llama-cpu-*.rpm' ! -name '*.amd.*' | head -1)
+          # every architecture carries the same version, so any RPM can act as
+          # the reference for the archive names
+          rpm_file=$(find . -name 'llama-cpu-*.rpm' | head -1)
           if [ -z "$rpm_file" ]; then
             echo "error: no llama-cpu RPM among the artifacts, cannot version the archives"
             exit 1
@@ -557,7 +579,7 @@ jobs:
           version=${version%.*}                 # drop <dist>
           version=${version#llama-cpu-}         # drop the package name
           echo "packaging version $version"
-          for d in llama-cpu-el8-x64 llama-cpu-el8-x64-amd llama-cpu-el8-arm64 llama-cpu-windows-x64-cpu llama-cmake-pkg; do
+          for d in llama-cpu-el8-x64 llama-cpu-el8-arm64 llama-cpu-windows-x64-cpu llama-cmake-pkg; do
             if [ -d "$d" ]; then
               tar -czf "${d}-${version}.tar.gz" -C "$d" .
             fi
@@ -566,6 +588,7 @@ jobs:
           find . -mindepth 2 -name '*.rpm' -exec cp -v {} . \;
 
       - name: Publish CPU build to nightly release
+        if: steps.nightly.outputs.promoted == '0'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nightly-cpu
