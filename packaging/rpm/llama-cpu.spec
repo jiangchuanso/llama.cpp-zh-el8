@@ -1,7 +1,9 @@
 Name:           llama-cpu
-# both defines are passed by .github/workflows/build-rpm.yml
+# these defines are passed by .github/workflows/build-rpm.yml
 Version:        %{?llama_version}%{!?llama_version:0.0.0}
-Release:        1.b%{?llama_build}%{!?llama_build:0}%{?dist}
+# llama_release_suffix is set to ".amd" by build-rpm.yml for the Zen-tuned x86_64
+# variant; without it the two x86_64 packages would share one NEVRA
+Release:        1.b%{?llama_build}%{!?llama_build:0}%{?llama_release_suffix}%{?dist}
 Summary:        llama.cpp CPU inference server (EL8 / Kylin V10 build)
 
 License:        MIT
@@ -47,6 +49,11 @@ Prebuilt CPU-only llama.cpp serving stack for EL8 and compatible systems
 The binaries and their runtime libraries (including libstdc++ and libgomp) are
 bundled under /opt/llama-cpu and loaded through an $ORIGIN rpath, so the package
 does not depend on the host C++ runtime version.
+
+The x86_64 package comes in two variants that differ only in the -mtune value
+used at build time: the plain one targets Intel, the ".amd" release targets
+AMD/Hygon (Zen). Install the variant matching the CPU; the two cannot be
+installed side by side.
 
 A systemd unit (llama-server.service) is installed but not enabled. The default
 configuration runs llama-server in router mode: every .gguf found in

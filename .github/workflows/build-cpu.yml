@@ -10,6 +10,10 @@ on:
         description: 'Extra C/CXX flags for the el8 build. @MTUNE@ expands per arch (linux: x86_64=haswell, aarch64=cortex-a76), e.g. -fno-semantic-interposition -mtune=@MTUNE@'
         required: false
         default: ''
+      opt_flags_x64:
+        description: 'Extra C/CXX flags applied to the x86_64 el8 build only, e.g. -mtune=znver1'
+        required: false
+        default: ''
       opt_flags_arm64:
         description: 'Extra C/CXX flags applied to the aarch64 el8 build only, e.g. -mno-outline-atomics'
         required: false
@@ -75,7 +79,7 @@ jobs:
   rpm:
     needs: ubuntu
     # experimental artifacts carry a different name and must not become RPMs
-    if: ${{ inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto }}
+    if: ${{ !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
     uses: ./.github/workflows/build-rpm.yml
 
   ubuntu:
@@ -87,9 +91,18 @@ jobs:
           - build: 'x64'
             os: ubuntu-22.04
             dist: 'el8-x64'
+            mtune: 'haswell'
+          # Hygon (Zen) and Intel have different scheduling models, so they get
+          # separate trees with their own -mtune. Same layout otherwise, which
+          # is why the RPM release needs a suffix to stay distinguishable.
+          - build: 'x64-amd'
+            os: ubuntu-22.04
+            dist: 'el8-x64-amd'
+            mtune: 'znver1'
           - build: 'arm64'
             os: ubuntu-24.04-arm
             dist: 'el8-arm64'
+            mtune: 'cortex-a76'
 
     # GitHub-hosted runner acts as the host; the build runs inside an
     # AlmaLinux 8 container (binary-compatible CentOS 8 replacement), so the
@@ -113,7 +126,7 @@ jobs:
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
         with:
-          key: cpu-${{ matrix.os }}
+          key: cpu-${{ matrix.dist }}
           save: false
 
       - name: System Dependencies (EL8 / dnf)
@@ -148,7 +161,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_CI }}
         with:
-          key: cpu-${{ matrix.os }}
+          key: cpu-${{ matrix.dist }}
           folder: llama.cpp
           hf_bucket: ggml-org/cache
 
@@ -156,16 +169,19 @@ jobs:
         id: cmake_build
         env:
           OPT_FLAGS: ${{ inputs.opt_flags }}
+          OPT_FLAGS_X64: ${{ inputs.opt_flags_x64 }}
           OPT_FLAGS_ARM64: ${{ inputs.opt_flags_arm64 }}
           OPT_LTO: ${{ inputs.lto && 'ON' || 'OFF' }}
+          VARIANT_MTUNE: ${{ matrix.mtune }}
         run: |
-          # -mtune values are arch specific; -mno-outline-atomics exists on ARM only,
-          # hence the separate arm64 input instead of one shared flag string
-          mtune=generic
+          # -mtune is per matrix entry (Intel and Hygon share x86_64 but not the
+          # scheduling model); some flags exist on one arch only, hence the
+          # separate per-arch inputs instead of one shared flag string
+          mtune="${VARIANT_MTUNE:-generic}"
           arch_flags=""
           case "$(uname -m)" in
-            x86_64)  mtune=haswell ;;
-            aarch64) mtune=cortex-a76; arch_flags="$OPT_FLAGS_ARM64" ;;
+            x86_64)  arch_flags="$OPT_FLAGS_X64" ;;
+            aarch64) arch_flags="$OPT_FLAGS_ARM64" ;;
           esac
           FLAGS="${OPT_FLAGS//@MTUNE@/$mtune} $arch_flags"
           if [ -n "${FLAGS// /}" ]; then echo "experimental C/CXX flags: $FLAGS"; fi
@@ -233,7 +249,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_CACHE_OUTPUT }}
         with:
-          key: cpu-${{ matrix.os }}
+          key: cpu-${{ matrix.dist }}
           folder: llama.cpp
           evict-old-files: 1d
           hf_bucket: ggml-org/cache
@@ -268,7 +284,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           # experiments get a distinct name so the default artifact stays intact
-          name: llama-cpu-${{ matrix.dist }}${{ (inputs.opt_flags != '' || inputs.opt_flags_arm64 != '' || inputs.lto) && '-opt' || '' }}
+          name: llama-cpu-${{ matrix.dist }}${{ (inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) && '-opt' || '' }}
           path: build/bin
 
   windows:
@@ -276,7 +292,7 @@ jobs:
     runs-on: windows-2025
     needs: ui-build
     # an experiment only needs the el8 artifacts
-    if: ${{ inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto }}
+    if: ${{ !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
 
     env:
       OPENBLAS_VERSION: 0.3.23
@@ -397,7 +413,7 @@ jobs:
   windows-extra:
     name: windows-extra / ${{ matrix.build }}
     runs-on: windows-2025
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto }}
+    if: ${{ github.event_name == 'workflow_dispatch' && !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
 
     env:
       OPENBLAS_VERSION: 0.3.23
@@ -484,7 +500,7 @@ jobs:
     # never for an A/B experiment build
     if: >-
       ${{
-        inputs.opt_flags == '' && inputs.opt_flags_arm64 == '' && !inputs.lto &&
+        !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) &&
         (github.event_name == 'workflow_dispatch' ||
          (github.event_name == 'push' && github.ref == 'refs/heads/master'))
       }}
@@ -527,7 +543,9 @@ jobs:
         run: |
           cd artifacts
           # llama-cpu-<version>-<release>.<dist>.<arch>.rpm -> <version>-<release>
-          rpm_file=$(find . -name 'llama-cpu-*.rpm' | head -1)
+          # the amd variant carries an extra release suffix; use the plain x64 RPM
+          # as the version reference so every archive keeps one version string
+          rpm_file=$(find . -name 'llama-cpu-*.rpm' ! -name '*.amd.*' | head -1)
           if [ -z "$rpm_file" ]; then
             echo "error: no llama-cpu RPM among the artifacts, cannot version the archives"
             exit 1
@@ -537,7 +555,7 @@ jobs:
           version=${version%.*}                 # drop <dist>
           version=${version#llama-cpu-}         # drop the package name
           echo "packaging version $version"
-          for d in llama-cpu-el8-x64 llama-cpu-el8-arm64 llama-cpu-windows-x64-cpu llama-cmake-pkg; do
+          for d in llama-cpu-el8-x64 llama-cpu-el8-x64-amd llama-cpu-el8-arm64 llama-cpu-windows-x64-cpu llama-cmake-pkg; do
             if [ -d "$d" ]; then
               tar -czf "${d}-${version}.tar.gz" -C "$d" .
             fi
