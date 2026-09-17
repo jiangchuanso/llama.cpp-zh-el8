@@ -396,7 +396,7 @@
 				>
 					<FolderOpen class="size-4 shrink-0 text-muted-foreground" />
 
-					<span>Browse</span>
+					<span>{t('Browse')}</span>
 				</button>
 			{/if}
 
@@ -404,7 +404,7 @@
 				<div aria-hidden="true" class="-mx-2 my-2 h-px bg-border/20"></div>
 
 				<span class="px-2 py-1.5 font-mono text-[10px]">
-					Searching in:
+					{t('Searching in:')}
 
 					<span class="truncate text-muted-foreground/70" title={searchScope}
 						>{abbreviateHome(searchScope, homeBase)}</span

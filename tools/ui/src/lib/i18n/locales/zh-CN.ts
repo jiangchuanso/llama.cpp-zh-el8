@@ -411,6 +411,8 @@ export const ZH_CN: Record<string, string> = {
 	'Always allow': '始终允许',
 	'Always allow all tools from {server}': '始终允许来自 {server} 的所有工具',
 	'Approve all tools from {provider}': '批准来自 {provider} 的所有工具',
+	'Allow use of {tool} from {server}?': '允许使用来自 {server} 的 {tool}？',
+	'Allow use of {tool}?': '允许使用 {tool}？',
 	'Browser Tools': '浏览器工具',
 	'Custom Tools': '自定义工具',
 	'Agentic turn limit reached. Continue?': '已达到智能体轮次上限，是否继续？',
@@ -513,7 +515,9 @@ export const ZH_CN: Record<string, string> = {
 	'Searched web': '已搜索网络',
 	'{verb} for "{query}"': '{verb}“{query}”',
 	'No results': '无结果',
-	Running: '运行中',
+	'Running...': '运行中…',
+	Console: '控制台',
+	timeout: '超时',
 	'timed out': '已超时',
 	'exit {code}': '退出码 {code}',
 	'Available context size is only visible once the model is loaded.':
@@ -522,7 +526,10 @@ export const ZH_CN: Record<string, string> = {
 	used: '已使用',
 	'{value} remaining': '剩余 {value}',
 	'No context info available': '暂无上下文信息',
+	Context: '上下文',
 	'No matching folders': '没有匹配的文件夹',
+	Browse: '浏览',
+	'Searching in:': '搜索范围：',
 	'Open file mention picker': '打开文件提及选择器',
 	'Open working directory picker': '打开工作目录选择器',
 	'File search is unavailable on this server (started without --tools)':
@@ -686,6 +693,14 @@ export const ZH_CN: Record<string, string> = {
 	'Server instructions': '服务器说明',
 	'Add New MCP Server': '添加新的 MCP 服务器',
 	'Recommended Servers': '推荐服务器',
+	'Search the web and fetch full page content as clean markdown.':
+		'搜索网络并将整页内容抓取为干净的 Markdown。',
+	'Search and browse AI models, datasets, spaces, and docs on the Hugging Face Hub.':
+		'在 Hugging Face Hub 上搜索和浏览 AI 模型、数据集、Spaces 与文档。',
+	'Search repositories, issues, pull requests and interact with code on GitHub.':
+		'在 GitHub 上搜索仓库、issue、pull request 并与代码交互。',
+	'Browse up-to-date documentation and code examples for libraries and frameworks.':
+		'浏览库和框架的最新文档与代码示例。',
 	Dismiss: '忽略',
 	'URL is required': 'URL 不能为空',
 	'Invalid URL format': 'URL 格式无效',
@@ -703,6 +718,7 @@ export const ZH_CN: Record<string, string> = {
 	with: '并带',
 	'flag)': '参数）',
 	'MCP Resources': 'MCP 资源',
+	'Search resources...': '搜索资源…',
 	'Browse and attach resources from connected MCP servers to your chat context.':
 		'浏览已连接的 MCP 服务器中的资源并添加到对话上下文。',
 	'Failed to read resource': '读取资源失败',

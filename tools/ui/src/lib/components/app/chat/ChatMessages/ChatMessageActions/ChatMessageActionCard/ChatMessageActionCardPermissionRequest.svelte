@@ -21,8 +21,11 @@
 
 <ChatMessageActionCard icon={ShieldQuestion}>
 	{#snippet message()}
-		{t('Allow use of')} <span class="font-semibold">{toolName}</span>{#if serverLabel}
-			&nbsp;{t('from')} <span class="font-semibold">{serverLabel}</span>{/if}{t('?')}
+		{#if serverLabel}
+			{t('Allow use of {tool} from {server}?', { server: serverLabel, tool: toolName })}
+		{:else}
+			{t('Allow use of {tool}?', { tool: toolName })}
+		{/if}
 	{/snippet}
 
 	{#snippet actions()}
