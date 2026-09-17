@@ -7,7 +7,7 @@ on:
       # evaluate to a no-op for push/pull_request runs, so the normal build is
       # unchanged.
       opt_flags:
-        description: 'Extra C/CXX flags for the el8 build. @MTUNE@ expands per arch (linux: x86_64=haswell, aarch64=cortex-a76), e.g. -fno-semantic-interposition -mtune=@MTUNE@'
+        description: 'Extra C/CXX flags for the el8 build, on top of the per-variant -mtune. @MTUNE@ still expands to that same value if you want to spell it out, e.g. -fno-semantic-interposition'
         required: false
         default: ''
       opt_flags_x64:
@@ -183,8 +183,10 @@ jobs:
             x86_64)  arch_flags="$OPT_FLAGS_X64" ;;
             aarch64) arch_flags="$OPT_FLAGS_ARM64" ;;
           esac
-          FLAGS="${OPT_FLAGS//@MTUNE@/$mtune} $arch_flags"
-          if [ -n "${FLAGS// /}" ]; then echo "experimental C/CXX flags: $FLAGS"; fi
+          # -mtune belongs to the default build, not only to experiments: without
+          # it here the two x86_64 variants come out byte-identical
+          FLAGS="-mtune=$mtune ${OPT_FLAGS//@MTUNE@/$mtune} $arch_flags"
+          echo "C/CXX flags:$FLAGS"
           if [ "$OPT_LTO" = ON ]; then echo "experimental: LTO enabled"; fi
           # $ORIGIN: prefer the gcc-toolset runtimes bundled below over the system ones
           cmake -B build \
