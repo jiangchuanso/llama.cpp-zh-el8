@@ -1,0 +1,56 @@
+[Unit]
+Description=llama.cpp inference server (llama-server)
+Documentation=https://github.com/jiangchuanso/llama.cpp-zh-el8
+Documentation=file:/usr/share/doc/llama-cpu/README.md
+After=network-online.target
+Wants=network-online.target
+
+# Give up restarting if the server keeps dying on startup (e.g. a broken
+# --models-preset path) instead of looping forever. Router mode starts fine
+# with an empty models directory.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=llama-cpu
+Group=llama-cpu
+WorkingDirectory=/var/lib/llama-cpu
+SyslogIdentifier=llama-server
+
+# All server arguments are inline below. To change them, either edit this
+# file directly, or override via a drop-in:  systemctl edit llama-server
+# Full flag list: /opt/llama-cpu/bin/llama-server --help
+# See also /usr/share/doc/llama-cpu/README.md
+ExecStart=/opt/llama-cpu/bin/llama-server \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --models-dir /var/lib/llama-cpu/models \
+    --models-preset /etc/llama-cpu/models.ini
+
+Restart=on-failure
+RestartSec=3
+
+# Loading a large model from disk can take minutes, and generation in flight
+# should be allowed to drain before a stop is escalated to SIGKILL.
+TimeoutStartSec=900
+TimeoutStopSec=60
+KillSignal=SIGINT
+KillMode=mixed
+
+# One file descriptor per connection plus one per parallel slot/KV buffer;
+# the default 1024 is easily exhausted with many concurrent clients.
+LimitNOFILE=65536
+# Needed when launching with --load-mode mlock (keeps the model resident).
+LimitMEMLOCK=infinity
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+# Models must be readable by the service user, add extra model directories here
+# if they live outside /var/lib/llama-cpu.
+ReadOnlyPaths=/opt/llama-cpu
+
+[Install]
+WantedBy=multi-user.target

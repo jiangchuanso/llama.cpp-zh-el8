@@ -1,0 +1,108 @@
+name: Build RPM packages
+
+# Fork-only workflow. It repackages the el8 binaries produced by the `ubuntu`
+# job of build-cpu.yml into RPMs. Nothing here is upstream, so it can never
+# conflict when merging upstream/master.
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  rpm:
+    name: rpm / ${{ matrix.dist }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            dist: el8-x64
+          - os: ubuntu-24.04-arm
+            dist: el8-arm64
+
+    # Same AlmaLinux 8 base as the binary build, so rpmbuild's macros and the
+    # generated glibc requirement match the EL8/Kylin V10 target.
+    runs-on: ${{ matrix.os }}
+    container: almalinux:8
+
+    steps:
+      # almalinux:8 has no git. Without it actions/checkout falls back to a
+      # REST archive download (no .git dir) and the later `git rev-list`
+      # fails with exit 127. Install git before checkout.
+      - name: Install git
+        run: dnf -y install --setopt=install_weak_deps=False git
+
+      - name: Clone
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # Reuse the binaries from the `ubuntu` job of the same run (the caller
+      # declares `needs: ubuntu`), so nothing is compiled twice
+      - name: Download el8 binaries
+        uses: actions/download-artifact@v7
+        with:
+          name: llama-cpu-${{ matrix.dist }}
+          path: rpmbuild/SOURCES/bin
+
+      - name: Install rpm build tools
+        run: |
+          dnf -y install --setopt=install_weak_deps=False \
+            rpm-build systemd-rpm-macros shadow-utils cpio
+
+      - name: Build RPM
+        run: |
+          set -e
+          # checkout writes safe.directory into a temp HOME config, so later
+          # git calls in the container fail with "dubious ownership"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          major=$(grep -oE 'set\(LLAMA_VERSION_MAJOR[[:space:]]+[0-9]+' CMakeLists.txt | grep -oE '[0-9]+$')
+          minor=$(grep -oE 'set\(LLAMA_VERSION_MINOR[[:space:]]+[0-9]+' CMakeLists.txt | grep -oE '[0-9]+$')
+          patch=$(grep -oE 'set\(LLAMA_VERSION_PATCH[[:space:]]+[0-9]+' CMakeLists.txt | grep -oE '[0-9]+$')
+          version="$major.$minor.$patch"
+          build_number=$(git rev-list --count HEAD)
+          echo "packaging llama-cpu $version, build $build_number"
+
+          cp packaging/rpm/llama-server.service \
+             packaging/rpm/llama-cpu-models.ini \
+             packaging/rpm/README.md \
+             rpmbuild/SOURCES/
+          rpmbuild -bb packaging/rpm/llama-cpu.spec \
+            --define "_topdir $(pwd)/rpmbuild" \
+            --define "llama_version $version" \
+            --define "llama_build $build_number" \
+            --define "dist .el8"
+
+      # Guard the whole point of the exercise: if an auto-generated dependency
+      # on the bundled libstdc++/libgomp slipped through, dnf on Kylin V10
+      # (GLIBCXX_3.4.24) would refuse to install the package.
+      - name: Verify package metadata
+        run: |
+          set -e
+          rpm="$(find rpmbuild/RPMS -name '*.rpm' | head -1)"
+          echo "== requires =="
+          rpm -qp --requires "$rpm"
+          echo "== files =="
+          rpm -qpl "$rpm"
+          if rpm -qp --requires "$rpm" | grep -E 'GLIBCXX_|CXXABI_|GOMP_'; then
+            echo "error: package requires a bundled C++ runtime symbol, it would not install on Kylin V10"
+            exit 1
+          fi
+
+          # the preset carries thread counts substituted by the spec; a leftover
+          # placeholder is not a valid number and makes the server refuse to
+          # start, so fail the build instead of shipping it
+          tmp="$(mktemp -d)"
+          rpm2cpio "$rpm" | (cd "$tmp" && cpio -idm --quiet ./etc/llama-cpu/models.ini)
+          echo "== preset threads =="
+          grep -E '^threads' "$tmp/etc/llama-cpu/models.ini"
+          if grep -q '@' "$tmp/etc/llama-cpu/models.ini"; then
+            echo "error: models.ini still contains unsubstituted placeholders"
+            exit 1
+          fi
+
+      - name: Upload RPM
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-rpm-${{ matrix.dist }}
+          path: rpmbuild/RPMS/**/*.rpm
+          if-no-files-found: error
