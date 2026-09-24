@@ -14,6 +14,7 @@
 	} from '$lib/enums';
 	import { useDebouncedSearch } from '$lib/hooks/use-debounced-search.svelte';
 	import { usePickerNavigation } from '$lib/hooks/use-picker-navigation.svelte';
+	import { t } from '$lib/i18n';
 	import { conversationsStore, deviceStore, settingsStore, toolsStore } from '$lib/stores';
 	import type { FileMentionEntry, GlobEntryResult } from '$lib/types';
 	import { abbreviateHome, runGlobSearchWithChildren } from '$lib/utils';
@@ -129,14 +130,18 @@
 
 	const emptyMessage = $derived.by(() => {
 		if (fileSearchKey === null) {
-			return 'File search is unavailable on this server (started without --tools)';
+			return t('File search is unavailable on this server (started without --tools)');
 		}
 
 		if (!fileSearchEnabled) {
-			return 'File search is disabled - enable "Search files" in Settings > Tools to use @-mentions';
+			return t(
+				'File search is disabled - enable "Search files" in Settings > Tools to use @-mentions'
+			);
 		}
 
-		return searchError ? `Search failed - ${searchError}` : 'No matching files or folders';
+		return searchError
+			? t('Search failed - {error}', { error: searchError })
+			: t('No matching files or folders');
 	});
 
 	const showTooltip = $derived(!deviceStore.isMobile);
@@ -211,7 +216,7 @@
 		class="pointer-events-none absolute inset-0 opacity-0"
 		tabindex={-1}
 	>
-		<span class="sr-only">Open file mention picker</span>
+		<span class="sr-only">{t('Open file mention picker')}</span>
 	</Popover.Trigger>
 
 	<Popover.Content

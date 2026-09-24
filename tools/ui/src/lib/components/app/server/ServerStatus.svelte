@@ -3,6 +3,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { modelsStore, serverStore } from '$lib/stores';
 
 	interface Props {
@@ -42,19 +43,21 @@
 	<div class="flex items-center space-x-2">
 		<div class="h-2 w-2 rounded-full {getStatusColor()}"></div>
 
-		<span class="text-sm text-muted-foreground">{getStatusText()}</span>
+		<span class="text-sm text-muted-foreground">{t(getStatusText())}</span>
 	</div>
 
 	{#if serverData && !error}
 		<Badge class="text-xs" variant="outline">
 			<Server class="mr-1 h-3 w-3" />
 
-			{model || 'Unknown Model'}
+			{model || t('Unknown Model')}
 		</Badge>
 
 		{#if serverData?.default_generation_settings?.n_ctx}
 			<Badge class="text-xs" variant="secondary">
-				ctx: {serverData.default_generation_settings.n_ctx.toLocaleString()}
+				{t('ctx: {value}', {
+					value: serverData.default_generation_settings.n_ctx.toLocaleString()
+				})}
 			</Badge>
 		{/if}
 	{/if}

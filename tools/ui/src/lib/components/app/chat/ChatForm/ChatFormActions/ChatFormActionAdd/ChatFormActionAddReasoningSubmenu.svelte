@@ -4,6 +4,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { useReasoningMenu } from '$lib/hooks/use-reasoning-menu.svelte';
+	import { t } from '$lib/i18n';
 
 	const reasoning = useReasoningMenu();
 </script>
@@ -23,7 +24,7 @@
 				? 'text-muted-foreground'
 				: ''}"
 		>
-			Reasoning
+			{t('Reasoning')}
 
 			<span class="capitalize text-muted-foreground">
 				{reasoning.currentEffort}
@@ -50,7 +51,7 @@
 					<div class="{ICON_CLASS_DEFAULT} shrink-0"></div>
 				{/if}
 
-				<span class="flex-1">{level.label}</span>
+				<span class="flex-1">{t(level.label)}</span>
 
 				{#if tokenLabel}
 					<span class="text-[11px] text-muted-foreground opacity-60">
@@ -65,7 +66,7 @@
 						</Tooltip.Trigger>
 
 						<Tooltip.Content side="left">
-							<p>Maximum reasoning effort with extended context usage</p>
+							<p>{t('Maximum reasoning effort with extended context usage')}</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				{/if}

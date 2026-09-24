@@ -9,6 +9,7 @@
 
 import { FAVORITE_MODELS_LOCALSTORAGE_KEY } from '$lib/constants';
 import { ServerModelStatus } from '$lib/enums';
+import { t } from '$lib/i18n';
 import { ModelsService } from '$lib/services/models.service';
 // direct imports between stores, not via the barrel, to avoid circular deps
 import { conversationsStore } from '$lib/stores/conversations/index.svelte';
@@ -349,7 +350,7 @@ class ModelsStore implements ModelPropsHost, ModelStatusHost {
 		try {
 			localStorage.setItem(FAVORITE_MODELS_LOCALSTORAGE_KEY, JSON.stringify([...next]));
 		} catch {
-			toast.error('Failed to save favorite models to local storage');
+			toast.error(t('Failed to save favorite models to local storage'));
 		}
 	}
 
@@ -404,7 +405,7 @@ class ModelsStore implements ModelPropsHost, ModelStatusHost {
 
 			return raw ? new Set(JSON.parse(raw) as string[]) : new Set();
 		} catch {
-			toast.error('Failed to load favorite models from local storage');
+			toast.error(t('Failed to load favorite models from local storage'));
 
 			return new Set();
 		}

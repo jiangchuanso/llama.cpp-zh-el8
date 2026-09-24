@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ChevronDown, ChevronRight } from '@lucide/svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible';
+	import { t } from '$lib/i18n';
 	import type { MCPConnectionLog } from '$lib/types';
 	import { formatTime, getMcpLogLevelClass, getMcpLogLevelIcon } from '$lib/utils';
 
@@ -40,10 +41,12 @@
 					<ChevronRight class="h-3.5 w-3.5" />
 				{/if}
 
-				<span>Connection Log ({logs.length})</span>
+				<span>{t('Connection Log ({count})', { count: logs.length })}</span>
 
 				{#if connectionTimeMs !== undefined}
-					<span class="ml-1">· Connected in {connectionTimeMs}ms</span>
+					<span class="ml-1"
+						>· {t('Connected in {ms}ms', { ms: connectionTimeMs })}</span
+					>
 				{/if}
 			</Collapsible.Trigger>
 		</div>
@@ -67,7 +70,9 @@
 
 					{#if log.details !== undefined}
 						<details class="ml-11">
-							<summary class="cursor-pointer text-[10px] text-muted-foreground"> details </summary>
+							<summary class="cursor-pointer text-[10px] text-muted-foreground">
+								{t('details')}
+							</summary>
 
 							<pre
 								class="mt-1 overflow-x-auto rounded bg-background/70 p-2 text-[10px] break-all whitespace-pre-wrap text-foreground/80">

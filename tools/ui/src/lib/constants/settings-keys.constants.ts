@@ -30,6 +30,8 @@ export const SETTINGS_KEYS = {
 	FREQUENCY_PENALTY: 'frequency_penalty',
 	FULL_HEIGHT_CODE_BLOCKS: 'fullHeightCodeBlocks',
 	JS_SANDBOX_ENABLED: 'jsSandboxEnabled',
+	// General
+	LANGUAGE: 'language',
 	MAX_IMAGE_RESOLUTION: 'maxImageMPixels',
 	MAX_TOKENS: 'max_tokens',
 	MCP_REQUEST_TIMEOUT_SECONDS: 'mcpRequestTimeoutSeconds',
@@ -65,7 +67,6 @@ export const SETTINGS_KEYS = {
 	SYSTEM_MESSAGE: 'systemMessage',
 	// Sampling
 	TEMPERATURE: 'temperature',
-	// General
 	THEME: 'theme',
 	TITLE_GENERATION_PROMPT: 'titleGenerationPrompt',
 	TITLE_GENERATION_USE_FIRST_LINE: 'titleGenerationUseFirstLine',

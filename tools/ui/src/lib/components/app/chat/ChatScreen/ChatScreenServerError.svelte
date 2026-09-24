@@ -2,6 +2,7 @@
 	import { AlertTriangle, Loader2, RefreshCw } from '@lucide/svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { serverStore } from '$lib/stores';
 
 	let hasError = $derived(!!serverStore.error);
@@ -18,7 +19,7 @@
 			{/if}
 
 			<Alert.Title class="flex items-center justify-between">
-				<span>{isLoadingModel ? 'Loading model' : 'Server unavailable'}</span>
+				<span>{isLoadingModel ? t('Loading model') : t('Server unavailable')}</span>
 
 				{#if !isLoadingModel}
 					<button
@@ -27,7 +28,7 @@
 						onclick={() => serverStore.fetch()}
 					>
 						<RefreshCw class="h-3 w-3 {serverStore.loading ? 'animate-spin' : ''}" />
-						{serverStore.loading ? 'Retrying...' : 'Retry'}
+						{serverStore.loading ? t('Retrying...') : t('Retry')}
 					</button>
 				{/if}
 			</Alert.Title>

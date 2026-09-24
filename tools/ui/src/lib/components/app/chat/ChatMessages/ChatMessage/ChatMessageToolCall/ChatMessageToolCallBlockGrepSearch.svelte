@@ -2,6 +2,7 @@
 	import { parseGrepSearchMeta } from './parsers/grep-search';
 	import ToolCallBlock from './ToolCallBlock.svelte';
 	import { XCircle } from '@lucide/svelte';
+	import { t } from '$lib/i18n';
 	import { toolsStore } from '$lib/stores';
 	import type { AgenticSection } from '$lib/types';
 	import { abbreviateHome } from '$lib/utils';
@@ -22,11 +23,11 @@
 <ToolCallBlock {isStreaming} meta={grepMeta} {onToggle} {open} {section}>
 	{#snippet titleSnippet()}
 		{#if grepMeta}
-			<span class="text-muted-foreground">Search for&nbsp;</span>
+			<span class="text-muted-foreground">{t('Search for')}&nbsp;</span>
 
 			<span class="font-mono">{grepMeta.pattern}</span>
 
-			<span class="text-muted-foreground">&nbsp;in&nbsp;</span>
+			<span class="text-muted-foreground">&nbsp;{t('in')}&nbsp;</span>
 
 			<span class="font-mono" title={grepMeta.path}>{abbreviateHome(grepMeta.path, home)}</span>
 		{/if}
@@ -35,7 +36,7 @@
 	{#snippet children(meta, ctx)}
 		{#if ctx.isPending}
 			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
-				Searching...
+				{t('Searching...')}
 			</div>
 		{:else if meta?.errorMessage}
 			<div
@@ -63,17 +64,18 @@
 			</div>
 
 			<div class="mt-1.5 text-xs text-muted-foreground/70 italic">
-				Total matches: <span class="font-mono">{meta.totalMatches ?? meta.matches.length}</span>
+				{t('Total matches:')}
+				<span class="font-mono">{meta.totalMatches ?? meta.matches.length}</span>
 
 				{#if meta.showLineNumbers}
-					&nbsp;<span class="italic">(with line numbers)</span>
+					&nbsp;<span class="italic">{t('(with line numbers)')}</span>
 				{/if}
 			</div>
 		{:else}
-			<div class="text-xs text-muted-foreground/70 italic">No matches</div>
+			<div class="text-xs text-muted-foreground/70 italic">{t('No matches')}</div>
 
 			<div class="mt-1.5 text-xs text-muted-foreground/70 italic">
-				Total matches: <span class="font-mono">{meta?.totalMatches ?? 0}</span>
+				{t('Total matches:')} <span class="font-mono">{meta?.totalMatches ?? 0}</span>
 			</div>
 		{/if}
 	{/snippet}

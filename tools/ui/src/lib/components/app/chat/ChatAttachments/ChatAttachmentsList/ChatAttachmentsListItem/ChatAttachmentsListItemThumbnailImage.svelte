@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { X } from '@lucide/svelte';
 	import { ActionIcon } from '$lib/components/app';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		class?: string;
@@ -38,7 +39,7 @@
 >
 	{#if onclick}
 		<button
-			aria-label="Preview {name}"
+			aria-label={t('Preview {name}', { name })}
 			class="block h-full w-full rounded-lg focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
 			{onclick}
 			type="button"
@@ -58,7 +59,7 @@
 				icon={X}
 				onclick={() => onRemove?.(id)}
 				stopPropagationOnClick
-				tooltip="Remove"
+				tooltip={t('Remove')}
 			/>
 		</div>
 	{/if}

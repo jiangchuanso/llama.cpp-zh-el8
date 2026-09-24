@@ -2,6 +2,7 @@
 	import { ArrowUp, Edit, Trash2 } from '@lucide/svelte';
 	import { ActionIcon, ChatMessageEditForm, ChatMessageUserBubble } from '$lib/components/app';
 	import { useChatMessageEditContext } from '$lib/hooks/use-chat-message-edit-context.svelte';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		class?: string;
@@ -29,7 +30,7 @@
 </script>
 
 <div
-	aria-label="Pending user message"
+	aria-label={t('Pending user message')}
 	class="group flex flex-col items-end gap-3 transition-opacity hover:opacity-80 md:gap-2 {className} sticky bottom-32"
 	role="group"
 >
@@ -50,11 +51,15 @@
 					<div
 						class="pointer-events-auto inset-0 flex items-center gap-1 opacity-0 transition-all duration-150 group-hover:opacity-100"
 					>
-						<ActionIcon icon={Edit} onclick={editCtx.handleEdit} tooltip="Edit" />
+						<ActionIcon icon={Edit} onclick={editCtx.handleEdit} tooltip={t('Edit')} />
 
-						<ActionIcon icon={Trash2} onclick={onDelete} tooltip="Delete" />
+						<ActionIcon icon={Trash2} onclick={onDelete} tooltip={t('Delete')} />
 
-						<ActionIcon icon={ArrowUp} onclick={onSendImmediately} tooltip="Send immediately" />
+						<ActionIcon
+							icon={ArrowUp}
+							onclick={onSendImmediately}
+							tooltip={t('Send immediately')}
+						/>
 					</div>
 				</div>
 			</div>

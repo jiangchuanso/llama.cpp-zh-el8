@@ -3,6 +3,7 @@
 	import { ICON_CLASS_DEFAULT, UI_DATA_ATTRS } from '$lib/constants';
 	import { BooleanString } from '$lib/enums';
 	import { useScrollCarousel } from '$lib/hooks/use-scroll-carousel.svelte';
+	import { t } from '$lib/i18n';
 	import type { SettingsSection, SettingsSectionTitle } from '$lib/types';
 	import { onMount, tick } from 'svelte';
 
@@ -53,7 +54,7 @@
 				>
 					<section.icon class="{ICON_CLASS_DEFAULT} flex-shrink-0" />
 
-					<span>{section.title}</span>
+					<span>{t(section.title)}</span>
 				</button>
 			{/each}
 		</ScrollCarousel>

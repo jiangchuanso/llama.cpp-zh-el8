@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { PdfViewMode } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import type { ChatAttachmentDisplayItem } from '$lib/types';
 	import { getLanguageFromFilename } from '$lib/utils';
 	import { convertPDFToImage } from '$lib/utils/browser-only';
@@ -72,7 +73,7 @@
 				throw new Error('No PDF file available for conversion');
 			}
 		} catch (error) {
-			pdfImagesError = error instanceof Error ? error.message : 'Failed to load PDF images';
+			pdfImagesError = error instanceof Error ? error.message : t('Failed to load PDF images');
 		} finally {
 			pdfImagesLoading = false;
 		}
@@ -93,7 +94,7 @@
 		variant={pdfViewMode === PdfViewMode.TEXT ? 'default' : 'outline'}
 	>
 		<FileText class="mr-1 {ICON_CLASS_DEFAULT}" />
-		Text
+		{t('Text')}
 	</Button>
 
 	<Button
@@ -109,7 +110,7 @@
 		{:else}
 			<Eye class="mr-1 {ICON_CLASS_DEFAULT}" />
 		{/if}
-		Pages
+		{t('Pages')}
 	</Button>
 </div>
 
@@ -117,20 +118,20 @@
 	<Alert.Root class="mb-4 max-w-4xl">
 		<Info class={ICON_CLASS_DEFAULT} />
 
-		<Alert.Title>Preview only</Alert.Title>
+		<Alert.Title>{t('Preview only')}</Alert.Title>
 
 		<Alert.Description>
 			<span class="inline-flex">
-				The selected model does not support vision. Only the extracted
+				{t('The selected model does not support vision. Only the extracted')}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<span
 					class="mx-1 cursor-pointer underline"
 					onclick={() => (pdfViewMode = PdfViewMode.TEXT)}
 				>
-					text
+					{t('text')}
 				</span>
-				will be sent to the model.
+				{t('will be sent to the model.')}
 			</span>
 		</Alert.Description>
 	</Alert.Root>
@@ -143,7 +144,7 @@
 				class="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-white border-t-transparent"
 			></div>
 
-			<p class="text-white/70">Converting PDF to images...</p>
+			<p class="text-white/70">{t('Converting PDF to images...')}</p>
 		</div>
 	</div>
 {:else if pdfImagesError}
@@ -151,16 +152,20 @@
 		<div class="text-center">
 			<FileText class="mx-auto mb-4 h-16 w-16 text-white/50" />
 
-			<p class="mb-4 text-white/70">Failed to load PDF images</p>
+			<p class="mb-4 text-white/70">{t('Failed to load PDF images')}</p>
 
 			<p class="text-sm text-white/50">{pdfImagesError}</p>
 		</div>
 	</div>
 {:else if pdfImages.length > 0}
 	{#each pdfImages as image, index (image)}
-		<p class="mb-2 text-sm text-white/50">Page {index + 1}</p>
+		<p class="mb-2 text-sm text-white/50">{t('Page {number}', { number: index + 1 })}</p>
 
-		<img alt="PDF Page {index + 1}" class="mx-auto max-w-[85vw] rounded-lg shadow-lg" src={image} />
+		<img
+			alt={t('PDF Page {number}', { number: index + 1 })}
+			class="mx-auto max-w-[85vw] rounded-lg shadow-lg"
+			src={image}
+		/>
 
 		<div class="h-4"></div>
 	{/each}
@@ -169,7 +174,7 @@
 		<div class="text-center">
 			<FileText class="mx-auto mb-4 h-16 w-16 text-white/50" />
 
-			<p class="text-white/70">No PDF pages available</p>
+			<p class="text-white/70">{t('No PDF pages available')}</p>
 		</div>
 	</div>
 {/if}

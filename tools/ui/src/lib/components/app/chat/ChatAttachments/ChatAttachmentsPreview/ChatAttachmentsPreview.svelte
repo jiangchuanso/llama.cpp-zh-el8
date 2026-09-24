@@ -6,6 +6,7 @@
 		ChatAttachmentsPreviewThumbnailStrip
 	} from '$lib/components/app';
 	import { UI_DATA_ATTRS } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 	import {
 		createBase64DataUrl,
@@ -102,7 +103,7 @@
 		currentItem?.name ||
 			currentItem?.uploadedFile?.name ||
 			currentItem?.attachment?.name ||
-			'Unknown File'
+			t('Unknown File')
 	);
 	let isAudio = $derived(
 		currentItem ? isAudioFile(currentItem.attachment, currentItem.uploadedFile) : false

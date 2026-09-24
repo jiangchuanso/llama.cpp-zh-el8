@@ -12,6 +12,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { HealthCheckStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { HealthCheckState, MCPServerSettingsEntry } from '$lib/types';
 	import { tick } from 'svelte';
@@ -188,7 +189,7 @@
 			{:else if protocolVersion}
 				<div class="flex flex-wrap items-center gap-1">
 					<span class="text-[10px] text-muted-foreground">
-						Protocol version: {protocolVersion}
+						{t('Protocol version:')} {protocolVersion}
 					</span>
 				</div>
 			{/if}

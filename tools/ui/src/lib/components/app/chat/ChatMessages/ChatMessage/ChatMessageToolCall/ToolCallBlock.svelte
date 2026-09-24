@@ -13,6 +13,7 @@
 	import { CollapsibleContentBlock } from '$lib/components/app';
 	import { ICON_CLASS_DEFAULT, ICON_CLASS_SPIN } from '$lib/constants';
 	import { AgenticSectionType } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { AgenticSection, ToolUiEntry } from '$lib/types';
 	import { getToolUi } from '$lib/utils';
@@ -103,9 +104,9 @@
 	function subtitleFor(errorMessage?: string): string | undefined {
 		if (showSpinner) return undefined;
 
-		if (errorMessage) return 'failed';
+		if (errorMessage) return t('failed');
 
-		if (isStreamingCall && !isStreaming) return 'incomplete';
+		if (isStreamingCall && !isStreaming) return t('incomplete');
 
 		return undefined;
 	}
@@ -121,7 +122,7 @@
 	{onToggle}
 	{open}
 	{subtitle}
-	{title}
+	title={title ? t(title) : title}
 	{titleSnippet}
 >
 	{@render children(meta, {

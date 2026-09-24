@@ -10,6 +10,7 @@
 		MODALITY_LABELS
 	} from '$lib/constants';
 	import { ModelCapability, ModelModality } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { ModelsService } from '$lib/services/models.service';
 	import { settingsStore } from '$lib/stores';
 	import type { ModelCapabilities, ModelModalities } from '$lib/types/models';
@@ -139,7 +140,7 @@
 						</Tooltip.Trigger>
 
 						<Tooltip.Content>
-							<p>{CAPABILITY_LABELS[capability]}</p>
+							<p>{t(CAPABILITY_LABELS[capability])}</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				{/each}
@@ -153,7 +154,7 @@
 						</Tooltip.Trigger>
 
 						<Tooltip.Content>
-							<p>{MODALITY_LABELS[modality]}</p>
+							<p>{t(MODALITY_LABELS[modality])}</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				{/each}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { CODE_BLOCK, CODE_TOKEN_ATTR, UI_DATA_ATTRS } from '$lib/constants';
 	import { BooleanString, ChatFormInputRichTokenKind, ColorMode } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { deviceStore } from '$lib/stores';
 	import type { ChatFormInputRichToken } from '$lib/types';
 	import type { SourceHistoryEntry } from '$lib/utils';
@@ -810,13 +811,13 @@
 		bind:this={rootElement}
 		aria-disabled={disabled}
 		aria-multiline="true"
-		aria-placeholder={placeholder}
+		aria-placeholder={t(placeholder)}
 		class={[
 			'chat-form-input-rich text-md min-h-12 w-full overflow-y-auto whitespace-pre-wrap wrap-break-word border-0 bg-transparent p-0 leading-6 outline-none focus-visible:ring-0 focus-visible:ring-offset-0',
 			disabled && 'cursor-not-allowed'
 		]}
 		contenteditable={!disabled}
-		data-placeholder={placeholder}
+		data-placeholder={t(placeholder)}
 		oncompositionend={handleCompositionEnd}
 		oncompositionstart={handleCompositionStart}
 		oncopy={handleCopy}

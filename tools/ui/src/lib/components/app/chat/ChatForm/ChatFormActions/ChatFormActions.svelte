@@ -12,6 +12,7 @@
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { setChatFormActionsContext } from '$lib/contexts';
 	import { FileTypeCategory, MessageRole } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { ChatService } from '$lib/services';
 	import { chatStore, conversationsStore, settingsStore } from '$lib/stores';
 	import { getFileTypeCategory } from '$lib/utils';
@@ -180,11 +181,11 @@
 			class="group h-8 w-8 rounded-full p-0"
 			onclick={() =>
 				ChatService.stopReasoning(activeMessage?.completionId ?? '', activeMessage?.model)}
-			title="Skip reasoning"
+			title={t('Skip reasoning')}
 			type="button"
 			variant="secondary"
 		>
-			<span class="sr-only">Skip reasoning</span>
+			<span class="sr-only">{t('Skip reasoning')}</span>
 
 			<SkipForward
 				class="{ICON_CLASS_DEFAULT} stroke-muted-foreground group-hover:stroke-foreground"
@@ -199,7 +200,7 @@
 			type="button"
 			variant="secondary"
 		>
-			<span class="sr-only">Stop</span>
+			<span class="sr-only">{t('Stop')}</span>
 
 			<Square
 				class="h-8 w-8 fill-muted-foreground stroke-muted-foreground group-hover:fill-destructive group-hover:stroke-destructive hover:fill-destructive hover:stroke-destructive"

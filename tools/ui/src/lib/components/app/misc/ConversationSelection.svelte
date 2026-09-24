@@ -5,6 +5,7 @@
 	import { ScrollArea } from '$lib/components/ui/scroll-area';
 	import { UI_DATA_ATTRS } from '$lib/constants';
 	import { useMarqueeSelection } from '$lib/hooks/use-marquee-selection.svelte';
+	import { t } from '$lib/i18n';
 	import { SvelteSet } from 'svelte/reactivity';
 
 	interface Props {
@@ -34,7 +35,7 @@
 
 	let filteredConversations = $derived(
 		conversations.filter((conv) => {
-			const name = conv.name || 'Untitled conversation';
+			const name = conv.name || t('Untitled conversation');
 
 			return name.toLowerCase().includes(searchQuery.toLowerCase());
 		})
@@ -95,9 +96,12 @@
 
 	<div class="flex items-center justify-between text-sm text-muted-foreground">
 		<span>
-			{selectedIds.size} of {conversations.length} selected
+			{t('{selected} of {total} selected', {
+				selected: selectedIds.size,
+				total: conversations.length
+			})}
 			{#if searchQuery}
-				({filteredConversations.length} shown)
+				{t('({count} shown)', { count: filteredConversations.length })}
 			{/if}
 		</span>
 	</div>
@@ -115,9 +119,9 @@
 							/>
 						</th>
 
-						<th class="p-3 text-left text-sm font-medium">Conversation Name</th>
+						<th class="p-3 text-left text-sm font-medium">{t('Conversation Name')}</th>
 
-						<th class="w-32 p-3 text-left text-sm font-medium">Messages</th>
+						<th class="w-32 p-3 text-left text-sm font-medium">{t('Messages')}</th>
 					</tr>
 				</thead>
 
@@ -126,9 +130,9 @@
 						<tr>
 							<td class="p-8 text-center text-sm text-muted-foreground" colspan="3">
 								{#if searchQuery}
-									No conversations found matching "{searchQuery}"
+									{t('No conversations found matching "{query}"', { query: searchQuery })}
 								{:else}
-									No conversations available
+									{t('No conversations available')}
 								{/if}
 							</td>
 						</tr>
@@ -155,8 +159,11 @@
 								</td>
 
 								<td class="p-3 text-sm">
-									<div class="max-w-68 truncate" title={conv.name || 'Untitled conversation'}>
-										{conv.name || 'Untitled conversation'}
+									<div
+										class="max-w-68 truncate"
+										title={conv.name || t('Untitled conversation')}
+									>
+										{conv.name || t('Untitled conversation')}
 									</div>
 								</td>
 
@@ -172,10 +179,10 @@
 	</div>
 
 	<div class="flex justify-end gap-2">
-		<Button onclick={handleCancel} variant="outline">Cancel</Button>
+		<Button onclick={handleCancel} variant="outline">{t('Cancel')}</Button>
 
 		<Button disabled={selectedIds.size === 0} onclick={handleConfirm}>
-			{mode === 'export' ? 'Export' : 'Import'} ({selectedIds.size})
+			{t(mode === 'export' ? 'Export' : 'Import')} ({selectedIds.size})
 		</Button>
 	</div>
 </div>

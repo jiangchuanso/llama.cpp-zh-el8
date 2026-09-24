@@ -9,6 +9,7 @@
 	} from '$lib/components/app/chat';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { KeyboardKey } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { GetPromptResult, MCPPromptInfo, MCPServerSettingsEntry } from '$lib/types';
 	import { debounce, uuid } from '$lib/utils';
@@ -360,7 +361,7 @@
 	class={className}
 	{onClose}
 	onKeydown={handleKeydown}
-	srLabel="Open prompt picker"
+	srLabel={t('Open prompt picker')}
 >
 	{#if selectedPrompt}
 		{@const prompt = selectedPrompt}
@@ -377,7 +378,7 @@
 				{#snippet titleExtra()}
 					{#if prompt.arguments?.length}
 						<Badge variant="secondary">
-							{prompt.arguments.length} arg{prompt.arguments.length > 1 ? 's' : ''}
+							{t('{count} args', { count: prompt.arguments.length })}
 						</Badge>
 					{/if}
 				{/snippet}
@@ -403,12 +404,12 @@
 	{:else}
 		<ChatFormPickerList
 			bind:searchQuery={internalSearchQuery}
-			emptyMessage="No MCP prompts available"
+			emptyMessage={t('No MCP prompts available')}
 			{isLoading}
 			itemKey={(prompt) => prompt.serverName + ':' + prompt.name}
 			items={filteredPrompts}
 			{scrollTrigger}
-			searchPlaceholder="Search prompts..."
+			searchPlaceholder={t('Search prompts...')}
 			{selectedIndex}
 			{showSearchInput}
 		>

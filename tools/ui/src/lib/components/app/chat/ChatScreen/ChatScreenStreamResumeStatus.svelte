@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Loader2 } from '@lucide/svelte';
 	import { StreamConnectionState } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { chatStore } from '$lib/stores';
 
 	let state = $derived(chatStore.streamConnectionState);
@@ -14,6 +15,6 @@
 	>
 		<Loader2 class="h-3.5 w-3.5 animate-spin" />
 
-		<span>Reconnecting to the stream...</span>
+		<span>{t('Reconnecting to the stream...')}</span>
 	</div>
 {/if}

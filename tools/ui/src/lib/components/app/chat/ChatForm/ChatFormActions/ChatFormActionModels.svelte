@@ -118,19 +118,15 @@
 	$effect(() => {
 		if (!isRouter) {
 			isSelectedModelInCache = true;
-		} else if (conversationModel) {
-			isSelectedModelInCache = modelsStore.models.some(
-				(option) => option.model === conversationModel
-			);
-		} else {
-			const currentModelId = modelsStore.selectedModelId;
 
-			if (!currentModelId) {
-				isSelectedModelInCache = false;
-			} else {
-				isSelectedModelInCache = modelsStore.models.some((option) => option.id === currentModelId);
-			}
+			return;
 		}
+
+		// validate the model the trigger displays, which is the one the next send
+		// resolves to (selected model first, conversation model as the fallback)
+		isSelectedModelInCache = selectorModel
+			? modelsStore.models.some((option) => option.model === selectorModel)
+			: false;
 	});
 
 	$effect(() => {

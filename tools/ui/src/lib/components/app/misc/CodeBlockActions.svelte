@@ -2,6 +2,7 @@
 	import { Eye } from '@lucide/svelte';
 	import { ActionIcon, ActionIconCopyToClipboard } from '$lib/components/app';
 	import { FileTypeText } from '$lib/enums';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		code: string;
@@ -17,7 +18,7 @@
 
 <div class="code-block-actions">
 	<ActionIconCopyToClipboard
-		ariaLabel={disabled ? 'Code incomplete' : 'Copy code'}
+		ariaLabel={disabled ? t('Code incomplete') : t('Copy code')}
 		canCopy={!disabled}
 		text={code}
 	/>
@@ -27,7 +28,7 @@
 			{disabled}
 			icon={Eye}
 			onclick={() => onPreview!(code, language)}
-			tooltip={disabled ? 'Code incomplete' : 'Preview code'}
+			tooltip={disabled ? t('Code incomplete') : t('Preview code')}
 		/>
 	{/if}
 </div>

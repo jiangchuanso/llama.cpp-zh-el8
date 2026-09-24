@@ -4,6 +4,7 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import { CLI_FLAGS, HEADERS, MCP_SERVER_URL_PLACEHOLDER } from '$lib/constants';
 	import { UrlProtocol } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { KeyValuePair } from '$lib/types';
 	import { parseHeadersToArray, serializeHeaders } from '$lib/utils';
@@ -141,7 +142,7 @@
 <div class="grid gap-2">
 	<div class="mb-4">
 		<label class="mb-2 block text-xs font-medium select-none" for="server-url-{id}">
-			Server URL <span class="text-destructive">*</span>
+			{t('Server URL')} <span class="text-destructive">*</span>
 		</label>
 
 		<Input
@@ -161,13 +162,13 @@
 
 	<div class="mb-4">
 		<label class="mb-2 block text-xs font-medium select-none" for="server-name-{id}">
-			Display name
+			{t('Display name')}
 		</label>
 
 		<Input
 			id="server-name-{id}"
 			oninput={(e) => onNameChange?.(e.currentTarget.value)}
-			placeholder={namePlaceholder}
+			placeholder={t(namePlaceholder)}
 			type="text"
 			value={name}
 		/>
@@ -182,7 +183,7 @@
 		/>
 
 		<span class="text-xs text-muted-foreground">
-			Authorization{#if required}
+			{t('Authorization')}{#if required}
 				<span class="text-destructive">*</span>{/if}
 		</span>
 	</label>
@@ -195,7 +196,7 @@
 				class="pl-16"
 				id="bearer-token-{id}"
 				oninput={(e) => updateBearerToken(e.currentTarget.value)}
-				placeholder="Paste token here"
+				placeholder={t('Paste token here')}
 				type="password"
 				value={bearerToken}
 			/>
@@ -209,19 +210,19 @@
 	{/if}
 
 	<KeyValuePairs
-		addButtonLabel="Add"
+		addButtonLabel={t('Add')}
 		class="mt-3"
-		emptyMessage="No custom headers configured."
-		keyPlaceholder="Header name"
+		emptyMessage={t('No custom headers configured.')}
+		keyPlaceholder={t('Header name')}
 		onPairsChange={(pairs) => {
 			const auth = headerPairs.find(ownedByBearerUi);
 
 			updateHeaderPairs(auth ? [...pairs, auth] : pairs);
 		}}
 		pairs={headerPairs.filter((p) => !ownedByBearerUi(p))}
-		sectionLabel="Custom Headers"
+		sectionLabel={t('Custom Headers')}
 		sectionLabelOptional
-		valuePlaceholder="Value"
+		valuePlaceholder={t('Value')}
 	/>
 
 	{#if !isWebSocket && onUseProxyChange}
@@ -241,16 +242,16 @@
 			/>
 
 			<span>
-				<span class="text-xs text-muted-foreground">Use llama-server proxy</span>
+				<span class="text-xs text-muted-foreground">{t('Use llama-server proxy')}</span>
 
 				<br />
 
 				{#if !mcpStore.isProxyAvailable}
 					<span class="inline-flex gap-0.75 text-xs text-muted-foreground/60"
-						>(Run <pre>llama-server</pre>
-						with
+						>{t('(Run')} <pre>llama-server</pre>
+						{t('with')}
 						<pre>{CLI_FLAGS.MCP_PROXY}</pre>
-						flag)</span
+						{t('flag)')}</span
 					>
 				{/if}
 			</span>

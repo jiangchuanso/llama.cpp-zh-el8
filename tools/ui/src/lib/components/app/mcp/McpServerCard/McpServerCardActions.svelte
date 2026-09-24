@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Pencil, RefreshCw, Trash2 } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		isHealthChecking: boolean;
@@ -13,12 +14,12 @@
 </script>
 
 <div class="flex shrink-0 items-center gap-1">
-	<Button aria-label="Edit" class="h-7 w-7" onclick={onEdit} size="icon" variant="ghost">
+	<Button aria-label={t('Edit')} class="h-7 w-7" onclick={onEdit} size="icon" variant="ghost">
 		<Pencil class="h-3.5 w-3.5" />
 	</Button>
 
 	<Button
-		aria-label="Refresh"
+		aria-label={t('Refresh')}
 		class="h-7 w-7"
 		disabled={isHealthChecking}
 		onclick={onRefresh}
@@ -29,7 +30,7 @@
 	</Button>
 
 	<Button
-		aria-label="Delete"
+		aria-label={t('Delete')}
 		class="hover:text-destructive-foreground h-7 w-7 text-destructive hover:bg-destructive/10"
 		onclick={onDelete}
 		size="icon"

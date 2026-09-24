@@ -24,6 +24,7 @@
 	import { useAttachmentMenu } from '$lib/hooks/use-attachment-menu.svelte';
 	import { useReasoningMenu } from '$lib/hooks/use-reasoning-menu.svelte';
 	import { useToolsPanel } from '$lib/hooks/use-tools-panel.svelte';
+	import { t } from '$lib/i18n';
 	import type { ToolGroup } from '$lib/types';
 	import type { Snippet } from 'svelte';
 
@@ -72,10 +73,10 @@
 
 		<Sheet.Content class="max-h-[85vh] gap-0 overflow-y-auto" side="bottom">
 			<Sheet.Header>
-				<Sheet.Title>Add to chat</Sheet.Title>
+				<Sheet.Title>{t('Add to chat')}</Sheet.Title>
 
 				<Sheet.Description class="sr-only">
-					Add files, system prompt or configure MCP servers
+					{t('Add files, system prompt or configure MCP servers')}
 				</Sheet.Description>
 			</Sheet.Header>
 
@@ -100,7 +101,7 @@
 								<Lightbulb class="{ICON_CLASS_DEFAULT} shrink-0 text-muted-foreground" />
 							{/if}
 
-							<span class="flex-1">Reasoning</span>
+							<span class="flex-1">{t('Reasoning')}</span>
 
 							<span class="text-xs capitalize text-muted-foreground">
 								{reasoning.currentEffort}
@@ -124,7 +125,7 @@
 												<div class="{ICON_CLASS_DEFAULT} shrink-0"></div>
 											{/if}
 
-											<span class="text-sm">{level.label}</span>
+											<span class="text-sm">{t(level.label)}</span>
 										</div>
 
 										{#if tokenLabel}
@@ -149,7 +150,7 @@
 
 						<File class="{ICON_CLASS_DEFAULT} shrink-0" />
 
-						<span class="flex-1">Add files</span>
+						<span class="flex-1">{t('Add files')}</span>
 					</Collapsible.Trigger>
 
 					<Collapsible.Content>
@@ -164,7 +165,7 @@
 									>
 										<item.icon class="{ICON_CLASS_DEFAULT} shrink-0" />
 
-										<span>{item.label}</span>
+										<span>{t(item.label)}</span>
 									</button>
 								{:else if item.disabledTooltip}
 									<Tooltip.Root delayDuration={TOOLTIP_DELAY_DURATION}>
@@ -172,12 +173,12 @@
 											<button class={sheetItemClass} disabled type="button">
 												<item.icon class="{ICON_CLASS_DEFAULT} shrink-0" />
 
-												<span>{item.label}</span>
+												<span>{t(item.label)}</span>
 											</button>
 										</Tooltip.Trigger>
 
 										<Tooltip.Content side="right">
-											<p>{item.disabledTooltip}</p>
+											<p>{t(item.disabledTooltip)}</p>
 										</Tooltip.Content>
 									</Tooltip.Root>
 								{/if}
@@ -193,7 +194,7 @@
 				>
 					<MessageSquare class="{ICON_CLASS_DEFAULT} shrink-0" />
 
-					<span>System Message</span>
+					<span>{t('System Message')}</span>
 				</button>
 
 				{#if toolsPanel.totalToolCount > 0}
@@ -207,10 +208,10 @@
 
 							<PencilRuler class="inline {ICON_CLASS_DEFAULT} shrink-0" />
 
-							<span class="flex-1">Tools</span>
+							<span class="flex-1">{t('Tools')}</span>
 
 							<span class="text-xs text-muted-foreground">
-								{toolsPanel.totalToolCount} tool{toolsPanel.totalToolCount !== 1 ? 's' : ''}
+								{t('{count} tools', { count: toolsPanel.totalToolCount })}
 							</span>
 						</Collapsible.Trigger>
 
@@ -238,7 +239,7 @@
 				>
 					<McpLogo class="inline {ICON_CLASS_DEFAULT} shrink-0" />
 
-					<span>MCP Servers</span>
+					<span>{t('MCP Servers')}</span>
 				</button>
 			</div>
 		</Sheet.Content>
@@ -267,7 +268,7 @@
 			/>
 		{/if}
 
-		<span class="min-w-0 flex-1 truncate text-sm font-medium">{group.label}</span>
+		<span class="min-w-0 flex-1 truncate text-sm font-medium">{t(group.label)}</span>
 
 		<span class="shrink-0 text-xs text-muted-foreground">
 			{enabledCount}/{group.tools.length}

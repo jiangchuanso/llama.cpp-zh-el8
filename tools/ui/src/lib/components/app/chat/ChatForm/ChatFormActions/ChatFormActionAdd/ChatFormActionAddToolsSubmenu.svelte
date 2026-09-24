@@ -6,6 +6,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { CLI_FLAGS, ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { useToolsPanel } from '$lib/hooks/use-tools-panel.svelte';
+	import { t } from '$lib/i18n';
 	import { mcpStore, toolsStore } from '$lib/stores';
 	import type { ToolGroup } from '$lib/types';
 
@@ -17,7 +18,7 @@
 	<DropdownMenu.SubTrigger class="flex cursor-pointer items-center gap-2">
 		<PencilRuler class={ICON_CLASS_DEFAULT} />
 
-		<span>Tools</span>
+		<span>{t('Tools')}</span>
 	</DropdownMenu.SubTrigger>
 
 	<DropdownMenu.SubContent class="w-72 p-0">
@@ -26,7 +27,7 @@
 				<div class="px-3 py-4 text-center text-sm text-muted-foreground">
 					<Loader2 class="mx-auto mb-1 {ICON_CLASS_DEFAULT} animate-spin" />
 
-					Loading tools...
+					{t('Loading tools...')}
 				</div>
 			{:else if toolsStore.isToolsEndpointUnreachable}
 				<div class="grid gap-2.5 px-3 py-4 text-sm text-muted-foreground">
@@ -34,9 +35,10 @@
 						<Info class="mt-0.5 {ICON_CLASS_DEFAULT} shrink-0" />
 
 						<span>
-							Run llama-server with <code>{CLI_FLAGS.TOOLS}</code> flag to enable
+							{t('Run llama-server with')} <code>{CLI_FLAGS.TOOLS}</code>
+							{t('flag to enable')}
 
-							<strong>Server Tools</strong>.
+							<strong>{t('Server Tools')}</strong>.
 						</span>
 					</span>
 
@@ -44,22 +46,27 @@
 						<Info class="mt-0.5 {ICON_CLASS_DEFAULT} shrink-0" />
 
 						<span>
-							{hasMcpServersAvailable ? 'Enable' : 'Add'} MCP Server(s) to access
+							{t(hasMcpServersAvailable ? 'Enable' : 'Add')}
+							{t('MCP Server(s) to access')}
 
-							<strong>MCP Tools</strong>.
+							<strong>{t('MCP Tools')}</strong>.
 						</span>
 					</span>
 				</div>
 			{:else if toolsStore.error}
-				<div class="px-3 py-4 text-center text-sm text-muted-foreground">Failed to load tools</div>
+				<div class="px-3 py-4 text-center text-sm text-muted-foreground">
+					{t('Failed to load tools')}
+				</div>
 			{:else if toolsPanel.noToolsInfoMessage}
 				<div class="flex gap-2 px-3 py-4 text-sm text-muted-foreground">
 					<Info class="mt-0.5 {ICON_CLASS_DEFAULT} shrink-0" />
 
-					<span>{toolsPanel.noToolsInfoMessage}</span>
+					<span>{t(toolsPanel.noToolsInfoMessage)}</span>
 				</div>
 			{:else}
-				<div class="px-3 py-4 text-center text-sm text-muted-foreground">No tools available</div>
+				<div class="px-3 py-4 text-center text-sm text-muted-foreground">
+					{t('No tools available')}
+				</div>
 			{/if}
 		{:else}
 			<div class="max-h-80 overflow-y-auto p-2 pr-1">
@@ -107,7 +114,7 @@
 						/>
 					{/if}
 
-					<span class="truncate">{group.label}</span>
+					<span class="truncate">{t(group.label)}</span>
 				</span>
 
 				<span class="ml-auto shrink-0 text-xs text-muted-foreground">
@@ -130,8 +137,9 @@
 
 				<Tooltip.Content side="right">
 					<p>
-						{checkState.checked ? 'Disable' : 'Enable'}
-						{group.tools.length} tool{group.tools.length !== 1 ? 's' : ''}
+						{t(checkState.checked ? 'Disable {count} tools' : 'Enable {count} tools', {
+							count: group.tools.length
+						})}
 					</p>
 				</Tooltip.Content>
 			</Tooltip.Root>

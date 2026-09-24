@@ -3,6 +3,7 @@
 	import { Package } from '@lucide/svelte';
 	import { ActionIconCopyToClipboard, BadgeInfo } from '$lib/components/app';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { t } from '$lib/i18n';
 	import { modelsStore, serverStore } from '$lib/stores';
 
 	interface Props {
@@ -37,7 +38,7 @@
 		{/if}
 
 		{#if showCopyIcon}
-			<ActionIconCopyToClipboard ariaLabel="Copy model name" text={model || ''} />
+			<ActionIconCopyToClipboard ariaLabel={t('Copy model name')} text={model || ''} />
 		{/if}
 	</BadgeInfo>
 {/snippet}
@@ -53,7 +54,7 @@
 			</Tooltip.Trigger>
 
 			<Tooltip.Content>
-				{onclick ? 'Click for model details' : model}
+				{onclick ? t('Click for model details') : model}
 			</Tooltip.Content>
 		</Tooltip.Root>
 	{:else}

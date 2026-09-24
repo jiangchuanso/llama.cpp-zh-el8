@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SearchInput } from '$lib/components/app';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { t } from '$lib/i18n';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -39,7 +40,7 @@
 	{@render children()}
 
 	{#if isEmpty}
-		<div class="px-2 py-3 text-center text-sm text-muted-foreground">{emptyMessage}</div>
+		<div class="px-2 py-3 text-center text-sm text-muted-foreground">{t(emptyMessage)}</div>
 	{/if}
 </div>
 

@@ -9,6 +9,7 @@
 		gaugePopupClose
 	} from './gauge-popup.svelte';
 	import { useContextGauge } from '$lib/hooks/use-context-gauge.svelte';
+	import { t } from '$lib/i18n';
 	import { formatParameters } from '$lib/utils/formatters';
 
 	const gauge = useContextGauge();
@@ -63,7 +64,7 @@
 	>
 		<div class="flex flex-col gap-2">
 			<div class="flex items-center gap-2">
-				<span class="font-medium">Context</span>
+				<span class="font-medium">{t('Context')}</span>
 
 				<span class="text-muted-foreground">·</span>
 
@@ -91,15 +92,16 @@
 
 				<div class="flex justify-between text-xs text-muted-foreground">
 					<span>
-						<span class={colorLevelTextClass(gauge.colorLevel)}>{gauge.contextPercent}%</span> used
+						<span class={colorLevelTextClass(gauge.colorLevel)}>{gauge.contextPercent}%</span>
+						{t('used')}
 					</span>
 
 					<span>
-						{formatParameters(gauge.contextAvailable ?? 0)} remaining
+						{t('{value} remaining', { value: formatParameters(gauge.contextAvailable ?? 0) })}
 					</span>
 				</div>
 			{:else}
-				<div class="text-xs text-muted-foreground">No context info available</div>
+				<div class="text-xs text-muted-foreground">{t('No context info available')}</div>
 			{/if}
 
 			{#if gauge.hasAnyUsage}

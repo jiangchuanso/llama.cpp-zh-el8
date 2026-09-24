@@ -10,6 +10,7 @@
 import { browser } from '$app/environment';
 import { SETTING_CONFIG_DEFAULT, SETTINGS_KEYS } from '$lib/constants';
 import { ColorMode } from '$lib/enums';
+import { initI18n } from '$lib/i18n';
 import { ParameterSyncService } from '$lib/services/parameter-sync.service';
 import { SettingsService } from '$lib/services/settings.service';
 import { deviceStore } from '$lib/stores/device.svelte';
@@ -129,6 +130,8 @@ class SettingsStore {
 			this.userOverrides.delete(key);
 		}
 
+		initI18n(this.config[SETTINGS_KEYS.LANGUAGE]);
+
 		this.saveConfig();
 	}
 
@@ -198,6 +201,8 @@ class SettingsStore {
 			...data.config
 		};
 
+		initI18n(this.config[SETTINGS_KEYS.LANGUAGE]);
+
 		// Restore user overrides (derived state — may be stale if server defaults differ)
 		this.userOverrides = new Set(data.userOverrides ?? []);
 
@@ -220,6 +225,8 @@ class SettingsStore {
 		try {
 			this.loadConfig();
 			this.migrateLegacyTheme();
+			// Apply persisted UI preferences that live outside the config object
+			initI18n(this.config[SETTINGS_KEYS.LANGUAGE]);
 			// Apply the persisted theme from config on initial load
 			setMode(this.config[SETTINGS_KEYS.THEME] as ColorMode);
 			this.isInitialized = true;
@@ -242,6 +249,8 @@ class SettingsStore {
 	 */
 	resetConfig() {
 		this.config = { ...SETTING_CONFIG_DEFAULT };
+
+		initI18n(this.config[SETTINGS_KEYS.LANGUAGE]);
 
 		this.saveConfig();
 	}
@@ -341,6 +350,10 @@ class SettingsStore {
 	updateConfig<K extends keyof SettingsConfigType>(key: K, value: SettingsConfigType[K]): void {
 		this.config[key] = value;
 
+		if (key === SETTINGS_KEYS.LANGUAGE) {
+			initI18n(value);
+		}
+
 		if (ParameterSyncService.canSyncParameter(key as string)) {
 			const propsDefaults = this.getServerDefaults();
 			const propsDefault = propsDefaults[key as string];
@@ -374,6 +387,10 @@ class SettingsStore {
 	 */
 	updateMultipleConfig(updates: Partial<SettingsConfigType>) {
 		Object.assign(this.config, updates);
+
+		if (SETTINGS_KEYS.LANGUAGE in updates) {
+			initI18n(updates[SETTINGS_KEYS.LANGUAGE]);
+		}
 
 		const propsDefaults = this.getServerDefaults();
 

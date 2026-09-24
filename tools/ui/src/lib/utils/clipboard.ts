@@ -1,4 +1,5 @@
 import { AttachmentType } from '$lib/enums';
+import { t } from '$lib/i18n';
 import type {
 	ClipboardAttachment,
 	ClipboardMcpPromptAttachment,
@@ -29,7 +30,7 @@ export async function copyToClipboard(
 		// Try modern clipboard API first (secure contexts only)
 		if (navigator.clipboard && navigator.clipboard.writeText) {
 			await navigator.clipboard.writeText(text);
-			toast.success(successMessage);
+			toast.success(t(successMessage));
 
 			return true;
 		}
@@ -50,7 +51,7 @@ export async function copyToClipboard(
 		document.body.removeChild(textArea);
 
 		if (successful) {
-			toast.success(successMessage);
+			toast.success(t(successMessage));
 
 			return true;
 		} else {
@@ -58,7 +59,7 @@ export async function copyToClipboard(
 		}
 	} catch (error) {
 		console.error('Failed to copy to clipboard:', error);
-		toast.error(errorMessage);
+		toast.error(t(errorMessage));
 
 		return false;
 	}

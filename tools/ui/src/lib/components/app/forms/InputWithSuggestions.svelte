@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { t } from '$lib/i18n';
 	import { fly } from 'svelte/transition';
 
 	interface Props {
@@ -52,7 +53,7 @@
 		onfocus={onFocus}
 		oninput={(e) => onInput(e.currentTarget.value)}
 		onkeydown={onKeydown}
-		placeholder="Enter {name}"
+		placeholder={t('Enter {name}', { name })}
 		type="text"
 		{value}
 	/>

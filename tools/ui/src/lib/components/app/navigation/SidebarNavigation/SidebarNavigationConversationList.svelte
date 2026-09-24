@@ -3,6 +3,7 @@
 	import SidebarNavigationSearchResults from './SidebarNavigationSearchResults.svelte';
 	import SidebarNavigationSelectionBar from './SidebarNavigationSelectionBar.svelte';
 	import { Pin } from '@lucide/svelte';
+	import { t } from '$lib/i18n';
 	import { buildConversationTree } from '$lib/utils';
 
 	interface Props {
@@ -102,7 +103,7 @@
 				>
 					<Pin class="h-3.5 w-3.5" />
 
-					<span>Pinned</span>
+					<span>{t('Pinned')}</span>
 				</div>
 			</div>
 
@@ -141,7 +142,7 @@
 				<div
 					class="text-muted-foreground flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium"
 				>
-					Recent conversations
+					{t('Recent conversations')}
 				</div>
 			{/if}
 
@@ -177,7 +178,7 @@
 					{#if unpinnedConversations.length === 0}
 						<li class="px-2 py-4 text-center">
 							<p class="mb-4 p-4 text-sm text-muted-foreground">
-								{recentEmptyMessage}
+								{t(recentEmptyMessage)}
 							</p>
 						</li>
 					{/if}

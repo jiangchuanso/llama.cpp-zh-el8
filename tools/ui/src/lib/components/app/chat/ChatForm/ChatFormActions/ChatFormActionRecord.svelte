@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		class?: string;
@@ -34,7 +35,7 @@
 				onclick={onMicClick}
 				type="button"
 			>
-				<span class="sr-only">{isRecording ? 'Stop recording' : 'Start recording'}</span>
+				<span class="sr-only">{isRecording ? t('Stop recording') : t('Start recording')}</span>
 
 				{#if isRecording}
 					<Square class="{ICON_CLASS_DEFAULT} animate-pulse fill-white" />
@@ -46,7 +47,7 @@
 
 		{#if !hasAudioModality}
 			<Tooltip.Content>
-				<p>Current model does not support audio</p>
+				<p>{t('Current model does not support audio')}</p>
 			</Tooltip.Content>
 		{/if}
 	</Tooltip.Root>

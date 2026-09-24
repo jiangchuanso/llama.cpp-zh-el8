@@ -4,6 +4,7 @@ import { isSvgMimeType, svgBase64UrlToPngDataURL } from './svg-to-png';
 import { isWebpMimeType, webpBase64UrlToPngDataURL } from './webp-to-png';
 import { SETTINGS_KEYS } from '$lib/constants';
 import { FileTypeCategory } from '$lib/enums';
+import { t } from '$lib/i18n';
 import { modelsStore } from '$lib/stores/models/index.svelte';
 import { settingsStore } from '$lib/stores/settings/index.svelte';
 import { getFileTypeCategory } from '$lib/utils';
@@ -113,12 +114,12 @@ export async function processFilesToChatUploaded(
 				const currentConfig = settingsStore.config;
 
 				if (hasVisionSupport && !currentConfig.pdfAsImage) {
-					toast.info(`You can enable parsing PDF as images with vision models.`, {
+					toast.info(t('You can enable parsing PDF as images with vision models.'), {
 						action: {
-							label: 'Enable PDF as Images',
+							label: t('Enable PDF as Images'),
 							onClick: () => {
 								settingsStore.updateConfig(SETTINGS_KEYS.PDF_AS_IMAGE, true);
-								toast.success('PDF parsing as images enabled!', {
+								toast.success(t('PDF parsing as images enabled!'), {
 									duration: 3000
 								});
 							}

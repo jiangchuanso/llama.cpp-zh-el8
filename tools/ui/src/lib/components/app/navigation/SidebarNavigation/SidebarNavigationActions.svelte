@@ -12,6 +12,7 @@
 		SIDEBAR_ACTIONS_ITEMS
 	} from '$lib/constants';
 	import { SidebarAction, TooltipSide } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { conversationsStore, deviceStore } from '$lib/stores';
 	import type { Component } from 'svelte';
 	import { onMount } from 'svelte';
@@ -98,7 +99,7 @@
 			bind:value={searchQuery}
 			onClose={handleSearchModeDeactivate}
 			onKeyDown={(e) => e.key === 'Escape' && handleSearchModeDeactivate()}
-			placeholder="Search conversations..."
+			placeholder={t('Search conversations...')}
 		/>
 	</div>
 {:else if isExpandedMode || isOnMobile}
@@ -149,7 +150,7 @@
 
 							{#if showIcons}
 								<span in:fade={itemTransition} out:fade={itemTransition} class="min-w-0 truncate"
-									>{item.tooltip}</span
+									>{t(item.tooltip)}</span
 								>
 							{/if}
 						</span>
@@ -199,7 +200,7 @@
 						iconSize={ICON_CLASS_DEFAULT}
 						onclick={itemOnClick}
 						size="lg"
-						tooltip={item.tooltip}
+						tooltip={t(item.tooltip)}
 						tooltipSide={TooltipSide.RIGHT}
 					/>
 				</div>

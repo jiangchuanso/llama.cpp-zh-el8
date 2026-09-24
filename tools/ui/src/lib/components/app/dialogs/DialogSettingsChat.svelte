@@ -2,6 +2,7 @@
 	import { Settings } from '@lucide/svelte';
 	import { SettingsChat } from '$lib/components/app/settings';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		open?: boolean;
@@ -25,7 +26,7 @@
 			<Dialog.Title class="flex items-center gap-2">
 				<Settings class="h-5 w-5" />
 
-				<span>Settings</span>
+				<span>{t('Settings')}</span>
 			</Dialog.Title>
 		</Dialog.Header>
 

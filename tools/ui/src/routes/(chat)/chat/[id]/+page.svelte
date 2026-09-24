@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { DialogModelNotAvailable } from '$lib/components/app';
 	import { APP_NAME, ROUTES, URL_PARAMS } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { chatStore, conversationsStore, modelsStore } from '$lib/stores';
 
 	let chatId = $derived(page.params.id);
@@ -134,7 +135,7 @@
 </script>
 
 <svelte:head>
-	<title>{conversationsStore.activeConversation?.name || 'Chat'} - {APP_NAME}</title>
+	<title>{conversationsStore.activeConversation?.name || t('Chat')} - {APP_NAME}</title>
 </svelte:head>
 
 <DialogModelNotAvailable

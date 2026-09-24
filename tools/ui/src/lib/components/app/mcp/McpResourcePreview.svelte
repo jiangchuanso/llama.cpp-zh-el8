@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { MimeTypeApplication, MimeTypeText } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { MCPResourceContent, MCPResourceInfo } from '$lib/types';
 	import {
@@ -79,7 +80,7 @@
 		<div class="flex flex-col items-center justify-center gap-2 py-8 text-muted-foreground">
 			<FileText class="h-8 w-8 opacity-50" />
 
-			<span class="text-sm">Select a resource to preview</span>
+			<span class="text-sm">{t('Select a resource to preview')}</span>
 		</div>
 	{:else}
 		<div class="flex items-start justify-between gap-2">
@@ -95,7 +96,7 @@
 
 			<div class="flex items-center gap-1">
 				<ActionIconCopyToClipboard
-					ariaLabel="Copy content"
+					ariaLabel={t('Copy content')}
 					canCopy={!isLoading && !!getResourceTextContent(content)}
 					text={getResourceTextContent(content)}
 				/>
@@ -105,7 +106,7 @@
 					disabled={isLoading || !getResourceTextContent(content)}
 					onclick={handleDownload}
 					size="sm"
-					title="Download content"
+					title={t('Download content')}
 					variant="ghost"
 				>
 					<Download class="h-3.5 w-3.5" />
@@ -122,7 +123,7 @@
 				<div class="flex flex-col items-center justify-center gap-2 py-8 text-red-500">
 					<AlertCircle class="h-6 w-6" />
 
-					<span class="text-sm">{error}</span>
+					<span class="text-sm">{t(error)}</span>
 				</div>
 			{:else if content}
 				{@const textContent = getResourceTextContent(content)}
@@ -135,7 +136,7 @@
 				{#each blobContent as blob (blob.uri)}
 					{#if isImageMimeType(blob.mimeType ?? MimeTypeApplication.OCTET_STREAM)}
 						<img
-							alt="Resource content"
+							alt={t('Resource content')}
 							class="max-w-full rounded"
 							src={createBase64DataUrl(
 								blob.mimeType ?? MimeTypeApplication.OCTET_STREAM,
@@ -146,13 +147,19 @@
 						<div class="flex items-center gap-2 rounded bg-muted p-2 text-sm text-muted-foreground">
 							<FileText class={ICON_CLASS_DEFAULT} />
 
-							<span>Binary content ({blob.mimeType || 'unknown type'})</span>
+							<span
+								>{t('Binary content ({type})', {
+									type: blob.mimeType || t('unknown type')
+								})}</span
+							>
 						</div>
 					{/if}
 				{/each}
 
 				{#if !textContent && blobContent.length === 0}
-					<div class="py-4 text-center text-sm text-muted-foreground">No content available</div>
+					<div class="py-4 text-center text-sm text-muted-foreground">
+						{t('No content available')}
+					</div>
 				{/if}
 			{/if}
 		</div>
@@ -165,12 +172,12 @@
 
 				{#if resource.annotations?.priority !== undefined}
 					<span class="rounded bg-muted px-1.5 py-0.5">
-						Priority: {resource.annotations.priority}
+						{t('Priority: {value}', { value: resource.annotations.priority })}
 					</span>
 				{/if}
 
 				<span class="rounded bg-muted px-1.5 py-0.5">
-					Server: {resource.serverName}
+					{t('Server: {name}', { name: resource.serverName })}
 				</span>
 			</div>
 		{/if}

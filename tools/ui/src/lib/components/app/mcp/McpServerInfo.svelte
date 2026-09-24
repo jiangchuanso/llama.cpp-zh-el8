@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ChevronDown, ChevronRight } from '@lucide/svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		instructions?: string;
@@ -23,7 +24,7 @@
 				<ChevronRight class="h-3.5 w-3.5" />
 			{/if}
 
-			<span>Server instructions</span>
+			<span>{t('Server instructions')}</span>
 		</Collapsible.Trigger>
 
 		<Collapsible.Content class="mt-2">

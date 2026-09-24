@@ -2,6 +2,7 @@
 	import { ActionIconCopyToClipboard, BadgesModality } from '$lib/components/app';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Table from '$lib/components/ui/table';
+	import { t } from '$lib/i18n';
 	import { modelsStore, serverStore } from '$lib/stores';
 	import type { ApiLlamaCppServerProps } from '$lib/types';
 	import { formatFileSize, formatNumber, formatParameters } from '$lib/utils';
@@ -84,14 +85,14 @@
 
 		<div class="min-w-0 space-y-6 md:py-4 -mt-4! md:mt-0 pb-4">
 			<div class="min-w-0 space-y-2">
-				<Dialog.Title>Model Information</Dialog.Title>
+				<Dialog.Title>{t('Model Information')}</Dialog.Title>
 
-				<Dialog.Description>Current model details and capabilities</Dialog.Description>
+				<Dialog.Description>{t('Current model details and capabilities')}</Dialog.Description>
 			</div>
 
 			{#if isLoadingModels || isLoadingRouterProps}
 				<div class="flex items-center justify-center py-8">
-					<div class="text-sm text-muted-foreground">Loading model information...</div>
+					<div class="text-sm text-muted-foreground">{t('Loading model information...')}</div>
 				</div>
 			{:else if firstModel}
 				{@const modelMeta = firstModel.meta}
@@ -101,7 +102,7 @@
 					<Table.Root class="hidden table-fixed md:table">
 						<Table.Header>
 							<Table.Row>
-								<Table.Head class="w-[10rem]">Model</Table.Head>
+								<Table.Head class="w-[10rem]">{t('Model')}</Table.Head>
 
 								<Table.Head>
 									<div class="flex min-w-0 items-center gap-2">
@@ -110,7 +111,7 @@
 										</span>
 
 										<ActionIconCopyToClipboard
-											ariaLabel="Copy model name to clipboard"
+											ariaLabel={t('Copy model name to clipboard')}
 											canCopy={!!modelName}
 											text={modelName || ''}
 										/>
@@ -122,7 +123,7 @@
 						<Table.Body>
 							<!-- Model Path -->
 							<Table.Row>
-								<Table.Cell class="h-10 align-middle font-medium">File Path</Table.Cell>
+								<Table.Cell class="h-10 align-middle font-medium">{t('File Path')}</Table.Cell>
 
 								<Table.Cell class="h-10 align-middle font-mono text-xs">
 									<div class="flex min-w-0 items-center gap-2">
@@ -131,7 +132,7 @@
 										</span>
 
 										<ActionIconCopyToClipboard
-											ariaLabel="Copy model path to clipboard"
+											ariaLabel={t('Copy model path to clipboard')}
 											text={serverProps.model_path}
 										/>
 									</div>
@@ -141,35 +142,39 @@
 							<!-- Context Size -->
 							{#if serverProps?.default_generation_settings?.n_ctx}
 								<Table.Row>
-									<Table.Cell class="h-10 align-middle font-medium">Context Size</Table.Cell>
+									<Table.Cell class="h-10 align-middle font-medium">{t('Context Size')}</Table.Cell>
 
 									<Table.Cell
-										>{formatNumber(serverProps.default_generation_settings.n_ctx)} tokens</Table.Cell
+										>{t('{count} tokens', {
+											count: formatNumber(serverProps.default_generation_settings.n_ctx)
+										})}</Table.Cell
 									>
 								</Table.Row>
 							{:else}
 								<Table.Row>
 									<Table.Cell class="h-10 align-middle font-medium text-red-500"
-										>Context Size</Table.Cell
+										>{t('Context Size')}</Table.Cell
 									>
 
-									<Table.Cell class="text-red-500">Not available</Table.Cell>
+									<Table.Cell class="text-red-500">{t('Not available')}</Table.Cell>
 								</Table.Row>
 							{/if}
 
 							<!-- Training Context -->
 							{#if modelMeta?.n_ctx_train}
 								<Table.Row>
-									<Table.Cell class="h-10 align-middle font-medium">Training Context</Table.Cell>
+									<Table.Cell class="h-10 align-middle font-medium">{t('Training Context')}</Table.Cell>
 
-									<Table.Cell>{formatNumber(modelMeta.n_ctx_train)} tokens</Table.Cell>
+									<Table.Cell
+										>{t('{count} tokens', { count: formatNumber(modelMeta.n_ctx_train) })}</Table.Cell
+									>
 								</Table.Row>
 							{/if}
 
 							<!-- Model Size -->
 							{#if modelMeta?.size}
 								<Table.Row>
-									<Table.Cell class="h-10 align-middle font-medium">Model Size</Table.Cell>
+									<Table.Cell class="h-10 align-middle font-medium">{t('Model Size')}</Table.Cell>
 
 									<Table.Cell>{formatFileSize(modelMeta.size)}</Table.Cell>
 								</Table.Row>
@@ -178,7 +183,7 @@
 							<!-- Parameters -->
 							{#if modelMeta?.n_params}
 								<Table.Row>
-									<Table.Cell class="h-10 align-middle font-medium">Parameters</Table.Cell>
+									<Table.Cell class="h-10 align-middle font-medium">{t('Parameters')}</Table.Cell>
 
 									<Table.Cell>{formatParameters(modelMeta.n_params)}</Table.Cell>
 								</Table.Row>
@@ -187,7 +192,7 @@
 							<!-- Embedding Size -->
 							{#if modelMeta?.n_embd}
 								<Table.Row>
-									<Table.Cell class="align-middle font-medium">Embedding Size</Table.Cell>
+									<Table.Cell class="align-middle font-medium">{t('Embedding Size')}</Table.Cell>
 
 									<Table.Cell>{formatNumber(modelMeta.n_embd)}</Table.Cell>
 								</Table.Row>
@@ -196,16 +201,18 @@
 							<!-- Vocabulary Size -->
 							{#if modelMeta?.n_vocab}
 								<Table.Row>
-									<Table.Cell class="align-middle font-medium">Vocabulary Size</Table.Cell>
+									<Table.Cell class="align-middle font-medium">{t('Vocabulary Size')}</Table.Cell>
 
-									<Table.Cell>{formatNumber(modelMeta.n_vocab)} tokens</Table.Cell>
+									<Table.Cell
+										>{t('{count} tokens', { count: formatNumber(modelMeta.n_vocab) })}</Table.Cell
+									>
 								</Table.Row>
 							{/if}
 
 							<!-- Vocabulary Type -->
 							{#if modelMeta?.vocab_type}
 								<Table.Row>
-									<Table.Cell class="align-middle font-medium">Vocabulary Type</Table.Cell>
+									<Table.Cell class="align-middle font-medium">{t('Vocabulary Type')}</Table.Cell>
 
 									<Table.Cell class="align-middle capitalize">{modelMeta.vocab_type}</Table.Cell>
 								</Table.Row>
@@ -213,7 +220,7 @@
 
 							<!-- Total Slots -->
 							<Table.Row>
-								<Table.Cell class="align-middle font-medium">Parallel Slots</Table.Cell>
+								<Table.Cell class="align-middle font-medium">{t('Parallel Slots')}</Table.Cell>
 
 								<Table.Cell>{serverProps.total_slots}</Table.Cell>
 							</Table.Row>
@@ -221,7 +228,7 @@
 							<!-- Modalities -->
 							{#if modalities.length > 0}
 								<Table.Row>
-									<Table.Cell class="align-middle font-medium">Modalities</Table.Cell>
+									<Table.Cell class="align-middle font-medium">{t('Modalities')}</Table.Cell>
 
 									<Table.Cell>
 										<div class="flex flex-wrap gap-1">
@@ -233,7 +240,7 @@
 
 							<!-- Build Info -->
 							<Table.Row>
-								<Table.Cell class="align-middle font-medium">Build Info</Table.Cell>
+								<Table.Cell class="align-middle font-medium">{t('Build Info')}</Table.Cell>
 
 								<Table.Cell class="align-middle font-mono text-xs"
 									>{serverProps.build_info}</Table.Cell
@@ -245,7 +252,7 @@
 								<Table.Row>
 									<Table.Cell class="py-4" colspan={2}>
 										<div class="flex flex-col gap-2">
-											<span class="font-medium">Chat Template</span>
+											<span class="font-medium">{t('Chat Template')}</span>
 
 											<div class="overflow-x-auto rounded-md bg-muted p-4">
 												<pre
@@ -261,13 +268,13 @@
 					<!-- Mobile: stacked layout; long values wrap instead of scrolling the page -->
 					<div class="flex min-w-0 flex-col gap-4 md:hidden">
 						<div class="min-w-0 space-y-1">
-							<div class="text-xs font-medium text-muted-foreground">Model</div>
+							<div class="text-xs font-medium text-muted-foreground">{t('Model')}</div>
 
 							<div class="flex min-w-0 items-start gap-2">
 								<span class="min-w-0 flex-1 break-all font-mono text-xs">{modelName}</span>
 
 								<ActionIconCopyToClipboard
-									ariaLabel="Copy model name to clipboard"
+									ariaLabel={t('Copy model name to clipboard')}
 									canCopy={!!modelName}
 									text={modelName || ''}
 								/>
@@ -275,7 +282,7 @@
 						</div>
 
 						<div class="min-w-0 space-y-1">
-							<div class="text-xs font-medium text-muted-foreground">File Path</div>
+							<div class="text-xs font-medium text-muted-foreground">{t('File Path')}</div>
 
 							<div class="flex min-w-0 items-start gap-2">
 								<span class="min-w-0 flex-1 break-all font-mono text-xs"
@@ -283,7 +290,7 @@
 								>
 
 								<ActionIconCopyToClipboard
-									ariaLabel="Copy model path to clipboard"
+									ariaLabel={t('Copy model path to clipboard')}
 									text={serverProps.model_path}
 								/>
 							</div>
@@ -292,14 +299,19 @@
 						{#if serverProps?.default_generation_settings?.n_ctx}
 							{@render infoRow(
 								'Context Size',
-								`${formatNumber(serverProps.default_generation_settings.n_ctx)} tokens`
+								t('{count} tokens', {
+									count: formatNumber(serverProps.default_generation_settings.n_ctx)
+								})
 							)}
 						{:else}
 							{@render infoRow('Context Size', 'Not available', 'text-red-500')}
 						{/if}
 
 						{#if modelMeta?.n_ctx_train}
-							{@render infoRow('Training Context', `${formatNumber(modelMeta.n_ctx_train)} tokens`)}
+							{@render infoRow(
+							'Training Context',
+							t('{count} tokens', { count: formatNumber(modelMeta.n_ctx_train) })
+						)}
 						{/if}
 
 						{#if modelMeta?.size}
@@ -315,7 +327,10 @@
 						{/if}
 
 						{#if modelMeta?.n_vocab}
-							{@render infoRow('Vocabulary Size', `${formatNumber(modelMeta.n_vocab)} tokens`)}
+							{@render infoRow(
+							'Vocabulary Size',
+							t('{count} tokens', { count: formatNumber(modelMeta.n_vocab) })
+						)}
 						{/if}
 
 						{#if modelMeta?.vocab_type}
@@ -326,7 +341,7 @@
 
 						{#if modalities.length > 0}
 							<div class="min-w-0 space-y-1">
-								<div class="text-xs font-medium text-muted-foreground">Modalities</div>
+								<div class="text-xs font-medium text-muted-foreground">{t('Modalities')}</div>
 
 								<div class="flex flex-wrap gap-1">
 									<BadgesModality {modalities} />
@@ -335,14 +350,14 @@
 						{/if}
 
 						<div class="min-w-0 space-y-1">
-							<div class="text-xs font-medium text-muted-foreground">Build Info</div>
+							<div class="text-xs font-medium text-muted-foreground">{t('Build Info')}</div>
 
 							<span class="block break-all font-mono text-xs">{serverProps.build_info}</span>
 						</div>
 
 						{#if serverProps.chat_template}
 							<div class="min-w-0 space-y-2">
-								<div class="text-xs font-medium text-muted-foreground">Chat Template</div>
+								<div class="text-xs font-medium text-muted-foreground">{t('Chat Template')}</div>
 
 								<div class="overflow-x-auto rounded-md bg-muted p-4">
 									<pre class="font-mono text-xs whitespace-pre">{serverProps.chat_template}</pre>
@@ -353,7 +368,7 @@
 				{/if}
 			{:else if !isLoadingModels}
 				<div class="flex items-center justify-center py-8">
-					<div class="text-sm text-muted-foreground">No model information available</div>
+					<div class="text-sm text-muted-foreground">{t('No model information available')}</div>
 				</div>
 			{/if}
 		</div>
@@ -362,8 +377,8 @@
 
 {#snippet infoRow(label: string, value: string, valueClass: string = '')}
 	<div class="flex items-center justify-between gap-3">
-		<span class="shrink-0 text-xs font-medium text-muted-foreground {valueClass}">{label}</span>
+		<span class="shrink-0 text-xs font-medium text-muted-foreground {valueClass}">{t(label)}</span>
 
-		<span class="text-sm {valueClass}">{value}</span>
+		<span class="text-sm {valueClass}">{t(value)}</span>
 	</div>
 {/snippet}

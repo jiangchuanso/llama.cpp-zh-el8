@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { GroupedModelOptions, ModelItem } from './utils';
 	import { ModelsSelectorOption } from '$lib/components/app';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 
 	interface Props {
@@ -46,7 +47,7 @@
 {/snippet}
 
 {#if groups.loaded.length > 0}
-	<p class={sectionHeaderClass}>Loaded models</p>
+	<p class={sectionHeaderClass}>{t('Loaded models')}</p>
 
 	{#each groups.loaded as item (`loaded-${item.option.id}`)}
 		{@render render(item, false)}
@@ -54,7 +55,7 @@
 {/if}
 
 {#if groups.favorites.length > 0}
-	<p class={sectionHeaderClass}>Favorite models</p>
+	<p class={sectionHeaderClass}>{t('Favorite models')}</p>
 
 	{#each groups.favorites as item (`fav-${item.option.id}`)}
 		{@render render(item, true)}
@@ -62,7 +63,7 @@
 {/if}
 
 {#if groups.available.length > 0}
-	<p class={sectionHeaderClass}>Available models</p>
+	<p class={sectionHeaderClass}>{t('Available models')}</p>
 
 	{#each groups.available as group (group.orgName)}
 		{#if group.orgName}

@@ -14,6 +14,7 @@
 	import { TooltipSide } from '$lib/enums';
 	import { useKeyboardShortcuts } from '$lib/hooks/use-keyboard-shortcuts.svelte';
 	import { useMarqueeSelection } from '$lib/hooks/use-marquee-selection.svelte';
+	import { t } from '$lib/i18n';
 	import { RouterService } from '$lib/services/router.service';
 	import { chatStore, conversationsStore, deviceStore, settingsStore, uiStore } from '$lib/stores';
 	import { buildConversationTree } from '$lib/utils';
@@ -274,7 +275,7 @@
 		if (!conversation) return;
 
 		const confirmed = window.confirm(
-			`Delete "${conversation.name}"? This action cannot be undone.`
+			t('Delete "{name}"? This action cannot be undone.', { name: conversation.name })
 		);
 
 		if (!confirmed) return;
@@ -338,7 +339,7 @@
 				tabindex="0"
 			>
 				<ActionIcon
-					ariaLabel={uiStore.isSidebarExpanded ? 'Go to start' : 'Expand navigation'}
+					ariaLabel={uiStore.isSidebarExpanded ? t('Go to start') : t('Expand navigation')}
 					class="{uiStore.isSidebarExpanded
 						? 'bg-muted! md:bg-foreground/5!'
 						: 'bg-transparent!'} md:h-9 md:w-9 h-10 w-10 rounded-full md:hover:bg-foreground/10! pointer-events-auto"
@@ -349,7 +350,7 @@
 					iconSize="h-4.5 w-4.5 md:h-4 md:w-4"
 					onclick={uiStore.isSidebarExpanded ? undefined : toggleExpandedMode}
 					size="lg"
-					tooltip={uiStore.isSidebarExpanded ? undefined : 'Open Sidebar'}
+					tooltip={uiStore.isSidebarExpanded ? undefined : t('Open Sidebar')}
 					tooltipSide={TooltipSide.RIGHT}
 				/>
 			</div>
@@ -364,13 +365,13 @@
 						: ''}"
 				>
 					<ActionIcon
-						ariaLabel="Collapse navigation"
+						ariaLabel={t('Collapse navigation')}
 						class="backdrop-blur-none md:h-9 md:w-9 h-10 w-10 rounded-full mr-1 hover:bg-accent!"
 						icon={deviceStore.isMobile ? X : PanelLeftClose}
 						iconSize="h-4.5 w-4.5 md:h-4 md:w-4"
 						onclick={toggleExpandedMode}
 						size="lg"
-						tooltip="Close Sidebar"
+						tooltip={t('Close Sidebar')}
 						tooltipSide={TooltipSide.LEFT}
 					/>
 				</div>

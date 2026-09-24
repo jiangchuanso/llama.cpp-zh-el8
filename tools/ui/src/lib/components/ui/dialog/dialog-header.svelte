@@ -1,6 +1,7 @@
 <script lang="ts">
 	import XIcon from '@lucide/svelte/icons/x';
 	import { cn, type WithElementRef } from '$lib/components/ui/utils';
+	import { t } from '$lib/i18n';
 	import { Dialog as DialogPrimitive } from 'bits-ui';
 	import type { HTMLAttributes } from 'svelte/elements';
 
@@ -37,7 +38,7 @@
 		>
 			<XIcon />
 
-			<span class="sr-only">Close</span>
+			<span class="sr-only">{t('Close')}</span>
 		</DialogPrimitive.Close>
 	{/if}
 </div>

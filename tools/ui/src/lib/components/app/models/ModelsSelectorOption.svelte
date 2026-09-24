@@ -13,6 +13,7 @@
 	import { ActionIcon, ModelId } from '$lib/components/app';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { ServerModelStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 	import type { ModelOption } from '$lib/types/models';
 	import { modelLoadFraction, modelLoadProgressText } from '$lib/utils';
@@ -107,7 +108,7 @@
 					icon={HeartOff}
 					iconSize="h-2.5 w-2.5"
 					onclick={() => modelsStore.toggleFavorite(option.model)}
-					tooltip="Remove from favorites"
+					tooltip={t('Remove from favorites')}
 				/>
 			{:else}
 				<ActionIcon
@@ -115,7 +116,7 @@
 					icon={Heart}
 					iconSize="h-2.5 w-2.5"
 					onclick={() => modelsStore.toggleFavorite(option.model)}
-					tooltip="Add to favorites"
+					tooltip={t('Add to favorites')}
 				/>
 			{/if}
 
@@ -126,7 +127,7 @@
 					icon={Info}
 					iconSize="h-2.5 w-2.5"
 					onclick={() => onInfoClick(option.model)}
-					tooltip="Model information"
+					tooltip={t('Model information')}
 				/>
 			{/if}
 		</div>
@@ -148,7 +149,7 @@
 						iconSize="h-2.5 w-2.5"
 						onclick={() => modelsStore.status.load(option.model)}
 						stopPropagationOnClick
-						tooltip="Retry loading model"
+						tooltip={t('Retry loading model')}
 					/>
 				</div>
 			</div>
@@ -167,7 +168,7 @@
 							e?.stopPropagation();
 							modelsStore.status.unload(option.model);
 						}}
-						tooltip="Unload model"
+						tooltip={t('Unload model')}
 					/>
 				</div>
 			</div>
@@ -184,7 +185,7 @@
 						iconSize="h-2.5 w-2.5"
 						onclick={() => modelsStore.status.unload(option.model)}
 						stopPropagationOnClick
-						tooltip="Unload model"
+						tooltip={t('Unload model')}
 					/>
 				</div>
 			</div>
@@ -201,7 +202,7 @@
 						iconSize="h-2.5 w-2.5"
 						onclick={() => modelsStore.status.load(option.model)}
 						stopPropagationOnClick
-						tooltip="Load model"
+						tooltip={t('Load model')}
 					/>
 				</div>
 			</div>

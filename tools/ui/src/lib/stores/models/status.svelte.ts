@@ -8,6 +8,7 @@
  */
 
 import { ServerModelsSseEventType, ServerModelStatus } from '$lib/enums';
+import { t } from '$lib/i18n';
 import { ModelsService } from '$lib/services/models.service';
 import type { ModelPropsManager } from '$lib/stores/models/props.svelte';
 // direct imports between stores, not via the barrel, to avoid circular deps
@@ -78,11 +79,11 @@ export class ModelStatusManager {
 		try {
 			await ModelsService.load(modelId);
 			await reachedLoaded;
-			toast.success(`Model loaded: ${this.host.toDisplayName(modelId)}`);
+			toast.success(t('Model loaded: {name}', { name: this.host.toDisplayName(modelId) }));
 		} catch (error) {
 			this.rejectStatus(modelId, error instanceof Error ? error : new Error('load failed'));
 			this.host.error = error instanceof Error ? error.message : 'Failed to load model';
-			toast.error(`Failed to load model: ${this.host.toDisplayName(modelId)}`);
+			toast.error(t('Failed to load model: {name}', { name: this.host.toDisplayName(modelId) }));
 
 			throw error;
 		} finally {
@@ -121,11 +122,11 @@ export class ModelStatusManager {
 		try {
 			await ModelsService.unload(modelId);
 			await reachedUnloaded;
-			toast.info(`Model unloaded: ${this.host.toDisplayName(modelId)}`);
+			toast.info(t('Model unloaded: {name}', { name: this.host.toDisplayName(modelId) }));
 		} catch (error) {
 			this.rejectStatus(modelId, error instanceof Error ? error : new Error('unload failed'));
 			this.host.error = error instanceof Error ? error.message : 'Failed to unload model';
-			toast.error(`Failed to unload model: ${this.host.toDisplayName(modelId)}`);
+			toast.error(t('Failed to unload model: {name}', { name: this.host.toDisplayName(modelId) }));
 
 			throw error;
 		} finally {

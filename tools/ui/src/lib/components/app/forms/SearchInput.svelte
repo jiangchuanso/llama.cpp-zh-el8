@@ -2,6 +2,7 @@
 	import { Search, X } from '@lucide/svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		autofocus?: boolean;
@@ -62,13 +63,13 @@
 		{id}
 		oninput={handleInput}
 		onkeydown={onKeyDown}
-		{placeholder}
+		placeholder={t(placeholder)}
 		type="search"
 	/>
 
 	{#if showClearButton}
 		<button
-			aria-label={value ? 'Clear search' : 'Close'}
+			aria-label={t(value ? 'Clear search' : 'Close')}
 			class="absolute top-1/2 right-3 -translate-y-1/2 transform cursor-pointer text-muted-foreground transition-colors hover:text-foreground"
 			onclick={handleClear}
 			type="button"

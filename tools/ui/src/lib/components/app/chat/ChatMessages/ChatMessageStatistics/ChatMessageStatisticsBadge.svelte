@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { BadgeInfo } from '$lib/components/app';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { t } from '$lib/i18n';
 	import { copyToClipboard } from '$lib/utils';
 	import type { Component } from 'svelte';
 
@@ -34,7 +35,7 @@
 		</Tooltip.Trigger>
 
 		<Tooltip.Content>
-			<p>{tooltipLabel}</p>
+			<p>{t(tooltipLabel)}</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 {:else}

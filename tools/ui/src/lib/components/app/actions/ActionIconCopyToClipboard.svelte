@@ -2,6 +2,7 @@
 	import ActionIcon from './ActionIcon.svelte';
 	import { Copy } from '@lucide/svelte';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { copyToClipboard } from '$lib/utils';
 
 	export let ariaLabel: string = 'Copy to clipboard';
@@ -14,5 +15,5 @@
 	icon={Copy}
 	iconSize={ICON_CLASS_DEFAULT}
 	onclick={() => canCopy && copyToClipboard(text)}
-	tooltip={ariaLabel}
+	tooltip={t(ariaLabel)}
 />

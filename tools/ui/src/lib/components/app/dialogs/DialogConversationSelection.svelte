@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ConversationSelection } from '$lib/components/app';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		conversations: DatabaseConversation[];
@@ -42,16 +43,20 @@
 		<Dialog.Content class="z-1000001 max-w-2xl">
 			<Dialog.Header>
 				<Dialog.Title>
-					Select Conversations to {mode === 'export' ? 'Export' : 'Import'}
+					{t('Select Conversations to {action}', {
+						action: t(mode === 'export' ? 'Export' : 'Import')
+					})}
 				</Dialog.Title>
 
 				<Dialog.Description>
 					{#if mode === 'export'}
-						Choose which conversations you want to export. Selected conversations will be downloaded
-						as a JSON file.
+						{t(
+							'Choose which conversations you want to export. Selected conversations will be downloaded as a JSON file.'
+						)}
 					{:else}
-						Choose which conversations you want to import. Selected conversations will be merged
-						with your existing conversations.
+						{t(
+							'Choose which conversations you want to import. Selected conversations will be merged with your existing conversations.'
+						)}
 					{/if}
 				</Dialog.Description>
 			</Dialog.Header>

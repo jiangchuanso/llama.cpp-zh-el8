@@ -7,6 +7,7 @@
 		DialogFileUploadError
 	} from '$lib/components/app';
 	import { ErrorDialogType } from '$lib/enums';
+	import { t } from '$lib/i18n';
 
 	let {
 		activeErrorDialog,
@@ -26,13 +27,15 @@
 
 <DialogConfirmation
 	bind:open={showDeleteDialog}
-	cancelText="Cancel"
-	confirmText="Delete"
-	description="Are you sure you want to delete this conversation? This action cannot be undone and will permanently remove all messages in this conversation."
+	cancelText={t('Cancel')}
+	confirmText={t('Delete')}
+	description={t(
+		'Are you sure you want to delete this conversation? This action cannot be undone and will permanently remove all messages in this conversation.'
+	)}
 	icon={Trash2}
 	onCancel={() => (showDeleteDialog = false)}
 	onConfirm={handleDeleteConfirm}
-	title="Delete Conversation"
+	title={t('Delete Conversation')}
 	variant="destructive"
 />
 

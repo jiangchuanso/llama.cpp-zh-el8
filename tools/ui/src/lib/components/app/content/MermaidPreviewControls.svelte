@@ -4,6 +4,7 @@
 	import ZoomInIcon from '@lucide/svelte/icons/zoom-in';
 	import ZoomOutIcon from '@lucide/svelte/icons/zoom-out';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		scale: number;
@@ -34,10 +35,10 @@
 >
 	<div class="mermaid-preview-controls-inner flex items-center gap-1 rounded-lg bg-muted p-1">
 		<button
-			aria-label="Zoom out"
+			aria-label={t('Zoom out')}
 			class="mermaid-preview-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-foreground transition-colors hover:bg-muted-foreground/15 active:bg-muted-foreground/25"
 			onclick={onZoomOut}
-			title="Zoom out"
+			title={t('Zoom out')}
 		>
 			<ZoomOutIcon class="mermaid-preview-btn-icon {ICON_CLASS_DEFAULT}" />
 		</button>
@@ -48,10 +49,10 @@
 		>
 
 		<button
-			aria-label="Zoom in"
+			aria-label={t('Zoom in')}
 			class="mermaid-preview-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-foreground transition-colors hover:bg-muted-foreground/15 active:bg-muted-foreground/25"
 			onclick={onZoomIn}
-			title="Zoom in"
+			title={t('Zoom in')}
 		>
 			<ZoomInIcon class="mermaid-preview-btn-icon {ICON_CLASS_DEFAULT}" />
 		</button>
@@ -59,10 +60,10 @@
 		<div class="mermaid-preview-controls-separator mx-1 h-5 w-px bg-border/50"></div>
 
 		<button
-			aria-label="Reset view"
+			aria-label={t('Reset view')}
 			class="mermaid-preview-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-foreground transition-colors hover:bg-muted-foreground/15 active:bg-muted-foreground/25"
 			onclick={onResetView}
-			title="Reset view"
+			title={t('Reset view')}
 		>
 			<RotateCcwIcon class="mermaid-preview-btn-icon {ICON_CLASS_DEFAULT}" />
 		</button>
@@ -70,10 +71,10 @@
 		<div class="mermaid-preview-controls-separator mx-1 h-5 w-px bg-border/50"></div>
 
 		<button
-			aria-label="Download SVG"
+			aria-label={t('Download SVG')}
 			class="mermaid-preview-btn flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-foreground transition-colors hover:bg-muted-foreground/15 active:bg-muted-foreground/25"
 			onclick={downloadSvg}
-			title="Download SVG"
+			title={t('Download SVG')}
 		>
 			<Download class="mermaid-preview-btn-icon {ICON_CLASS_DEFAULT}" />
 		</button>

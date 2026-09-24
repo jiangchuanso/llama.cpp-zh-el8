@@ -10,6 +10,7 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { MCPResourceInfo, MCPResourceTemplateInfo, MCPServerResources } from '$lib/types';
 	import { getDisplayName, getResourceIcon } from '$lib/utils';
@@ -167,12 +168,8 @@
 			</div>
 
 			<span class="text-xs text-muted-foreground">
-				({serverRes.resources.length} resource{serverRes.resources.length !== 1
-					? 's'
-					: ''}{#if hasTemplates}, {serverRes.templates.length} template{serverRes.templates
-						.length !== 1
-						? 's'
-						: ''}{/if})
+				({t('{count} resources', { count: serverRes.resources.length })}{#if hasTemplates},
+					{t('{count} templates', { count: serverRes.templates.length })}{/if})
 			</span>
 		</span>
 
@@ -185,10 +182,10 @@
 		<div class="ml-4 flex flex-col gap-0.5 border-l border-border/50 pl-2">
 			{#if serverRes.error}
 				<div class="py-1 text-xs text-red-500">
-					Error: {serverRes.error}
+					{t('Error:')} {serverRes.error}
 				</div>
 			{:else if !hasContent}
-				<div class="py-1 text-xs text-muted-foreground">No resources</div>
+				<div class="py-1 text-xs text-muted-foreground">{t('No resources')}</div>
 			{:else}
 				{#if hasResources}
 					{#each sortTreeChildren( [...resourceTree.children.values()] ) as child (child.resource?.uri || `${serverName}:${child.name}`)}
@@ -204,7 +201,7 @@
 					<div
 						class="py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase"
 					>
-						Templates
+						{t('Templates')}
 					</div>
 
 					{#each templateInfos as template (template.uriTemplate)}

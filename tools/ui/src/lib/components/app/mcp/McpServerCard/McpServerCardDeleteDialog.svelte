@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		open: boolean;
@@ -14,22 +15,23 @@
 <AlertDialog.Root bind:open {onOpenChange}>
 	<AlertDialog.Content>
 		<AlertDialog.Header>
-			<AlertDialog.Title>Delete Server</AlertDialog.Title>
+			<AlertDialog.Title>{t('Delete Server')}</AlertDialog.Title>
 
 			<AlertDialog.Description>
-				Are you sure you want to delete <strong>{displayName}</strong>? This action cannot be
-				undone.
+				{t('Are you sure you want to delete')} <strong>{displayName}</strong>{t(
+					'? This action cannot be undone.'
+				)}
 			</AlertDialog.Description>
 		</AlertDialog.Header>
 
 		<AlertDialog.Footer>
-			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+			<AlertDialog.Cancel>{t('Cancel')}</AlertDialog.Cancel>
 
 			<AlertDialog.Action
 				class="text-destructive-foreground bg-destructive hover:bg-destructive/90"
 				onclick={onConfirm}
 			>
-				Delete
+				{t('Delete')}
 			</AlertDialog.Action>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>

@@ -16,6 +16,7 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { FORK_TREE_DEPTH_PADDING, ICON_CLASS_DEFAULT, UI_DATA_ATTRS } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { RouterService } from '$lib/services/router.service';
 	import { chatStore, conversationsStore } from '$lib/stores';
 	import { onMount } from 'svelte';
@@ -179,7 +180,9 @@
 		{#if isSelectionMode}
 			<div
 				aria-checked={isSelected}
-				aria-label={isSelected ? `Deselect ${conversation.name}` : `Select ${conversation.name}`}
+				aria-label={isSelected
+					? t('Deselect {name}', { name: conversation.name })
+					: t('Select {name}', { name: conversation.name })}
 				class="shrink-0"
 				onclick={(e) => handleCheckboxClick(e)}
 				onkeydown={handleCheckboxKeydown}
@@ -187,7 +190,9 @@
 				tabindex="-1"
 			>
 				<Checkbox
-					aria-label={isSelected ? `Deselect ${conversation.name}` : `Select ${conversation.name}`}
+					aria-label={isSelected
+						? t('Deselect {name}', { name: conversation.name })
+						: t('Select {name}', { name: conversation.name })}
 					checked={isSelected}
 				/>
 			</div>
@@ -209,7 +214,7 @@
 				</Tooltip.Trigger>
 
 				<Tooltip.Content>
-					<p>See parent conversation</p>
+					<p>{t('See parent conversation')}</p>
 				</Tooltip.Content>
 			</Tooltip.Root>
 		{/if}
@@ -218,7 +223,7 @@
 			<Tooltip.Root>
 				<Tooltip.Trigger>
 					<div
-						aria-label="Stop generation"
+						aria-label={t('Stop generation')}
 						class="stop-button flex {ICON_CLASS_DEFAULT} shrink-0 cursor-pointer items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground"
 						onclick={handleStop}
 						onkeydown={(e) => e.key === 'Enter' && handleStop(e)}
@@ -232,7 +237,7 @@
 				</Tooltip.Trigger>
 
 				<Tooltip.Content>
-					<p>Stop generation</p>
+					<p>{t('Stop generation')}</p>
 				</Tooltip.Content>
 			</Tooltip.Root>
 		{/if}
@@ -247,7 +252,7 @@
 				actions={[
 					{
 						icon: conversation.pinned ? PinOff : Pin,
-						label: conversation.pinned ? 'Unpin' : 'Pin',
+						label: conversation.pinned ? t('Unpin') : t('Pin'),
 						onclick: (e: Event) => {
 							e.stopPropagation();
 							handleTogglePin();
@@ -255,13 +260,13 @@
 					},
 					{
 						icon: Pencil,
-						label: 'Edit',
+						label: t('Edit'),
 						onclick: handleEdit,
 						shortcut: ['shift', 'cmd', 'e']
 					},
 					{
 						icon: Download,
-						label: 'Export',
+						label: t('Export'),
 						onclick: (e: Event) => {
 							e.stopPropagation();
 							conversationsStore.downloadConversation(conversation.id);
@@ -270,12 +275,12 @@
 					},
 					{
 						icon: ListChecks,
-						label: 'Select',
+						label: t('Select'),
 						onclick: handleEnterSelectionMode
 					},
 					{
 						icon: Trash2,
-						label: 'Delete',
+						label: t('Delete'),
 						onclick: handleDelete,
 						separator: true,
 						shortcut: ['shift', 'cmd', 'd'],
@@ -283,7 +288,7 @@
 					}
 				]}
 				triggerIcon={MoreHorizontal}
-				triggerTooltip="More actions"
+				triggerTooltip={t('More actions')}
 			/>
 		</div>
 	{/if}

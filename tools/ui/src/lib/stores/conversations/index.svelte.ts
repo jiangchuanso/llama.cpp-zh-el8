@@ -11,6 +11,7 @@ import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
 import { ROUTES } from '$lib/constants';
 import { MessageRole } from '$lib/enums';
+import { t } from '$lib/i18n';
 import { ConversationTransferService } from '$lib/services/conversation-transfer.service';
 import { DatabaseService } from '$lib/services/database.service';
 import { MigrationService } from '$lib/services/migration.service';
@@ -163,12 +164,12 @@ class ConversationsStore implements ConversationsPreferencesHost {
 
 			toast.success(
 				idsToRemove.size === 1
-					? 'Conversation deleted'
-					: `${idsToRemove.size} conversations deleted`
+					? t('Conversation deleted')
+					: t('{count} conversations deleted', { count: idsToRemove.size })
 			);
 		} catch (error) {
 			console.error('Failed to bulk delete conversations:', error);
-			toast.error('Failed to delete conversations');
+			toast.error(t('Failed to delete conversations'));
 		}
 	}
 
@@ -184,7 +185,7 @@ class ConversationsStore implements ConversationsPreferencesHost {
 			const exported = await this.getConversationsForExport(convIds);
 
 			if (exported.length === 0) {
-				toast.error('No conversations to export');
+				toast.error(t('No conversations to export'));
 
 				return;
 			}
@@ -193,12 +194,12 @@ class ConversationsStore implements ConversationsPreferencesHost {
 
 			toast.success(
 				exported.length === 1
-					? 'Conversation exported'
-					: `${exported.length} conversations exported`
+					? t('Conversation exported')
+					: t('{count} conversations exported', { count: exported.length })
 			);
 		} catch (error) {
 			console.error('Failed to bulk export conversations:', error);
-			toast.error('Failed to export conversations');
+			toast.error(t('Failed to export conversations'));
 		}
 	}
 
@@ -227,12 +228,12 @@ class ConversationsStore implements ConversationsPreferencesHost {
 
 			toast.success(
 				convIds.length === 1
-					? 'Conversation pin toggled'
-					: `Updated pin state for ${convIds.length} conversations`
+					? t('Conversation pin toggled')
+					: t('Updated pin state for {count} conversations', { count: convIds.length })
 			);
 		} catch (error) {
 			console.error('Failed to bulk toggle pin:', error);
-			toast.error('Failed to update pin state');
+			toast.error(t('Failed to update pin state'));
 		}
 	}
 
@@ -301,12 +302,12 @@ class ConversationsStore implements ConversationsPreferencesHost {
 			tabsStore.clear();
 			this.notifyConversationsDeleted(allIds);
 
-			toast.success('All conversations deleted');
+			toast.success(t('All conversations deleted'));
 
 			await goto(ROUTES.START);
 		} catch (error) {
 			console.error('Failed to delete all conversations:', error);
-			toast.error('Failed to delete conversations');
+			toast.error(t('Failed to delete conversations'));
 		}
 	}
 
@@ -441,12 +442,12 @@ class ConversationsStore implements ConversationsPreferencesHost {
 
 			await goto(RouterService.chat(newConv.id));
 
-			toast.success('Conversation forked');
+			toast.success(t('Conversation forked'));
 
 			return newConv.id;
 		} catch (error) {
 			console.error('Failed to fork conversation:', error);
-			toast.error('Failed to fork conversation');
+			toast.error(t('Failed to fork conversation'));
 
 			return null;
 		}

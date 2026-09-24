@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Wrench } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		class?: string;
@@ -15,5 +16,5 @@
 >
 	<Wrench class="mr-1 h-3 w-3" />
 
-	Custom
+	{t('Custom')}
 </Badge>

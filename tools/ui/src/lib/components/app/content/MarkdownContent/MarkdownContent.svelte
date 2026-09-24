@@ -32,6 +32,7 @@
 	} from '$lib/constants';
 	import { BooleanString, ColorMode, UrlProtocol } from '$lib/enums';
 	import { createAutoScrollController } from '$lib/hooks/use-auto-scroll.svelte';
+	import { t } from '$lib/i18n';
 	import { settingsStore } from '$lib/stores';
 	import type { DatabaseMessageExtra } from '$lib/types/database';
 	import {
@@ -826,7 +827,7 @@
 
 					<div class="code-block-actions">
 						<ActionIconCopyToClipboard
-							ariaLabel="Diagram incomplete"
+							ariaLabel={t('Diagram incomplete')}
 							canCopy={false}
 							text={incompleteCodeBlock.code}
 						/>
@@ -834,7 +835,7 @@
 				</div>
 
 				<div class="mermaid-loading-placeholder">
-					<span class="mermaid-loading-text">Generating diagram...</span>
+					<span class="mermaid-loading-text">{t('Generating diagram...')}</span>
 				</div>
 			</div>
 		{:else if streamingSvgCode !== null}
@@ -844,7 +845,7 @@
 
 					<div class="code-block-actions">
 						<ActionIconCopyToClipboard
-							ariaLabel="Diagram incomplete"
+							ariaLabel={t('Diagram incomplete')}
 							canCopy={false}
 							text={incompleteCodeBlock.code}
 						/>
@@ -859,7 +860,7 @@
 					</div>
 				{:else}
 					<div class="mermaid-loading-placeholder">
-						<span class="mermaid-loading-text">Rendering svg...</span>
+						<span class="mermaid-loading-text">{t('Rendering svg...')}</span>
 					</div>
 				{/if}
 			</div>

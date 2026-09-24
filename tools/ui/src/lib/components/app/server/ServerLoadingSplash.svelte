@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Server } from '@lucide/svelte';
 	import { ServerStatus } from '$lib/components/app';
+	import { t } from '$lib/i18n';
 	import { fade } from 'svelte/transition';
 
 	interface Props {
@@ -18,10 +19,10 @@
 				<Server class="h-8 w-8 animate-pulse text-muted-foreground" />
 			</div>
 
-			<h2 class="mb-2 text-xl font-semibold">Connecting to Server</h2>
+			<h2 class="mb-2 text-xl font-semibold">{t('Connecting to Server')}</h2>
 
 			<p class="text-sm text-muted-foreground">
-				{message}
+				{t(message)}
 			</p>
 		</div>
 

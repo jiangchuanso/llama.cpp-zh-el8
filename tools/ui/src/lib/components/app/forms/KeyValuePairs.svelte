@@ -2,6 +2,7 @@
 	import { Plus, Trash2 } from '@lucide/svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { KEY_VALUE_PAIR_KEY_MAX_LENGTH, KEY_VALUE_PAIR_VALUE_MAX_LENGTH } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import type { KeyValuePair } from '$lib/types';
 	import {
 		autoResizeTextarea,
@@ -105,9 +106,9 @@
 	<div class="mb-2 flex items-center justify-between">
 		{#if sectionLabel}
 			<span class="text-xs font-medium select-none">
-				{sectionLabel}
+				{t(sectionLabel)}
 				{#if sectionLabelOptional}
-					<span class="text-muted-foreground">(optional)</span>
+					<span class="text-muted-foreground">{t('(optional)')}</span>
 				{/if}
 			</span>
 		{/if}
@@ -118,7 +119,7 @@
 			type="button"
 		>
 			<Plus class="h-3 w-3" />
-			{addButtonLabel}
+			{t(addButtonLabel)}
 		</button>
 	</div>
 
@@ -132,7 +133,7 @@
 						maxlength={KEY_VALUE_PAIR_KEY_MAX_LENGTH}
 						onblur={(e) => trimPairKey(index, e.currentTarget.value)}
 						oninput={(e) => updatePairKey(index, e.currentTarget.value)}
-						placeholder={keyPlaceholder}
+						placeholder={t(keyPlaceholder)}
 						type="text"
 						value={pair.key}
 					/>
@@ -146,13 +147,13 @@
 							updatePairValue(index, e.currentTarget.value);
 							autoResizeTextarea(e.currentTarget);
 						}}
-						placeholder={valuePlaceholder}
+						placeholder={t(valuePlaceholder)}
 						rows="1"
 						value={pair.value}
 					></textarea>
 
 					<button
-						aria-label="Remove item"
+						aria-label={t('Remove item')}
 						class="mt-1.5 shrink-0 cursor-pointer rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
 						onclick={() => removePair(index)}
 						type="button"
@@ -163,6 +164,6 @@
 			{/each}
 		</div>
 	{:else}
-		<p class="select-none text-xs text-muted-foreground">{emptyMessage}</p>
+		<p class="select-none text-xs text-muted-foreground">{t(emptyMessage)}</p>
 	{/if}
 </div>

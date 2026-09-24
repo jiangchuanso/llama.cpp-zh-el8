@@ -11,6 +11,7 @@
 		UNNAMED_CHAT_LABEL
 	} from '$lib/constants';
 	import { useScrollCarousel } from '$lib/hooks/use-scroll-carousel.svelte';
+	import { t } from '$lib/i18n';
 	import { chatStore, conversationsStore, tabsStore, uiStore } from '$lib/stores';
 	import { tick } from 'svelte';
 
@@ -24,8 +25,8 @@
 			isNewChat: id === NEW_CHAT_TAB_ID,
 			name:
 				id === NEW_CHAT_TAB_ID
-					? NEW_CHAT_LABEL
-					: (conversationsStore.conversations.find((c) => c.id === id)?.name ?? UNNAMED_CHAT_LABEL)
+					? t(NEW_CHAT_LABEL)
+					: (conversationsStore.conversations.find((c) => c.id === id)?.name ?? t(UNNAMED_CHAT_LABEL))
 		}))
 	);
 
@@ -81,7 +82,7 @@
 </script>
 
 <nav
-	aria-label="Open conversations"
+	aria-label={t('Open conversations')}
 	class="group sticky pl-1 top-0 z-10 hidden md:block chat-tabs-fade transition-[padding] duration-200 ease-in-out pt-3.25 {uiStore.isSidebarExpanded
 		? CHAT_TABS_MAX_WIDTH.EXPANDED_SIDEBAR
 		: CHAT_TABS_MAX_WIDTH.COLLAPSED_SIDEBAR}"

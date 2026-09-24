@@ -3,6 +3,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { ICON_CLASS_DEFAULT, MAX_DISPLAYED_MCP_AVATARS } from '$lib/constants';
 	import { HealthCheckStatus, ToolSource } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { conversationsStore, mcpStore } from '$lib/stores';
 
 	interface Props {
@@ -60,7 +61,7 @@
 			</Tooltip.Trigger>
 
 			<Tooltip.Content>
-				<p>MCP Servers</p>
+				<p>{t('MCP Servers')}</p>
 			</Tooltip.Content>
 		</Tooltip.Root>
 	</button>

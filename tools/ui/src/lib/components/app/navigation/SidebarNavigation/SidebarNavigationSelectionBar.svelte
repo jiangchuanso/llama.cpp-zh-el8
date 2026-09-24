@@ -3,6 +3,7 @@
 	import { ActionIcon, DialogConfirmation } from '$lib/components/app';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { TooltipSide } from '$lib/enums';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		class?: string;
@@ -71,26 +72,26 @@
 </script>
 
 <div
-	aria-label="Bulk actions for selected conversations"
+	aria-label={t('Bulk actions for selected conversations')}
 	class="flex items-center gap-1.5 rounded-xl border border-border/50 bg-background/50 px-2 py-1.5 shadow-sm backdrop-blur-xl {className}"
 	role="toolbar"
 >
 	<label class="flex min-w-0 cursor-pointer items-center gap-2">
 		<Checkbox
-			aria-label={isMasterChecked ? 'Deselect all' : 'Select all'}
+			aria-label={t(isMasterChecked ? 'Deselect all' : 'Select all')}
 			checked={isMasterChecked}
 			indeterminate={isMasterIndeterminate}
 			onCheckedChange={onSelectAllToggle}
 		/>
 
 		<span class="truncate text-xs font-medium text-muted-foreground">
-			{selectedCount} / {visibleCount} selected
+			{t('{selected} / {total} selected', { selected: selectedCount, total: visibleCount })}
 		</span>
 	</label>
 
 	<div class="ml-auto flex items-center gap-0.75">
 		<ActionIcon
-			ariaLabel={pinTooltip}
+			ariaLabel={t(pinTooltip)}
 			class="h-7 w-7 rounded-md bg-transparent backdrop-blur-none hover:bg-accent! {pinDisabled
 				? 'cursor-not-allowed'
 				: ''} {!pinDisabled ? 'opacity-100' : 'opacity-40'}"
@@ -99,12 +100,12 @@
 			iconSize="h-3.5 w-3.5"
 			onclick={onBulkPinToggle}
 			size="sm"
-			tooltip={pinTooltip}
+			tooltip={t(pinTooltip)}
 			tooltipSide={TooltipSide.TOP}
 		/>
 
 		<ActionIcon
-			ariaLabel="Export selected"
+			ariaLabel={t('Export selected')}
 			class="h-7 w-7 rounded-md bg-transparent backdrop-blur-none hover:bg-accent! {hasSelection
 				? 'opacity-100'
 				: 'opacity-40'}"
@@ -113,12 +114,12 @@
 			iconSize="h-3.5 w-3.5"
 			onclick={onBulkExport}
 			size="sm"
-			tooltip={hasSelection ? 'Export' : 'Export'}
+			tooltip={t('Export')}
 			tooltipSide={TooltipSide.TOP}
 		/>
 
 		<ActionIcon
-			ariaLabel="Delete selected"
+			ariaLabel={t('Delete selected')}
 			class="h-7 w-7 rounded-md bg-transparent backdrop-blur-none hover:bg-destructive/10! dark:hover:bg-destructive/20! disabled:hover:bg-transparent {hasSelection
 				? 'opacity-100'
 				: 'opacity-40'}"
@@ -127,20 +128,20 @@
 			iconSize="h-3.5 w-3.5 text-destructive"
 			onclick={handleDeleteClick}
 			size="sm"
-			tooltip="Delete selected"
+			tooltip={t('Delete selected')}
 			tooltipSide={TooltipSide.TOP}
 		/>
 
 		<div aria-hidden="true" class="mx-1 h-4 w-px bg-border"></div>
 
 		<ActionIcon
-			ariaLabel="Exit bulk selection mode"
+			ariaLabel={t('Exit bulk selection mode')}
 			class="h-7 w-7 rounded-md bg-transparent backdrop-blur-none hover:bg-accent!"
 			icon={X}
 			iconSize="h-3.5 w-3.5"
 			onclick={onClose}
 			size="sm"
-			tooltip="Exit bulk selection mode"
+			tooltip={t('Exit bulk selection mode')}
 			tooltipSide={TooltipSide.TOP}
 		/>
 	</div>
@@ -149,15 +150,17 @@
 <DialogConfirmation
 	bind:open={showDeleteDialog}
 	cancelText="Cancel"
-	confirmText={selectedCount === 1 ? 'Delete' : `Delete ${selectedCount}`}
-	description="This action cannot be undone. The selected conversation{selectedCount === 1
-		? ''
-		: 's'} and {selectedCount === 1
-		? 'its'
-		: 'their'} messages will be permanently removed, including any forks."
+	confirmText={selectedCount === 1 ? t('Delete') : t('Delete {count}', { count: selectedCount })}
+	description={selectedCount === 1
+		? t(
+				'This action cannot be undone. The selected conversation and its messages will be permanently removed, including any forks.'
+			)
+		: t(
+				'This action cannot be undone. The selected conversations and their messages will be permanently removed, including any forks.'
+			)}
 	icon={Trash2}
 	onCancel={handleDeleteCancel}
 	onConfirm={handleDeleteConfirm}
-	title="Delete {selectedCount} conversation{selectedCount === 1 ? '' : 's'}"
+	title={t('Delete {count} conversations', { count: selectedCount })}
 	variant="destructive"
 />

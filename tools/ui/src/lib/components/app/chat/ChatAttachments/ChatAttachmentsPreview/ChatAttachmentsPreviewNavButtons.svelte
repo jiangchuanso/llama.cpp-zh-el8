@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		onPrev: () => void;
@@ -13,7 +14,7 @@
 
 {#if show}
 	<Button
-		aria-label="Previous"
+		aria-label={t('Previous')}
 		class="absolute top-1/2 left-4 z-10 h-8 w-8 -translate-y-1/2 rounded-full bg-background/5 p-0 text-white!"
 		onclick={onPrev}
 		size="icon"
@@ -23,7 +24,7 @@
 	</Button>
 
 	<Button
-		aria-label="Next"
+		aria-label={t('Next')}
 		class="absolute top-1/2 right-4 z-10 h-8 w-8 -translate-y-1/2 rounded-full bg-background/5 p-0 text-white!"
 		onclick={onNext}
 		size="icon"

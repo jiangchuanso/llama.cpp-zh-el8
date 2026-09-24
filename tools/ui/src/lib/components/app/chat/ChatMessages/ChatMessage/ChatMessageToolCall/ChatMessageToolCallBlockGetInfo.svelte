@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ToolCallBlock from './ToolCallBlock.svelte';
 	import { XCircle } from '@lucide/svelte';
+	import { t } from '$lib/i18n';
 	import { toolsStore } from '$lib/stores';
 	import type { AgenticSection } from '$lib/types';
 	import { abbreviateHome } from '$lib/utils';
@@ -119,7 +120,7 @@
 			</div>
 		{:else}
 			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
-				Waiting for runtime info...
+				{t('Waiting for runtime info...')}
 			</div>
 		{/if}
 	{/snippet}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import type { SettingsSection, SettingsSectionTitle } from '$lib/types';
 
 	interface Props {
@@ -24,7 +25,7 @@
 			>
 				<section.icon class={ICON_CLASS_DEFAULT} />
 
-				<span class="ml-2">{section.title}</span>
+				<span class="ml-2">{t(section.title)}</span>
 			</button>
 		{/each}
 	</nav>

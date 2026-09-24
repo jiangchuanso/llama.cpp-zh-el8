@@ -3,6 +3,7 @@
 	import { SearchInput } from '$lib/components/app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		isLoading: boolean;
@@ -27,7 +28,7 @@
 			disabled={isLoading}
 			onclick={onRefresh}
 			size="sm"
-			title="Refresh resources"
+			title={t('Refresh resources')}
 			variant="ghost"
 		>
 			{#if isLoading}
@@ -38,5 +39,5 @@
 		</Button>
 	</div>
 
-	<h3 class="text-sm font-medium">Available resources</h3>
+	<h3 class="text-sm font-medium">{t('Available resources')}</h3>
 </div>

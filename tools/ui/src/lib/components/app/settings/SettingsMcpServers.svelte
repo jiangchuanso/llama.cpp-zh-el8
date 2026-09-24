@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Empty from '$lib/components/ui/empty';
 	import { HealthCheckStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore, toolsStore } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -62,16 +63,16 @@
 						<Plus />
 					</Empty.Media>
 
-					<Empty.Title>Add your first MCP server</Empty.Title>
+					<Empty.Title>{t('Add your first MCP server')}</Empty.Title>
 
-					<Empty.Description>Connect a remote MCP server by URL.</Empty.Description>
+					<Empty.Description>{t('Connect a remote MCP server by URL.')}</Empty.Description>
 				</Empty.Header>
 
 				<Empty.Content>
 					<Button onclick={() => (isAddingServer = true)} size="sm">
 						<Plus />
 
-						Add New Server
+						{t('Add New Server')}
 					</Button>
 				</Empty.Content>
 			</Empty.Root>
@@ -114,16 +115,16 @@
 							<Plus />
 						</Empty.Media>
 
-						<Empty.Title>Add another MCP server</Empty.Title>
+						<Empty.Title>{t('Add another MCP server')}</Empty.Title>
 
-						<Empty.Description>Connect a remote MCP server by URL.</Empty.Description>
-					</Empty.Header>
+						<Empty.Description>{t('Connect a remote MCP server by URL.')}</Empty.Description>
+						</Empty.Header>
 
-					<Empty.Content>
+						<Empty.Content>
 						<Button onclick={() => (isAddingServer = true)} size="sm">
 							<Plus />
 
-							Add New Server
+							{t('Add New Server')}
 						</Button>
 					</Empty.Content>
 				</Empty.Root>

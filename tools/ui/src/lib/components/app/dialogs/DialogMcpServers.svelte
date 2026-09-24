@@ -2,6 +2,7 @@
 	import { McpLogo } from '$lib/components/app';
 	import { SettingsMcpServers } from '$lib/components/app/settings';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		open?: boolean;
@@ -24,7 +25,7 @@
 			<Dialog.Title class="flex items-center gap-2">
 				<McpLogo class="h-5 w-5" />
 
-				<span>MCP Servers</span>
+				<span>{t('MCP Servers')}</span>
 			</Dialog.Title>
 		</Dialog.Header>
 

@@ -8,6 +8,7 @@
 	} from '$lib/components/app';
 	import SettingsGroup from '$lib/components/app/settings/SettingsGroup.svelte';
 	import { ConversationSelectionMode, FileExtensionText, HtmlInputType } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { ConversationTransferService } from '$lib/services';
 	import { conversationsStore, settingsStore } from '$lib/stores';
 	import { createMessageCountMap } from '$lib/utils';
@@ -59,10 +60,10 @@
 
 			showSettingsExportSummary = true;
 			showSettingsImportSummary = false;
-			toast.success('Settings exported');
+			toast.success(t('Settings exported'));
 		} catch (err) {
 			console.error('Failed to export settings:', err);
-			toast.error('Failed to export settings');
+			toast.error(t('Failed to export settings'));
 		}
 	}
 
@@ -87,7 +88,7 @@
 					const data = JSON.parse(text);
 
 					if (!data || typeof data !== 'object' || !data.config) {
-						toast.error('Invalid settings file: missing config');
+						toast.error(t('Invalid settings file: missing config'));
 
 						return;
 					}
@@ -96,17 +97,17 @@
 
 					showSettingsImportSummary = true;
 					showSettingsExportSummary = false;
-					toast.success('Settings imported successfully');
+					toast.success(t('Settings imported successfully'));
 				} catch (err) {
 					console.error('Failed to import settings:', err);
-					toast.error('Failed to import settings');
+					toast.error(t('Failed to import settings'));
 				}
 			};
 
 			input.click();
 		} catch (err) {
 			console.error('Failed to open file picker:', err);
-			toast.error('Failed to open file picker');
+			toast.error(t('Failed to open file picker'));
 		}
 	}
 
@@ -115,7 +116,7 @@
 			const allConversations = conversationsStore.conversations;
 
 			if (allConversations.length === 0) {
-				toast.info('No conversations to export');
+				toast.info(t('No conversations to export'));
 
 				return;
 			}
@@ -133,7 +134,7 @@
 			showExportDialog = true;
 		} catch (err) {
 			console.error('Failed to load conversations:', err);
-			alert('Failed to load conversations');
+			alert(t('Failed to load conversations'));
 		}
 	}
 
@@ -155,7 +156,7 @@
 			showExportDialog = false;
 		} catch (err) {
 			console.error('Export failed:', err);
-			alert('Failed to export conversations');
+			alert(t('Failed to export conversations'));
 		}
 	}
 
@@ -188,14 +189,14 @@
 					const message = err instanceof Error ? err.message : 'Unknown error';
 
 					console.error('Failed to parse file:', err);
-					alert(`Failed to parse file: ${message}`);
+					alert(t('Failed to parse file: {message}', { message }));
 				}
 			};
 
 			input.click();
 		} catch (err) {
 			console.error('Import failed:', err);
-			alert('Failed to import conversations');
+			alert(t('Failed to import conversations'));
 		}
 	}
 
@@ -211,7 +212,9 @@
 			// lists what was written and the toast accounts for the rest.
 			if (skipped.length > 0) {
 				toast.info(
-					`Skipped ${skipped.length} conversation${skipped.length === 1 ? '' : 's'} already in your library`
+					t('Skipped {count} conversations already in your library', {
+						count: skipped.length
+					})
 				);
 			}
 
@@ -221,7 +224,7 @@
 			showImportDialog = false;
 		} catch (err) {
 			console.error('Import failed:', err);
-			alert('Failed to import conversations. Please check the file format.');
+			alert(t('Failed to import conversations. Please check the file format.'));
 		}
 	}
 
@@ -230,7 +233,7 @@
 			const allConversations = conversationsStore.conversations;
 
 			if (allConversations.length === 0) {
-				toast.info('No conversations to delete');
+				toast.info(t('No conversations to delete'));
 
 				return;
 			}
@@ -238,7 +241,7 @@
 			showDeleteDialog = true;
 		} catch (err) {
 			console.error('Failed to load conversations for deletion:', err);
-			toast.error('Failed to load conversations');
+			toast.error(t('Failed to load conversations'));
 		}
 	}
 
@@ -258,54 +261,62 @@
 </script>
 
 <div in:fade={{ duration: 150 }} class="space-y-12">
-	<SettingsGroup title="Conversations">
+	<SettingsGroup title={t('Conversations')}>
 		<SettingsChatImportExportSection
 			IconComponent={Download}
-			buttonText="Export conversations"
-			description="Download your conversations as a ZIP of JSONL files. This includes all messages, attachments, and conversation history."
+			buttonText={t('Export conversations')}
+			description={t(
+				'Download your conversations as a ZIP of JSONL files. This includes all messages, attachments, and conversation history.'
+			)}
 			onclick={handleExportClick}
-			summary={{ items: exportedConversations, show: showExportSummary, verb: 'Exported' }}
-			title="Export"
+			summary={{ items: exportedConversations, show: showExportSummary, verb: t('Exported') }}
+			title={t('Export')}
 		/>
 
 		<SettingsChatImportExportSection
 			IconComponent={Upload}
-			buttonText="Import conversations"
-			description="Import one or more conversations from a previously exported ZIP or JSONL file. This will merge with your existing conversations."
+			buttonText={t('Import conversations')}
+			description={t(
+				'Import one or more conversations from a previously exported ZIP or JSONL file. This will merge with your existing conversations.'
+			)}
 			onclick={handleImportClick}
-			summary={{ items: importedConversations, show: showImportSummary, verb: 'Imported' }}
-			title="Import"
+			summary={{ items: importedConversations, show: showImportSummary, verb: t('Imported') }}
+			title={t('Import')}
 		/>
 
 		<SettingsChatImportExportSection
 			IconComponent={Trash2}
 			buttonClass="text-destructive-foreground justify-start justify-self-start bg-destructive hover:bg-destructive/80 md:w-auto"
-			buttonText="Delete all conversations"
+			buttonText={t('Delete all conversations')}
 			buttonVariant="destructive"
-			description="Permanently delete all conversations and their messages. This action cannot be undone. Consider exporting your conversations first if you want to keep a backup."
+			description={t(
+				'Permanently delete all conversations and their messages. This action cannot be undone. Consider exporting your conversations first if you want to keep a backup.'
+			)}
 			onclick={handleDeleteAllClick}
-			title="Delete All"
+			title={t('Delete All')}
 			titleClass="text-destructive"
 		/>
 	</SettingsGroup>
 
-	<SettingsGroup title="Settings">
+	<SettingsGroup title={t('Settings')}>
 		<SettingsChatImportExportSection
 			IconComponent={Download}
-			buttonText="Export settings"
-			description="Export your chat settings and preferences as a JSON file."
+			buttonText={t('Export settings')}
+			description={t('Export your chat settings and preferences as a JSON file.')}
 			onclick={handleSettingsExport}
-			summary={{ items: [], show: showSettingsExportSummary, verb: 'Exported' }}
-			title="Export"
+			summary={{ items: [], show: showSettingsExportSummary, verb: t('Exported') }}
+			title={t('Export')}
 		/>
 
 		<SettingsChatImportExportSection
 			IconComponent={Upload}
-			buttonText="Import settings"
-			description="Import chat settings from a previously exported JSON file. This will merge with your existing settings."
+			buttonText={t('Import settings')}
+			description={t(
+				'Import chat settings from a previously exported JSON file. This will merge with your existing settings.'
+			)}
 			onclick={handleSettingsImport}
-			summary={{ items: [], show: showSettingsImportSummary, verb: 'Imported' }}
-			title="Import"
+			summary={{ items: [], show: showSettingsImportSummary, verb: t('Imported') }}
+			title={t('Import')}
 		/>
 	</SettingsGroup>
 </div>
@@ -337,12 +348,14 @@
 
 <DialogConfirmation
 	bind:open={showDeleteDialog}
-	cancelText="Cancel"
-	confirmText="Delete All"
-	description="Are you sure you want to delete all conversations? This action cannot be undone and will permanently remove all your conversations and messages."
+	cancelText={t('Cancel')}
+	confirmText={t('Delete All')}
+	description={t(
+		'Are you sure you want to delete all conversations? This action cannot be undone and will permanently remove all your conversations and messages.'
+	)}
 	icon={Trash2}
 	onCancel={handleDeleteAllCancel}
 	onConfirm={handleDeleteAllConfirm}
-	title="Delete all conversations"
+	title={t('Delete all conversations')}
 	variant="destructive"
 />

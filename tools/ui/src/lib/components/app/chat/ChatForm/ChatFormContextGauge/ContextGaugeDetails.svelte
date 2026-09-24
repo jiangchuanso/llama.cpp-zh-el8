@@ -4,6 +4,7 @@
 	import { ChevronDown } from '@lucide/svelte';
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import { STATS_UNITS } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		currentRead: number;
@@ -39,7 +40,7 @@
 	<Collapsible.Trigger
 		class="flex w-full cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
 	>
-		<span>Token usage details</span>
+		<span>{t('Token usage details')}</span>
 
 		<ChevronDown
 			class={'ml-auto h-3 w-3 transition-transform' + (gaugePopup.detailsOpen ? ' rotate-180' : '')}
@@ -50,24 +51,26 @@
 		{#if hasCumulative}
 			<div>
 				<h3 class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70 mb-2">
-					Across all turns
+					{t('Across all turns')}
 				</h3>
 
 				<div class="flex flex-col gap-2">
 					{#if cumulativeRead > 0}
 						<ContextGaugeDetailRow
-							label="Prompt tokens evaluated"
+							label={t('Prompt tokens evaluated')}
 							subtitle={cumulativeCacheTotal > 0
-								? `${cumulativeCacheTotal.toLocaleString()} reused from KV cache`
+								? t('{value} reused from KV cache', {
+										value: cumulativeCacheTotal.toLocaleString()
+									})
 								: undefined}
-							value={`${cumulativeRead.toLocaleString()} tok`}
+							value={t('{value} tok', { value: cumulativeRead.toLocaleString() })}
 						/>
 					{/if}
 
 					{#if cumulativeOutput > 0}
 						<ContextGaugeDetailRow
-							label="Tokens generated"
-							value={`${cumulativeOutput.toLocaleString()} tok`}
+							label={t('Tokens generated')}
+							value={t('{value} tok', { value: cumulativeOutput.toLocaleString() })}
 						/>
 					{/if}
 				</div>
@@ -77,32 +80,37 @@
 		{#if hasCurrent}
 			<div>
 				<h3 class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70 mb-2">
-					This turn · KV cache
+					{t('This turn · KV cache')}
 				</h3>
 
 				<div class="flex flex-col gap-2">
 					{#if currentRead > 0}
 						<ContextGaugeDetailRow
-							label="Prompt"
+							label={t('Prompt')}
 							subtitle={currentCache > 0
-								? `${currentFresh.toLocaleString()} fresh + ${currentCache.toLocaleString()} cached`
+								? t('{fresh} fresh + {cached} cached', {
+										cached: currentCache.toLocaleString(),
+										fresh: currentFresh.toLocaleString()
+									})
 								: undefined}
-							value={`${currentRead.toLocaleString()} tok`}
+							value={t('{value} tok', { value: currentRead.toLocaleString() })}
 						/>
 					{/if}
 
 					{#if currentOutput > 0}
 						<ContextGaugeDetailRow
-							label="Generated"
-							value={`${currentOutput.toLocaleString()} tok`}
+							label={t('Generated')}
+							value={t('{value} tok', { value: currentOutput.toLocaleString() })}
 						/>
 					{/if}
 
 					<div class="pt-1 mt-0.5 border-t border-border/30">
 						<div class="flex justify-between">
-							<span class="text-muted-foreground">KV cache total</span>
+							<span class="text-muted-foreground">{t('KV cache total')}</span>
 
-							<span class="font-mono font-medium">{kvTotal.toLocaleString()} tok</span>
+							<span class="font-mono font-medium"
+								>{t('{value} tok', { value: kvTotal.toLocaleString() })}</span
+							>
 						</div>
 					</div>
 				</div>
@@ -112,7 +120,7 @@
 		{#if averageTokensPerSecond !== null}
 			<div class="pt-1.5 mt-1 border-t border-border/30">
 				<ContextGaugeDetailRow
-					label="Avg speed"
+					label={t('Avg speed')}
 					value={`${averageTokensPerSecond.toFixed(1)}${STATS_UNITS.TOKENS_PER_SECOND}`}
 				/>
 			</div>

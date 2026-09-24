@@ -1,4 +1,5 @@
 import { STATS_UNITS } from '$lib/constants';
+import { t } from '$lib/i18n';
 import { chatStore } from '$lib/stores';
 import type { ApiProcessingState, LiveGenerationStats, LiveProcessingStats } from '$lib/types';
 
@@ -96,22 +97,22 @@ export function useProcessingState(): UseProcessingStateReturn {
 
 	function getProcessingMessage(): string {
 		if (!processingState) {
-			return 'Processing...';
+			return t('Processing...');
 		}
 
 		switch (processingState.status) {
 			case 'initializing':
-				return 'Initializing...';
+				return t('Initializing...');
 			case 'preparing':
 				if (processingState.progressPercent !== undefined) {
-					return `Processing (${processingState.progressPercent}%)`;
+					return t('Processing ({percent}%)', { percent: processingState.progressPercent });
 				}
 
-				return 'Preparing response...';
+				return t('Preparing response...');
 			case 'generating':
 				return '';
 			default:
-				return 'Processing...';
+				return t('Processing...');
 		}
 	}
 
@@ -138,9 +139,9 @@ export function useProcessingState(): UseProcessingStateReturn {
 				if (eta !== undefined) {
 					const etaSecs = Math.ceil(eta);
 
-					details.push(`Processing ${percent}% (ETA: ${etaSecs}s)`);
+					details.push(t('Processing {percent}% (ETA: {secs}s)', { percent, secs: etaSecs }));
 				} else {
-					details.push(`Processing ${percent}%`);
+					details.push(t('Processing {percent}%', { percent }));
 				}
 			}
 		}
@@ -154,21 +155,29 @@ export function useProcessingState(): UseProcessingStateReturn {
 			const contextPercent = Math.round((stateToUse.contextUsed / stateToUse.contextTotal) * 100);
 
 			details.push(
-				`Context: ${stateToUse.contextUsed}/${stateToUse.contextTotal} (${contextPercent}%)`
+				t('Context: {used}/{total} ({percent}%)', {
+					percent: contextPercent,
+					total: stateToUse.contextTotal,
+					used: stateToUse.contextUsed
+				})
 			);
 		}
 
 		if (stateToUse.outputTokensUsed > 0) {
 			// Handle infinite max_tokens (-1) case
 			if (stateToUse.outputTokensMax <= 0) {
-				details.push(`Output: ${stateToUse.outputTokensUsed}/∞`);
+				details.push(t('Output: {used}/∞', { used: stateToUse.outputTokensUsed }));
 			} else {
 				const outputPercent = Math.round(
 					(stateToUse.outputTokensUsed / stateToUse.outputTokensMax) * 100
 				);
 
 				details.push(
-					`Output: ${stateToUse.outputTokensUsed}/${stateToUse.outputTokensMax} (${outputPercent}%)`
+					t('Output: {used}/{max} ({percent}%)', {
+						max: stateToUse.outputTokensMax,
+						percent: outputPercent,
+						used: stateToUse.outputTokensUsed
+					})
 				);
 			}
 		}
@@ -178,7 +187,7 @@ export function useProcessingState(): UseProcessingStateReturn {
 		}
 
 		if (stateToUse.speculative) {
-			details.push('Speculative decoding enabled');
+			details.push(t('Speculative decoding enabled'));
 		}
 
 		return details;
@@ -205,21 +214,29 @@ export function useProcessingState(): UseProcessingStateReturn {
 			const contextPercent = Math.round((stateToUse.contextUsed / stateToUse.contextTotal) * 100);
 
 			details.push(
-				`Context: ${stateToUse.contextUsed}/${stateToUse.contextTotal} (${contextPercent}%)`
+				t('Context: {used}/{total} ({percent}%)', {
+					percent: contextPercent,
+					total: stateToUse.contextTotal,
+					used: stateToUse.contextUsed
+				})
 			);
 		}
 
 		if (stateToUse.outputTokensUsed > 0) {
 			// Handle infinite max_tokens (-1) case
 			if (stateToUse.outputTokensMax <= 0) {
-				details.push(`Output: ${stateToUse.outputTokensUsed}/∞`);
+				details.push(t('Output: {used}/∞', { used: stateToUse.outputTokensUsed }));
 			} else {
 				const outputPercent = Math.round(
 					(stateToUse.outputTokensUsed / stateToUse.outputTokensMax) * 100
 				);
 
 				details.push(
-					`Output: ${stateToUse.outputTokensUsed}/${stateToUse.outputTokensMax} (${outputPercent}%)`
+					t('Output: {used}/{max} ({percent}%)', {
+						max: stateToUse.outputTokensMax,
+						percent: outputPercent,
+						used: stateToUse.outputTokensUsed
+					})
 				);
 			}
 		}
@@ -229,7 +246,7 @@ export function useProcessingState(): UseProcessingStateReturn {
 		}
 
 		if (stateToUse.speculative) {
-			details.push('Speculative decoding enabled');
+			details.push(t('Speculative decoding enabled'));
 		}
 
 		return details;
@@ -254,10 +271,10 @@ export function useProcessingState(): UseProcessingStateReturn {
 		if (eta !== undefined) {
 			const etaSecs = Math.ceil(eta);
 
-			return `Processing ${percent}% (ETA: ${etaSecs}s)`;
+			return t('Processing {percent}% (ETA: {secs}s)', { percent, secs: etaSecs });
 		}
 
-		return `Processing ${percent}%`;
+		return t('Processing {percent}%', { percent });
 	}
 
 	/**

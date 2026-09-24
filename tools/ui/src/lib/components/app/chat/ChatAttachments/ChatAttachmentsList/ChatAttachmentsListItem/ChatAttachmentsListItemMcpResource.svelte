@@ -3,6 +3,7 @@
 	import { X } from '@lucide/svelte';
 	import { ActionIcon } from '$lib/components/app';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { MCPResourceAttachment } from '$lib/types';
 	import { getResourceDisplayName, getResourceIcon } from '$lib/utils';
@@ -63,7 +64,7 @@
 					iconSize="h-2 w-2"
 					onclick={() => onRemove?.(attachment.id)}
 					stopPropagationOnClick
-					tooltip="Remove"
+					tooltip={t('Remove')}
 				/>
 			{/if}
 		</button>

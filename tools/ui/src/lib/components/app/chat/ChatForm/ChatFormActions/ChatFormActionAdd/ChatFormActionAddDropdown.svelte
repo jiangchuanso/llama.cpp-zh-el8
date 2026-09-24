@@ -17,6 +17,7 @@
 	import { getChatFormActionsContext } from '$lib/contexts';
 	import { AttachmentAction, AttachmentItemEnabledWhen } from '$lib/enums';
 	import { useAttachmentMenu } from '$lib/hooks/use-attachment-menu.svelte';
+	import { t } from '$lib/i18n';
 	import { serverStore } from '$lib/stores';
 
 	interface Props {
@@ -75,7 +76,7 @@
 						)}
 						disabled={chatFormActions.disabled}
 					>
-						<span class="sr-only">{ATTACHMENT_TOOLTIP_TEXT}</span>
+						<span class="sr-only">{t(ATTACHMENT_TOOLTIP_TEXT)}</span>
 
 						<Plus class={ICON_CLASS_DEFAULT} />
 					</DropdownMenu.Trigger>
@@ -83,7 +84,7 @@
 			</Tooltip.Trigger>
 
 			<Tooltip.Content>
-				<p>{ATTACHMENT_TOOLTIP_TEXT}</p>
+				<p>{t(ATTACHMENT_TOOLTIP_TEXT)}</p>
 			</Tooltip.Content>
 		</Tooltip.Root>
 
@@ -111,7 +112,7 @@
 				<File class={ICON_CLASS_DEFAULT} />
 
 				<span class="flex min-w-0 items-center gap-2">
-					<span>Add files</span>
+					<span>{t('Add files')}</span>
 
 					{#if supportedModalities.length > 0}
 						<span class="flex items-center gap-0.75 text-muted-foreground">
@@ -122,7 +123,7 @@
 									</Tooltip.Trigger>
 
 									<Tooltip.Content>
-										<p>{modality.label}</p>
+										<p>{t(modality.label)}</p>
 									</Tooltip.Content>
 								</Tooltip.Root>
 							{/each}
@@ -140,7 +141,7 @@
 			>
 				<MessageSquare class={ICON_CLASS_DEFAULT} />
 
-				<span>System Message</span>
+				<span>{t('System Message')}</span>
 			</DropdownMenu.Item>
 
 			<ChatFormActionAddToolsSubmenu />
@@ -151,7 +152,7 @@
 			>
 				<McpLogo class={ICON_CLASS_DEFAULT} />
 
-				<span>MCP Servers</span>
+				<span>{t('MCP Servers')}</span>
 			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>

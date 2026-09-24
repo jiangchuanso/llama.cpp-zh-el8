@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { ICON_CLASS_DEFAULT, URL_PARAMS } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		open: boolean;
@@ -35,24 +36,26 @@
 		<AlertDialog.Header>
 			<AlertDialog.Title class="flex items-center gap-2">
 				<AlertTriangle class="h-5 w-5 text-amber-500" />
-				Model Not Available
+				{t('Model Not Available')}
 			</AlertDialog.Title>
 
 			<AlertDialog.Description>
-				The requested model could not be found. Select an available model to continue.
+				{t('The requested model could not be found. Select an available model to continue.')}
 			</AlertDialog.Description>
 		</AlertDialog.Header>
 
 		<div class="space-y-3">
 			<div class="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
 				<p class="font-medium text-amber-600 dark:text-amber-400">
-					Requested: <code class="rounded bg-amber-500/20 px-1.5 py-0.5">{modelName}</code>
+					{t('Requested:')} <code class="rounded bg-amber-500/20 px-1.5 py-0.5">{modelName}</code>
 				</p>
 			</div>
 
 			{#if availableModels.length > 0}
 				<div class="text-sm">
-					<p class="mb-2 font-medium text-muted-foreground">Select an available model:</p>
+					<p class="mb-2 font-medium text-muted-foreground">
+						{t('Select an available model:')}
+					</p>
 
 					<div class="max-h-48 space-y-1 overflow-y-auto rounded-md border p-1">
 						{#each availableModels as model (model)}
@@ -74,7 +77,7 @@
 		</div>
 
 		<AlertDialog.Footer>
-			<AlertDialog.Action onclick={() => handleOpenChange(false)}>Cancel</AlertDialog.Action>
+			<AlertDialog.Action onclick={() => handleOpenChange(false)}>{t('Cancel')}</AlertDialog.Action>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>

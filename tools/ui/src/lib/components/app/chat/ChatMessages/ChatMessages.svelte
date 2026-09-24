@@ -2,6 +2,7 @@
 	import LazyChatMessage from './LazyChatMessage.svelte';
 	import { ChatMessageUserPending } from '$lib/components/app';
 	import { MessageRole } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { agenticStore, chatStore, conversationsStore, settingsStore } from '$lib/stores';
 	import type { ChatMessageActions } from '$lib/types';
 	import {
@@ -38,7 +39,7 @@
 				asPlainText
 			);
 
-			await copyToClipboard(clipboardContent, 'Message copied to clipboard');
+			await copyToClipboard(clipboardContent, t('Message copied to clipboard'));
 		},
 
 		delete: async (message: DatabaseMessage) => {

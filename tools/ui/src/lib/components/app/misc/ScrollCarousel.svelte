@@ -4,6 +4,7 @@
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { ScrollCarouselVariant } from '$lib/enums';
 	import { useScrollCarousel } from '$lib/hooks/use-scroll-carousel.svelte';
+	import { t } from '$lib/i18n';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -90,7 +91,7 @@
 					: 'pointer-events-none opacity-0')
 		)}
 		{...isCenter ? { disabled: !carousel.canScrollLeft } : {}}
-		aria-label="Scroll left"
+		aria-label={t('Scroll left')}
 		onclick={scrollLeft}
 	>
 		<ChevronLeft class={ICON_CLASS_DEFAULT} />
@@ -123,7 +124,7 @@
 					: 'pointer-events-none opacity-0')
 		)}
 		{...isCenter ? { disabled: !carousel.canScrollRight } : {}}
-		aria-label="Scroll right"
+		aria-label={t('Scroll right')}
 		onclick={scrollRight}
 	>
 		<ChevronRight class={ICON_CLASS_DEFAULT} />

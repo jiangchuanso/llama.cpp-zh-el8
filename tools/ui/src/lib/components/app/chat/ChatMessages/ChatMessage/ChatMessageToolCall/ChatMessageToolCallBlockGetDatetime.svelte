@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Clock, Loader2 } from '@lucide/svelte';
 	import { AgenticSectionType } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import type { AgenticSection } from '$lib/types';
 
 	interface Props {
@@ -46,19 +47,19 @@
 	<Clock class="text-muted-foreground/60 h-3.5 w-3.5 shrink-0" />
 
 	{#if showSpinner}
-		<span class="text-foreground/80 text-sm font-medium">Current time</span>
+		<span class="text-foreground/80 text-sm font-medium">{t('Current time')}</span>
 
 		<Loader2 class="text-muted-foreground/70 h-3 w-3 animate-spin" />
 	{:else if dateMeta.errorMessage}
-		<span class="text-foreground/80 text-sm font-medium">Current time&nbsp;</span>
+		<span class="text-foreground/80 text-sm font-medium">{t('Current time')}&nbsp;</span>
 
 		<span class="text-red-600 text-xs italic dark:text-red-400">-&nbsp;{dateMeta.errorMessage}</span
 		>
 	{:else if dateMeta.dateString}
-		<span class="text-foreground/80 text-sm font-medium">Current time is&nbsp;</span>
+		<span class="text-foreground/80 text-sm font-medium">{t('Current time is')}&nbsp;</span>
 
 		<span class="font-mono text-foreground/90 text-sm">{dateMeta.dateString}</span>
 	{:else}
-		<span class="text-foreground/80 text-sm font-medium">Current time</span>
+		<span class="text-foreground/80 text-sm font-medium">{t('Current time')}</span>
 	{/if}
 </div>

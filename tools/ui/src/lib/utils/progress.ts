@@ -4,12 +4,13 @@
  */
 
 import { MODEL_LOAD_STAGE_LABELS, MODEL_LOAD_TAIL_SHARE } from '$lib/constants';
+import { t } from '$lib/i18n';
 
 /**
  * Human label for a model load stage.
  */
 export function modelLoadStageLabel(stage: ApiModelLoadStage): string {
-	return MODEL_LOAD_STAGE_LABELS[stage];
+	return t(MODEL_LOAD_STAGE_LABELS[stage]);
 }
 
 /**

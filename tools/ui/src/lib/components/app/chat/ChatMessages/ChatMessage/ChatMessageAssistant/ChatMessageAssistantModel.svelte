@@ -32,6 +32,9 @@
 
 				try {
 					await modelsStore.status.load(modelId);
+				} catch {
+					// the store already surfaced the failure; keep the list open to retry
+					return false;
 				} finally {
 					pendingModel = null;
 				}

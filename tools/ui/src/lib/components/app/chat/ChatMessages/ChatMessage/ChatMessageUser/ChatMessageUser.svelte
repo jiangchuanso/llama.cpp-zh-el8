@@ -8,6 +8,7 @@
 	import { getChatMessageEditContext } from '$lib/contexts';
 	import { ChatMessageStatisticsMode, MessageRole } from '$lib/enums';
 	import { useProcessingState } from '$lib/hooks/use-processing-state.svelte';
+	import { t } from '$lib/i18n';
 	import { chatStore, settingsStore } from '$lib/stores';
 
 	interface Props {
@@ -61,7 +62,7 @@
 </script>
 
 <div
-	aria-label="User message with actions"
+	aria-label={t('User message with actions')}
 	class="chat-message-user group flex flex-col items-end gap-3 md:gap-2 {className}"
 	role="group"
 >

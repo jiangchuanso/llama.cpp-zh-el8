@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { MODALITY_ICONS, MODALITY_LABELS } from '$lib/constants';
 	import { ModelModality } from '$lib/enums';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		modalities: ModelModality[];
@@ -24,6 +25,6 @@
 	>
 		<ModalityIcon class="h-3 w-3" />
 
-		{MODALITY_LABELS[modality]}
+		{t(MODALITY_LABELS[modality])}
 	</span>
 {/each}

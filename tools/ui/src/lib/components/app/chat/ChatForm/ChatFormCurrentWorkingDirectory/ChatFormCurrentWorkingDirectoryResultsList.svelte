@@ -2,6 +2,7 @@
 	import { Folder } from '@lucide/svelte';
 	import { cn } from '$lib/components/ui/utils';
 	import { UI_DATA_ATTRS } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { highlightMatch } from '$lib/utils';
 	import { fly } from 'svelte/transition';
 
@@ -38,11 +39,11 @@
 	class="max-h-48 overflow-y-auto py-2"
 >
 	{#if isSearching && results.length === 0}
-		<div class="px-2 py-1.5 text-sm text-muted-foreground">Searching...</div>
+		<div class="px-2 py-1.5 text-sm text-muted-foreground">{t('Searching...')}</div>
 	{:else if error}
 		<div class="px-2 py-1.5 text-sm text-destructive">{error}</div>
 	{:else if results.length === 0}
-		<div class="px-2 py-1.5 text-sm text-muted-foreground">No matching folders</div>
+		<div class="px-2 py-1.5 text-sm text-muted-foreground">{t('No matching folders')}</div>
 	{:else}
 		{#each results as path, index (path)}
 			<button

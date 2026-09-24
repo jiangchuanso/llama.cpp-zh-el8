@@ -8,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import type { MCPResourceContent, MCPResourceInfo, MCPResourceTemplateInfo } from '$lib/types';
 	import { getResourceDisplayName } from '$lib/utils';
@@ -109,7 +110,7 @@
 				templatePreviewError = 'Failed to read resource';
 			}
 		} catch (error) {
-			templatePreviewError = error instanceof Error ? error.message : 'Unknown error';
+			templatePreviewError = error instanceof Error ? error.message : t('Unknown error');
 		} finally {
 			templatePreviewLoading = false;
 		}
@@ -132,10 +133,14 @@
 					await mcpStore.attachResource(knownResource.uri);
 				}
 
-				toast.success(`Resource attached: ${knownResource.title || knownResource.name}`);
+				toast.success(
+					t('Resource attached: {name}', {
+						name: knownResource.title || knownResource.name
+					})
+				);
 			} else {
 				if (mcpStore.resources.isAttached(templatePreviewUri)) {
-					toast.info('Resource already attached');
+					toast.info(t('Resource already attached'));
 					handleOpenChange(false);
 
 					return;
@@ -150,7 +155,7 @@
 
 				mcpStore.resources.updateAttachmentContent(attachment.id, templatePreviewContent);
 
-				toast.success(`Resource attached: ${resourceInfo.name}`);
+				toast.success(t('Resource attached: {name}', { name: resourceInfo.name }));
 			}
 
 			handleOpenChange(false);
@@ -232,8 +237,8 @@
 
 			toast.success(
 				count === 1
-					? `Resource attached: ${resourcesToAttach[0].name}`
-					: `${count} resources attached`
+					? t('Resource attached: {name}', { name: resourcesToAttach[0].name })
+					: t('{count} resources attached', { count })
 			);
 
 			handleOpenChange(false);
@@ -257,7 +262,7 @@
 			<Dialog.Title class="flex items-center gap-2">
 				<FolderOpen class="h-5 w-5" />
 
-				<span>MCP Resources</span>
+				<span>{t('MCP Resources')}</span>
 
 				{#if totalCount > 0}
 					<span class="text-sm font-normal text-muted-foreground">({totalCount})</span>
@@ -265,7 +270,7 @@
 			</Dialog.Title>
 
 			<Dialog.Description>
-				Browse and attach resources from connected MCP servers to your chat context.
+				{t('Browse and attach resources from connected MCP servers to your chat context.')}
 			</Dialog.Description>
 		</Dialog.Header>
 
@@ -310,7 +315,7 @@
 							</div>
 						{:else if templatePreviewError}
 							<div class="flex flex-1 flex-col items-center justify-center gap-2 text-red-500">
-								<span class="text-sm">{templatePreviewError}</span>
+								<span class="text-sm">{t(templatePreviewError)}</span>
 
 								<Button
 									onclick={() => {
@@ -319,7 +324,7 @@
 									size="sm"
 									variant="outline"
 								>
-									Try again
+									{t('Try again')}
 								</Button>
 							</div>
 						{:else}
@@ -355,14 +360,14 @@
 					</div>
 				{:else}
 					<div class="flex h-full items-center justify-center text-sm text-muted-foreground">
-						Select a resource to preview
+						{t('Select a resource to preview')}
 					</div>
 				{/if}
 			</div>
 		</div>
 
 		<Dialog.Footer class="border-t border-border/30 px-6 py-4">
-			<Button onclick={() => handleOpenChange(false)} variant="outline">Cancel</Button>
+			<Button onclick={() => handleOpenChange(false)} variant="outline">{t('Cancel')}</Button>
 
 			{#if hasTemplateResult}
 				<Button disabled={isAttaching} onclick={handleAttachTemplateResource}>
@@ -372,7 +377,7 @@
 						<Plus class="mr-2 {ICON_CLASS_DEFAULT}" />
 					{/if}
 
-					Attach Resource
+					{t('Attach Resource')}
 				</Button>
 			{:else}
 				<Button disabled={selectedResources.size === 0 || isAttaching} onclick={handleAttach}>
@@ -382,7 +387,9 @@
 						<Plus class="mr-2 {ICON_CLASS_DEFAULT}" />
 					{/if}
 
-					Attach {selectedResources.size > 0 ? `(${selectedResources.size})` : 'Resource'}
+					{t('Attach')} {selectedResources.size > 0
+						? `(${selectedResources.size})`
+						: t('Resource')}
 				</Button>
 			{/if}
 		</Dialog.Footer>

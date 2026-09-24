@@ -3,6 +3,7 @@
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { cn } from '$lib/components/ui/utils';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import type { Snippet } from 'svelte';
 	import type { Component } from 'svelte';
 
@@ -91,7 +92,7 @@
 			)}
 		/>
 
-		<span class="sr-only">Toggle content</span>
+		<span class="sr-only">{t('Toggle content')}</span>
 	</Collapsible.Trigger>
 
 	<Collapsible.Content>

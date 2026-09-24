@@ -3,6 +3,7 @@
 	import { McpLogo } from '$lib/components/app/mcp';
 	import { TruncatedText } from '$lib/components/app/misc';
 	import { Badge } from '$lib/components/ui/badge';
+	import { t } from '$lib/i18n';
 	import type { MCPServerInfo } from '$lib/types';
 	import { sanitizeExternalUrl } from '$lib/utils';
 
@@ -50,7 +51,7 @@
 
 	{#if showWebsite && safeWebsiteUrl}
 		<a
-			aria-label="Open website"
+			aria-label={t('Open website')}
 			class="shrink-0 text-muted-foreground hover:text-foreground"
 			href={safeWebsiteUrl}
 			onclick={(e) => e.stopPropagation()}

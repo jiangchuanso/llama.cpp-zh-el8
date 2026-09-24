@@ -10,6 +10,7 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { ServerModelStatus } from '$lib/enums';
 	import { useModelsSelector } from '$lib/hooks/use-models-selector.svelte';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 	import { modelLoadFraction } from '$lib/utils';
 
@@ -59,10 +60,10 @@
 	{#if ms.loading && ms.options.length === 0 && ms.isRouter}
 		<div class="flex items-center gap-2 text-xs text-muted-foreground">
 			<Loader2 class="h-3.5 w-3.5 animate-spin" />
-			Loading models…
+			{t('Loading models…')}
 		</div>
 	{:else if ms.options.length === 0 && ms.isRouter}
-		<p class="text-xs text-muted-foreground">No models available.</p>
+		<p class="text-xs text-muted-foreground">{t('No models available.')}</p>
 	{:else}
 		{@const selectedOption = ms.getDisplayOption()}
 		{@const triggerModel = selectedOption?.model}
@@ -98,7 +99,7 @@
 				<Package class="h-3.5 w-3.5 shrink-0" />
 
 				{#if !selectedOption}
-					<span class="min-w-0 font-medium">Select model</span>
+					<span class="min-w-0 font-medium">{t('Select model')}</span>
 				{:else}
 					<ModelId
 						class="text-xs"
@@ -123,10 +124,10 @@
 			<Sheet.Root bind:open={sheetOpen} onOpenChange={handleSheetOpenChange}>
 				<Sheet.Content class="max-h-[85vh] gap-1" side="bottom">
 					<Sheet.Header>
-						<Sheet.Title>Select Model</Sheet.Title>
+						<Sheet.Title>{t('Select Model')}</Sheet.Title>
 
 						<Sheet.Description class="sr-only">
-							Choose a model to use for the conversation
+							{t('Choose a model to use for the conversation')}
 						</Sheet.Description>
 					</Sheet.Header>
 
@@ -150,14 +151,16 @@
 										{selectedOption?.name || currentModel}
 									</span>
 
-									<span class="ml-2 text-xs whitespace-nowrap opacity-70">(not available)</span>
+									<span class="ml-2 text-xs whitespace-nowrap opacity-70">{t('(not available)')}</span>
 								</button>
 
 								<div class="my-1 h-px bg-border"></div>
 							{/if}
 
 							{#if ms.filteredOptions.length === 0}
-								<p class="px-3 py-3 text-center text-sm text-muted-foreground">No models found.</p>
+								<p class="px-3 py-3 text-center text-sm text-muted-foreground">
+									{t('No models found.')}
+								</p>
 							{/if}
 
 							<ModelsSelectorList

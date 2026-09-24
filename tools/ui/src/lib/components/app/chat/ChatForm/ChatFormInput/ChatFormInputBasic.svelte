@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import { deviceStore } from '$lib/stores';
 	import { autoResizeTextarea } from '$lib/utils';
 	import { onMount } from 'svelte';
@@ -76,7 +77,7 @@
 		}}
 		onkeydown={onKeydown}
 		onpaste={onPaste}
-		{placeholder}
+		placeholder={t(placeholder)}
 		style="max-height: var(--max-message-height);"
 	></textarea>
 </div>

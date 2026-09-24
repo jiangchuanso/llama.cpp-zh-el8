@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Video } from '@lucide/svelte';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		currentItem: { name?: string } | null;
@@ -16,12 +17,12 @@
 		{#if videoSrc}
 			<video class="mb-4 w-full" controls src={videoSrc}>
 				<track kind="captions" src="" />
-				Your browser does not support the video element.
+				{t('Your browser does not support the video element.')}
 			</video>
 		{:else}
-			<p class="mb-4 text-white/70">Video preview not available</p>
+			<p class="mb-4 text-white/70">{t('Video preview not available')}</p>
 		{/if}
 
-		<p class="text-sm text-white/50">{currentItem?.name || 'Video'}</p>
+		<p class="text-sm text-white/50">{currentItem?.name || t('Video')}</p>
 	</div>
 </div>

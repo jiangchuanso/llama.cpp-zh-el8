@@ -12,6 +12,7 @@
 	import { CollapsibleTerminalBlock } from '$lib/components/app';
 	import { SETTINGS_KEYS, TOOL_RUNTIME_SCROLL_AT_BOTTOM_THRESHOLD_PX } from '$lib/constants';
 	import { AttachmentType } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { settingsStore, toolsStore } from '$lib/stores';
 	import type { AgenticSection, DatabaseMessageExtra, ToolResultLine } from '$lib/types';
 	import {
@@ -205,7 +206,7 @@
 		{#if ctx.isPending}
 			<div class="flex items-start gap-2 text-xs text-muted-foreground/70">
 				<Loader2 class="h-3 w-3 animate-spin" />
-				Running...
+				{t('Running...')}
 			</div>
 		{:else if execShellError}
 			<div class="flex items-start gap-2 text-xs text-red-600 italic dark:text-red-400">
@@ -238,19 +239,19 @@
 						{#if execShellExitStatus.timedOut}
 							<AlertTriangle class="h-3 w-3" />
 
-							<span>timed out</span>
+							<span>{t('timed out')}</span>
 
 							<span class="exit-sep">&middot;</span>
 
-							<span>exit {execShellExitStatus.code}</span>
+							<span>{t('exit {code}', { code: execShellExitStatus.code })}</span>
 						{:else if execShellExitStatus.code === 0}
 							<Check class="h-3 w-3" />
 
-							<span>exit 0</span>
+							<span>{t('exit {code}', { code: 0 })}</span>
 						{:else}
 							<XCircle class="h-3 w-3" />
 
-							<span>exit {execShellExitStatus.code}</span>
+							<span>{t('exit {code}', { code: execShellExitStatus.code })}</span>
 						{/if}
 					</div>
 				{/if}

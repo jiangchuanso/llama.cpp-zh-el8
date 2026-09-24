@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { ATTACHMENT_TOOLTIP_TEXT, ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		disabled?: boolean;
@@ -21,13 +22,13 @@
 			type="button"
 			variant="secondary"
 		>
-			<span class="sr-only">{ATTACHMENT_TOOLTIP_TEXT}</span>
+			<span class="sr-only">{t(ATTACHMENT_TOOLTIP_TEXT)}</span>
 
 			<Plus class={ICON_CLASS_DEFAULT} />
 		</Button>
 	</Tooltip.Trigger>
 
 	<Tooltip.Content>
-		<p>{ATTACHMENT_TOOLTIP_TEXT}</p>
+		<p>{t(ATTACHMENT_TOOLTIP_TEXT)}</p>
 	</Tooltip.Content>
 </Tooltip.Root>

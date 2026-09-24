@@ -7,6 +7,7 @@ import {
 	Code,
 	Database,
 	Funnel,
+	Languages,
 	ListRestart,
 	Monitor,
 	Moon,
@@ -17,6 +18,7 @@ import {
 import { SyncableParameterType } from '$lib/enums';
 import { SettingsFieldType } from '$lib/enums/settings.enums';
 import { ColorMode } from '$lib/enums/ui.enums';
+import { LOCALE_PREFERENCE_OPTIONS } from '$lib/i18n';
 import type {
 	SettingsConfigValue,
 	SettingsEntry,
@@ -61,6 +63,18 @@ export const SETTINGS_REGISTRY: SettingsSectionEntry[] = [
 	{
 		icon: SlidersVertical,
 		settings: [
+			{
+				defaultValue: 'auto',
+				help: 'Choose the interface language. "Auto" follows your browser language.',
+				key: SETTINGS_KEYS.LANGUAGE,
+				label: 'Language',
+				options: LOCALE_PREFERENCE_OPTIONS.map((option) => ({
+					icon: Languages,
+					label: option.label,
+					value: option.value
+				})),
+				type: SettingsFieldType.SELECT
+			},
 			{
 				defaultValue: ColorMode.SYSTEM,
 				help: 'Choose the color theme for the interface. You can choose between System (follows your device settings), Light, or Dark.',

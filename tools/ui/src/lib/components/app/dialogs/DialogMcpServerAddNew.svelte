@@ -10,6 +10,7 @@
 		RECOMMENDED_MCP_SERVERS
 	} from '$lib/constants';
 	import { BooleanString, HealthCheckStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { mcpStore } from '$lib/stores';
 	import { canonicalizeServerUrl, parseHeadersToArray, uuid } from '$lib/utils';
 
@@ -70,14 +71,14 @@
 	});
 
 	let newServerUrlError = $derived.by(() => {
-		if (!newServerUrl.trim()) return 'URL is required';
+		if (!newServerUrl.trim()) return t('URL is required');
 
 		try {
 			new URL(newServerUrl);
 
 			return null;
 		} catch {
-			return 'Invalid URL format';
+			return t('Invalid URL format');
 		}
 	});
 	let newServerHeaderPairsValid = $derived(
@@ -246,16 +247,16 @@
 <Dialog.Root onOpenChange={handleOpenChange} {open}>
 	<Dialog.Content class="max-w-2xl!">
 		<Dialog.Header>
-			<Dialog.Title class="select-none">Add New MCP Server</Dialog.Title>
+			<Dialog.Title class="select-none">{t('Add New MCP Server')}</Dialog.Title>
 		</Dialog.Header>
 
 		{#if recommendationsToShow.length > 0}
 			<div class="space-y-3 pt-2">
 				<div class="flex items-center justify-between gap-3">
-					<h3 class="text-sm font-medium">Recommended Servers</h3>
+					<h3 class="text-sm font-medium">{t('Recommended Servers')}</h3>
 
 					<Button class="text-muted-foreground" onclick={handleDismissAll} size="sm" variant="ghost"
-						>Dismiss</Button
+						>{t('Dismiss')}</Button
 					>
 				</div>
 
@@ -292,11 +293,17 @@
 
 			<Dialog.Footer>
 				<Button onclick={() => handleOpenChange(false)} size="sm" variant="secondary">
-					Cancel
+					{t('Cancel')}
 				</Button>
 
-				<Button aria-label="Save" disabled={!canSave} size="sm" type="submit" variant="default">
-					Add
+				<Button
+					aria-label={t('Save')}
+					disabled={!canSave}
+					size="sm"
+					type="submit"
+					variant="default"
+				>
+					{t('Add')}
 				</Button>
 			</Dialog.Footer>
 		</form>

@@ -3,6 +3,7 @@
 	import { ScrollCarousel } from '$lib/components/app';
 	import { ICON_CLASS_DEFAULT, UI_DATA_ATTRS } from '$lib/constants';
 	import { ScrollCarouselVariant } from '$lib/enums';
+	import { t } from '$lib/i18n';
 
 	interface PreviewItem {
 		id: string;
@@ -38,7 +39,7 @@
 			{#each items as item, index (item.id)}
 				<button
 					{...{ [UI_DATA_ATTRS.THUMBNAIL_INDEX]: index }}
-					aria-label={`Go to ${item.name}`}
+					aria-label={t('Go to {name}', { name: item.name })}
 					class={[
 						'relative flex-shrink-0 cursor-pointer overflow-hidden rounded border-2 bg-black/80 backdrop-blur-sm transition-all hover:opacity-90',
 						index === currentIndex ? 'border-white' : 'border-transparent opacity-60',

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Popover from '$lib/components/ui/popover';
+	import { t } from '$lib/i18n';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -34,7 +35,7 @@
 		class="pointer-events-none absolute inset-0 opacity-0"
 		tabindex={-1}
 	>
-		<span class="sr-only">{srLabel}</span>
+		<span class="sr-only">{t(srLabel)}</span>
 	</Popover.Trigger>
 
 	<Popover.Content

@@ -8,6 +8,7 @@
 	import { MODEL_SELECTOR_ICON } from '$lib/constants';
 	import { ChatFormCommandAction } from '$lib/enums';
 	import { usePickerNavigation } from '$lib/hooks/use-picker-navigation.svelte';
+	import { t } from '$lib/i18n';
 	import type { ChatFormCommand } from '$lib/types';
 
 	/**
@@ -106,10 +107,10 @@
 	class={className}
 	{onClose}
 	onKeydown={handleKeydown}
-	srLabel="Open command picker"
+	srLabel={t('Open command picker')}
 >
 	<ChatFormPickerList
-		emptyMessage="No matching command"
+		emptyMessage={t('No matching command')}
 		isLoading={false}
 		itemKey={(command) => command.name}
 		items={filteredCommands}

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { McpServerForm } from '$lib/components/app/mcp';
 	import { Button } from '$lib/components/ui/button';
+	import { t } from '$lib/i18n';
 	import { parseHeadersToArray } from '$lib/utils';
 
 	interface Props {
@@ -28,14 +29,14 @@
 	let editUseProxy = $derived(serverUseProxy);
 
 	let urlError = $derived.by(() => {
-		if (!editUrl.trim()) return 'URL is required';
+		if (!editUrl.trim()) return t('URL is required');
 
 		try {
 			new URL(editUrl);
 
 			return null;
 		} catch {
-			return 'Invalid URL format';
+			return t('Invalid URL format');
 		}
 	});
 
@@ -69,7 +70,7 @@
 
 <form class="contents" onsubmit={handleSubmit}>
 	<div class="space-y-4">
-		<p class="font-medium">Configure Server</p>
+		<p class="font-medium">{t('Configure Server')}</p>
 
 		<McpServerForm
 			headers={editHeaders}
@@ -85,10 +86,10 @@
 		/>
 
 		<div class="flex items-center justify-end gap-2">
-			<Button onclick={onCancel} size="sm" variant="secondary">Cancel</Button>
+			<Button onclick={onCancel} size="sm" variant="secondary">{t('Cancel')}</Button>
 
 			<Button disabled={!canSave} size="sm" type="submit">
-				{serverUrl.trim() ? 'Update' : 'Add'}
+				{serverUrl.trim() ? t('Update') : t('Add')}
 			</Button>
 		</div>
 	</div>

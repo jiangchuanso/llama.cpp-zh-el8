@@ -16,6 +16,7 @@
 		SETTINGS_SECTION_SLUGS
 	} from '$lib/constants';
 	import { ColorMode } from '$lib/enums/ui.enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore, serverStore, settingsStore } from '$lib/stores';
 	import type { SettingsSection, SettingsSectionTitle } from '$lib/types';
 	import { setMode } from 'mode-watcher';
@@ -87,7 +88,7 @@
 			try {
 				JSON.parse(localConfig.customJson);
 			} catch (error) {
-				alert('Invalid JSON in custom parameters. Please check the format and try again.');
+				alert(t('Invalid JSON in custom parameters. Please check the format and try again.'));
 				console.error(error);
 
 				return;
@@ -113,7 +114,7 @@
 						processedConfig[field] = numValue;
 					}
 				} else {
-					alert(`Invalid numeric value for ${field}. Please enter a valid number.`);
+					alert(t('Invalid numeric value for {field}. Please enter a valid number.', { field }));
 
 					return;
 				}
@@ -164,7 +165,7 @@
 								<div class="flex justify-end">
 									<Button onclick={() => window.location.reload()} variant="outline">
 										<RefreshCw class="h-3 w-3" />
-										Reload app
+										{t('Reload app')}
 									</Button>
 								</div>
 							{/if}
@@ -173,7 +174,9 @@
 				</div>
 
 				<div class="mt-8 border-t border-border/30 pt-6">
-					<p class="text-xs text-muted-foreground">Settings are saved in browser's localStorage</p>
+					<p class="text-xs text-muted-foreground">
+						{t("Settings are saved in browser's localStorage")}
+					</p>
 				</div>
 			</div>
 

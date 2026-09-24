@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { SearchInput, SidebarNavigationSearchResults } from '$lib/components/app';
 	import { ROUTES } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { RouterService } from '$lib/services/router.service';
 	import { chatStore, conversationsStore, deviceStore } from '$lib/stores';
 
@@ -37,7 +38,7 @@
 
 		if (!conversation) return;
 
-		const newName = window.prompt('Rename conversation', conversation.name);
+		const newName = window.prompt(t('Rename conversation'), conversation.name);
 
 		if (newName && newName.trim()) {
 			await conversationsStore.updateConversationName(id, newName.trim());
@@ -50,7 +51,7 @@
 		if (!conversation) return;
 
 		const confirmed = window.confirm(
-			`Delete "${conversation.name}"? This action cannot be undone.`
+			t('Delete "{name}"? This action cannot be undone.', { name: conversation.name })
 		);
 
 		if (!confirmed) return;
@@ -72,7 +73,7 @@
 </script>
 
 <svelte:head>
-	<title>Search · llama.cpp</title>
+	<title>{t('Search')} · llama.cpp</title>
 </svelte:head>
 
 <div class="fixed top-0 z-10 left-0 right-0 p-2">

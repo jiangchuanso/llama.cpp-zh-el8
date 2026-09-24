@@ -6,6 +6,7 @@
 	import { INPUT_CLASSES } from '$lib/constants';
 	import { getChatMessageEditContext } from '$lib/contexts';
 	import { KeyboardKey, MessageRole } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { settingsStore } from '$lib/stores';
 	import { autoResizeTextarea, isIMEComposing } from '$lib/utils';
 
@@ -76,7 +77,7 @@
 </script>
 
 <div
-	aria-label="System message with actions"
+	aria-label={t('System message with actions')}
 	class="group flex flex-col items-end gap-3 md:gap-2 {className}"
 	role="group"
 >
@@ -90,7 +91,7 @@
 					editCtx.setContent(e.currentTarget.value);
 				}}
 				onkeydown={handleEditKeydown}
-				placeholder="Edit system message..."
+				placeholder={t('Edit system message...')}
 				style="max-height: var(--max-message-height);"
 				value={editCtx.editedContent}
 			></textarea>
@@ -99,7 +100,7 @@
 				<Button class="h-8 px-3" onclick={editCtx.cancel} size="sm" variant="outline">
 					<X class="mr-1 h-3 w-3" />
 
-					Cancel
+					{t('Cancel')}
 				</Button>
 
 				<Button
@@ -110,7 +111,7 @@
 				>
 					<Check class="mr-1 h-3 w-3" />
 
-					Save
+					{t('Save')}
 				</Button>
 			</div>
 		</div>
@@ -163,8 +164,8 @@
 										size="sm"
 										variant="outline"
 									>
-										Show full system message
-									</Button>
+										{t('Show full system message')}
+										</Button>
 								</div>
 							{/if}
 						</div>
@@ -180,8 +181,8 @@
 									size="sm"
 									variant="outline"
 								>
-									Collapse System Message
-								</Button>
+									{t('Collapse System Message')}
+									</Button>
 							</div>
 						{/if}
 					</Card>

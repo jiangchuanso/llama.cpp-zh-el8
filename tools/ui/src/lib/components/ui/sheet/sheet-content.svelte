@@ -25,6 +25,7 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import { cn, type WithoutChildrenOrChild } from '$lib/components/ui/utils.js';
 	import { PANEL_CLASSES } from '$lib/constants';
+	import { t } from '$lib/i18n';
 	import { Dialog as SheetPrimitive } from 'bits-ui';
 	import type { Snippet } from 'svelte';
 
@@ -58,7 +59,7 @@
 		>
 			<XIcon class="size-4" />
 
-			<span class="sr-only">Close</span>
+			<span class="sr-only">{t('Close')}</span>
 		</SheetPrimitive.Close>
 	</SheetPrimitive.Content>
 </SheetPrimitive.Portal>

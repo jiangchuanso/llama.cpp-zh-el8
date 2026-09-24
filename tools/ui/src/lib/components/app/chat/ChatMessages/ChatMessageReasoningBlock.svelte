@@ -3,6 +3,7 @@
 	import { CollapsibleContentBlock, MarkdownContent } from '$lib/components/app';
 	import { REASONING_SCROLL_AT_BOTTOM_THRESHOLD_PX } from '$lib/constants';
 	import { AgenticSectionType } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { settingsStore } from '$lib/stores';
 	import type { AgenticSection, DatabaseMessageExtra } from '$lib/types';
 
@@ -130,8 +131,8 @@
 	{onToggle}
 	{open}
 	{shimmerTitle}
-	{subtitle}
-	{title}
+	subtitle={subtitle ? t(subtitle) : subtitle}
+	title={t(title)}
 >
 	<div
 		bind:this={scrollEl}
