@@ -1,13 +1,8 @@
 name: UI Build
 
 on:
+  workflow_dispatch:
   workflow_call:
-    inputs:
-      ui_version:
-        description: 'Version string embedded in build.json (e.g. b1234); defaults to b<commit-count>'
-        required: false
-        type: string
-
 jobs:
   build:
     runs-on: ubuntu-slim

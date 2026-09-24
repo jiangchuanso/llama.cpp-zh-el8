@@ -1,32 +1,7 @@
 name: Release
 
 on:
-  workflow_dispatch: # allows manual triggering
-    inputs:
-      create_release:
-        description: 'Create new release'
-        required: true
-        type: boolean
-  push:
-    branches:
-      - master
-    paths: [
-      '.github/workflows/release.yml',
-      '**/CMakeLists.txt',
-      '**/.cmake',
-      '**/*.h',
-      '**/*.hpp',
-      '**/*.c',
-      '**/*.cpp',
-      '**/*.cu',
-      '**/*.cuh',
-      '**/*.swift',
-      '**/*.m',
-      '**/*.metal',
-      '**/*.comp',
-      '**/*.glsl'
-    ]
-
+  workflow_dispatch:
 env:
   GH_TOKEN: ${{ github.token }}
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}

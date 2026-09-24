@@ -1,33 +1,7 @@
 name: Server (self-hosted)
 
 on:
-  workflow_dispatch: # allows manual triggering
-    inputs:
-      sha:
-        description: 'Commit SHA1 to build'
-        required: false
-        type: string
-      slow_tests:
-        description: 'Run slow tests'
-        required: true
-        type: boolean
-  push:
-    branches:
-      - master
-    paths: [
-      '.github/workflows/server-self-hosted.yml',
-      '**/CMakeLists.txt',
-      '**/Makefile',
-      '**/*.h',
-      '**/*.hpp',
-      '**/*.c',
-      '**/*.cpp',
-      '**/*.cu',
-      '**/*.swift',
-      '**/*.m',
-      'tools/server/**.*'
-    ]
-
+  workflow_dispatch:
 env:
   # note: this is dud token to avoid rate limiting (https://github.com/ggml-org/llama.cpp/pull/25706#issuecomment-4979941302)
   HF_TOKEN: ${{ secrets.HF_TOKEN_CI }}

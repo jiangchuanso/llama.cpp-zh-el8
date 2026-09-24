@@ -1,48 +1,7 @@
 name: Server
 
 on:
-  workflow_dispatch: # allows manual triggering
-    inputs:
-      sha:
-        description: 'Commit SHA1 to build'
-        required: false
-        type: string
-      slow_tests:
-        description: 'Run slow tests'
-        required: true
-        type: boolean
-  push:
-    branches:
-      - master
-    paths: [
-      '.github/workflows/server.yml',
-      '**/CMakeLists.txt',
-      '**/Makefile',
-      '**/*.h',
-      '**/*.hpp',
-      '**/*.c',
-      '**/*.cpp',
-      '**/*.cu',
-      '**/*.swift',
-      '**/*.m',
-      'tools/server/**.*'
-    ]
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths: [
-      '.github/workflows/server.yml',
-      '**/CMakeLists.txt',
-      '**/Makefile',
-      '**/*.h',
-      '**/*.hpp',
-      '**/*.c',
-      '**/*.cpp',
-      '**/*.cu',
-      '**/*.swift',
-      '**/*.m',
-      'tools/server/**.*'
-    ]
-
+  workflow_dispatch:
 env:
   LLAMA_ARG_LOG_COLORS: 1
   LLAMA_ARG_LOG_PREFIX: 1
@@ -53,24 +12,38 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: write # required by ccache-clear to delete old caches
+
 jobs:
   ubuntu:
     runs-on: ubuntu-24.04-arm
+    # GitHub-hosted runner acts as the host; the build runs inside an
+    # AlmaLinux 8 container (binary-compatible CentOS 8 replacement).
+    container: almalinux:8
 
     steps:
-      - name: Dependencies
+      - name: System Dependencies (EL8 / dnf)
         id: depends
         run: |
-          sudo apt-get update
-          sudo apt-get -y install \
-            build-essential \
-            xxd \
-            git \
-            cmake \
-            curl \
-            wget \
-            language-pack-en \
-            libssl-dev
+          dnf -y install --setopt=install_weak_deps=False \
+            git git-lfs wget which tar jq curl \
+            gcc-toolset-13 \
+            make cmake \
+            vim-common \
+            openssl-devel \
+            glibc-langpack-en \
+            python3.11 python3.11-pip python3.11-devel
+          git lfs install
+          # actions/setup-python cannot be used here: its CPython builds require a
+          # newer glibc than EL8 provides, so use the distro python3.11 instead
+          ln -sf /usr/bin/python3.11 /usr/local/bin/python3
+          ln -sf /usr/bin/pip3.11 /usr/local/bin/pip3
+          # Put the modern GCC toolset ahead of the system GCC 10 on PATH
+          echo "PATH=/opt/rh/gcc-toolset-13/root/usr/bin:$PATH" >> "$GITHUB_ENV"
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
 
       - name: Clone
         id: checkout
@@ -113,12 +86,11 @@ jobs:
           hf_bucket: ggml-org/cache
           save: true
 
-      - name: Python setup
-        id: setup_python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-          pip-install: -r tools/server/tests/requirements.txt
+      - name: Python Dependencies
+        id: python_depends
+        run: |
+          python3 -m pip install --upgrade pip setuptools
+          pip3 install -r tools/server/tests/requirements.txt
 
       - name: Tests
         id: server_integration_tests

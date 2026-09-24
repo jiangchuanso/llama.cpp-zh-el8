@@ -2,6 +2,27 @@ name: CI (cpu)
 
 on:
   workflow_dispatch: # allows manual triggering
+    inputs:
+      # A/B experiments only. They affect the el8 (ubuntu job) build alone and
+      # evaluate to a no-op for push/pull_request runs, so the normal build is
+      # unchanged.
+      opt_flags:
+        description: 'Extra C/CXX flags for both el8 trees, e.g. -fno-semantic-interposition'
+        required: false
+        default: ''
+      opt_flags_x64:
+        description: 'Extra C/CXX flags applied to the x86_64 el8 build only, e.g. -fno-plt'
+        required: false
+        default: ''
+      opt_flags_arm64:
+        description: 'Extra C/CXX flags applied to the aarch64 el8 build only, e.g. -mno-outline-atomics'
+        required: false
+        default: ''
+      lto:
+        description: 'Build the el8 binaries with LTO (-DGGML_LTO=ON)'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - master
@@ -34,6 +55,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: write # required by ccache-clear to delete old caches
+
 env:
   GGML_NLOOP: 3
   GGML_N_THREADS: 1
@@ -45,48 +70,88 @@ jobs:
   build-cmake-pkg:
     uses: ./.github/workflows/build-cmake-pkg.yml
 
+  ui-build:
+    uses: ./.github/workflows/ui-build.yml
+
+  # Repackage the el8 binaries into RPMs. Lives in a fork-only workflow file so
+  # this one stays close to upstream, but runs inside the same workflow run so
+  # it can reuse the artifacts of the `ubuntu` job without recompiling.
+  rpm:
+    needs: ubuntu
+    # experimental artifacts carry a different name and must not become RPMs
+    if: ${{ !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
+    uses: ./.github/workflows/build-rpm.yml
+
   ubuntu:
+    needs: ui-build
     strategy:
+      fail-fast: false
       matrix:
+        # No -mtune on either tree. The per-CPU part is resolved at run time
+        # instead: GGML_CPU_ALL_VARIANTS ships one .so per ISA level and the
+        # loader picks the best the host CPU reports, which a build-time tuning
+        # guess cannot do (the CI runner is not the machine that runs the
+        # binary). Both guesses tried here measured at best neutral - znver1 for
+        # x86_64 (0% on Hygon, -4.8% tg on Intel) and cortex-a76 for arm64 -
+        # because the hot kernels are hand-written intrinsics that leave the
+        # instruction scheduler little to reorder.
         include:
           - build: 'x64'
             os: ubuntu-22.04
+            dist: 'el8-x64'
           - build: 'arm64'
             os: ubuntu-24.04-arm
+            dist: 'el8-arm64'
 
+    # GitHub-hosted runner acts as the host; the build runs inside an
+    # AlmaLinux 8 container (binary-compatible CentOS 8 replacement), so the
+    # resulting binaries are EL8 (glibc 2.28) builds regardless of the host.
     runs-on: ${{ matrix.os }}
+    container: almalinux:8
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
 
+      # Build the UI from this fork's sources instead of taking the prebuilt
+      # upstream bundle, which has no translations and no language selector
+      - name: Download UI build
+        uses: actions/download-artifact@v7
+        with:
+          name: llama-ui.zip
+          path: tools/ui/dist
+
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
         with:
-          key: cpu-${{ matrix.os }}
+          key: cpu-${{ matrix.dist }}
           save: false
 
-      - name: Build Dependencies
+      - name: System Dependencies (EL8 / dnf)
         id: build_depends
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            python3 python3-pip python3-dev python3-wheel \
-            libjpeg-dev build-essential libssl-dev \
-            git-lfs
-
-      - name: Toolchain workaround (GCC 14)
-        if: ${{ contains(matrix.os, 'ubuntu-24.04') }}
-        run: |
-          sudo apt-get install -y gcc-14 g++-14
-          echo "CC=gcc-14" >> "$GITHUB_ENV"
-          echo "CXX=g++-14" >> "$GITHUB_ENV"
+          # gcc 14: the arm64 backend variants need the newer -march strings
+          dnf -y install --setopt=install_weak_deps=False \
+            git git-lfs wget which tar jq \
+            gcc-toolset-14 \
+            make cmake \
+            openssl-devel libjpeg-turbo-devel \
+            python3.11 python3.11-pip python3.11-devel \
+            glibc-langpack-en
+          git lfs install
+          # actions/setup-python cannot be used here: its CPython builds require a
+          # newer glibc than EL8 provides, so use the distro python3.11 instead
+          ln -sf /usr/bin/python3.11 /usr/local/bin/python3
+          ln -sf /usr/bin/pip3.11 /usr/local/bin/pip3
+          # Put the modern GCC toolset ahead of the system GCC 10 on PATH
+          echo "PATH=/opt/rh/gcc-toolset-14/root/usr/bin:$PATH" >> "$GITHUB_ENV"
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
 
       - name: Python Dependencies
         id: python_depends
         run: |
-          export PIP_BREAK_SYSTEM_PACKAGES="1"
           python3 -m pip install --upgrade pip setuptools
           pip3 install ./gguf-py jinja2==3.1.6
 
@@ -95,18 +160,88 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_CI }}
         with:
-          key: cpu-${{ matrix.os }}
+          key: cpu-${{ matrix.dist }}
           folder: llama.cpp
           hf_bucket: ggml-org/cache
 
       - name: Build
         id: cmake_build
+        env:
+          OPT_FLAGS: ${{ inputs.opt_flags }}
+          OPT_FLAGS_X64: ${{ inputs.opt_flags_x64 }}
+          OPT_FLAGS_ARM64: ${{ inputs.opt_flags_arm64 }}
+          OPT_LTO: ${{ inputs.lto && 'ON' || 'OFF' }}
         run: |
+          # some flags exist on one arch only, hence the separate per-arch
+          # inputs instead of one shared flag string
+          arch_flags=""
+          case "$(uname -m)" in
+            x86_64)  arch_flags="$OPT_FLAGS_X64" ;;
+            aarch64) arch_flags="$OPT_FLAGS_ARM64" ;;
+          esac
+          # No -mtune: the variant is picked at run time from the host CPUID
+          # (see the matrix comment), and the x86 ones are built from individual
+          # -m<feature> flags rather than -march, so without an explicit -mtune
+          # every variant keeps GCC's balanced generic tuning
+          FLAGS="$OPT_FLAGS $arch_flags"
+          echo "C/CXX flags:$FLAGS"
+          if [ "$OPT_LTO" = ON ]; then echo "experimental: LTO enabled"; fi
+          # $ORIGIN: prefer the gcc-toolset runtimes bundled below over the system ones
           cmake -B build \
             -DGGML_NATIVE=OFF \
+            -DGGML_BACKEND_DL=ON \
+            -DGGML_CPU_ALL_VARIANTS=ON \
             -DLLAMA_FATAL_WARNINGS=ON \
-            -DGGML_RPC=ON
+            -DGGML_RPC=ON \
+            -DGGML_LTO="$OPT_LTO" \
+            -DCMAKE_C_FLAGS="$FLAGS" \
+            -DCMAKE_CXX_FLAGS="$FLAGS" \
+            -DLLAMA_USE_PREBUILT_UI=OFF \
+            -DCMAKE_BUILD_RPATH='$ORIGIN'
           time cmake --build build --config Release -j $(nproc)
+          # the toolset ships no loadable libstdc++.so.6, so the binaries always
+          # resolve the system one; ship EL8's copy so that systems with an older
+          # libstdc++ (Kylin V10 has GCC 7.3, i.e. GLIBCXX_3.4.24) can run them
+          need=$(strings -a build/bin/* 2>/dev/null | grep -oE 'GLIBCXX_[0-9.]+|CXXABI_[0-9.]+|GOMP_[0-9.]+' | sort -uV)
+          cp -aL /usr/lib64/libstdc++.so.6* /usr/lib64/libgomp.so.1* build/bin/
+          # what we ship must be at least as new as what the binaries ask for
+          for sym in GLIBCXX_ CXXABI_ GOMP_; do
+            n=$(echo "$need" | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
+            h=$(strings -a build/bin/libstdc++.so.6 build/bin/libgomp.so.1 2>/dev/null | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
+            echo "${sym} need='${n}' provided='${h}'"
+            if [ -n "$n" ] && [ "$(printf '%s\n%s\n' "$n" "$h" | sort -V | tail -1)" != "$h" ]; then
+              echo "error: bundled runtimes provide $h but binaries need $n"; exit 1
+            fi
+          done
+          # the binaries must resolve these from the bundle, not from the system
+          ldd build/bin/llama-server | grep libstdc++
+          ldd build/bin/llama-server | grep -q "build/bin/libstdc++.so.6" || { echo "error: llama-server uses the system libstdc++"; exit 1; }
+
+      # The container is on the EL8 line, so every build stays on glibc 2.28.
+      # Guard it: the artifacts must also load on a stock EL8 or Kylin V10.
+      - name: Check glibc 2.28 baseline
+        id: glibc_check
+        run: |
+          ldd --version | head -1
+          max_ver=2.28
+          fail=0
+          for f in build/bin/*; do
+            [ -f "$f" ] || continue
+            # the bundled distro runtimes are EL8's own, their baseline is EL8's
+            case "${f##*/}" in libstdc++.so.6*|libgomp.so.1*) continue ;; esac
+            [ "$(head -c 4 "$f" | od -An -tx1 | tr -d ' \n')" = "7f454c46" ] || continue
+            dynsyms=$(objdump -T "$f" 2>/dev/null)
+            if echo "$dynsyms" | grep -q GLIBC_PRIVATE; then
+              echo "error: $f references GLIBC_PRIVATE"; fail=1
+            fi
+            vers=$(echo "$dynsyms" | grep -oE 'GLIBC_2\.[0-9]+' | sort -uV)
+            [ -n "$vers" ] || continue
+            if [ "$(printf '%s\nGLIBC_%s\n' "$vers" "$max_ver" | sort -V | tail -1)" != "GLIBC_$max_ver" ]; then
+              echo "error: $f needs $(echo "$vers" | tail -1), above glibc $max_ver"; fail=1
+            fi
+          done
+          [ "$fail" = 0 ] || exit 1
+          echo "all ELF files stay within glibc $max_ver"
 
       - name: ccache-buckets-save
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
@@ -114,7 +249,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN_CACHE_OUTPUT }}
         with:
-          key: cpu-${{ matrix.os }}
+          key: cpu-${{ matrix.dist }}
           folder: llama.cpp
           evict-old-files: 1d
           hf_bucket: ggml-org/cache
@@ -130,6 +265,13 @@ jobs:
         id: llama2c_test
         run: |
           cd build
+          # examples/convert-llama2c-to-ggml is only added when GGML_BACKEND_DL is off
+          # (it uses the backends directly), so this smoke test does not apply to the
+          # dynamic-backend build used here for the ISA variants
+          if [ ! -x ./bin/llama-convert-llama2c-to-ggml ]; then
+            echo "skipped: llama-convert-llama2c-to-ggml is not built with GGML_BACKEND_DL=ON"
+            exit 0
+          fi
           echo "Fetch tokenizer"
           wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories260K/tok512.bin
           echo "Fetch llama2c model"
@@ -137,9 +279,20 @@ jobs:
           ./bin/llama-convert-llama2c-to-ggml --copy-vocab-from-model ./tok512.bin --llama2c-model stories260K.bin --llama2c-output-model stories260K.gguf
           ./bin/llama-completion -m stories260K.gguf -p "One day, Lily met a Shoggoth" -n 500 -c 256
 
+      - name: Upload binaries
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          # experiments get a distinct name so the default artifact stays intact
+          name: llama-cpu-${{ matrix.dist }}${{ (inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) && '-opt' || '' }}
+          path: build/bin
+
   windows:
     name: windows / ${{ matrix.build }}
     runs-on: windows-2025
+    needs: ui-build
+    # an experiment only needs the el8 artifacts
+    if: ${{ !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
 
     env:
       OPENBLAS_VERSION: 0.3.23
@@ -148,20 +301,24 @@ jobs:
     strategy:
       matrix:
         include:
-          - build: 'x64-cpu-static'
+          - build: 'x64-cpu'
             arch: 'x64'
-            defines: '-G "Ninja Multi-Config" -D CMAKE_TOOLCHAIN_FILE=cmake/x64-windows-llvm.cmake -DGGML_NATIVE=OFF -DGGML_OPENMP_FETCH=ON -DLLAMA_BUILD_SERVER=ON -DGGML_RPC=ON -DBUILD_SHARED_LIBS=OFF'
-          - build: 'x64-openblas'
-            arch: 'x64'
-            defines: '-G "Ninja Multi-Config" -D CMAKE_TOOLCHAIN_FILE=cmake/x64-windows-llvm.cmake -DGGML_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DGGML_RPC=ON -DGGML_BACKEND_DL=ON -DGGML_CPU_ALL_VARIANTS=ON -DGGML_OPENMP=OFF -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS -DBLAS_INCLUDE_DIRS="$env:RUNNER_TEMP/openblas/include" -DBLAS_LIBRARIES="$env:RUNNER_TEMP/openblas/lib/openblas.lib"'
-          - build: 'arm64'
-            arch: 'arm64'
-            defines: '-G "Ninja Multi-Config" -D CMAKE_TOOLCHAIN_FILE=cmake/arm64-windows-llvm.cmake -DGGML_NATIVE=OFF -DGGML_OPENMP_FETCH=ON -DLLAMA_BUILD_SERVER=ON'
+            # examples are not needed for CI nor shipped: keeping them off keeps the
+            # uploaded artifact close to the upstream release package size.
+            defines: '-G "Ninja Multi-Config" -D CMAKE_TOOLCHAIN_FILE=cmake/x64-windows-llvm.cmake -DGGML_NATIVE=OFF -DGGML_OPENMP_FETCH=ON -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON -DGGML_RPC=ON -DGGML_BACKEND_DL=ON -DGGML_CPU_ALL_VARIANTS=ON -DLLAMA_USE_PREBUILT_UI=OFF -DBUILD_SHARED_LIBS=ON'
 
     steps:
       - name: Clone
         id: checkout
         uses: actions/checkout@v6
+
+      # Build the UI from this fork's sources instead of taking the prebuilt
+      # upstream bundle, which has no translations and no language selector
+      - name: Download UI build
+        uses: actions/download-artifact@v7
+        with:
+          name: llama-ui.zip
+          path: tools/ui/dist
 
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
@@ -232,3 +389,223 @@ jobs:
           older: 5m
           min: 1
           dry-run: ${{ github.event_name != 'push' || github.ref != 'refs/heads/master' }}
+
+      # The build tree also contains the test executables (needed by the `ctest` step
+      # above) and, when enabled, the examples. Stage only the distributable files
+      # (tools/server + the runtime DLLs) before uploading.
+      - name: Stage distributable binaries
+        if: ${{ !cancelled() }}
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Get-ChildItem build/bin/Release -File |
+            Where-Object { $_.Name -notlike 'test-*' } |
+            Copy-Item -Destination dist
+
+      - name: Upload binaries
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-cpu-windows-${{ matrix.build }}
+          path: dist
+
+  # Extra Windows variants (OpenBLAS, arm64) that are outside the regular
+  # CI matrix. They are kept runnable but only build on manual dispatch.
+  windows-extra:
+    name: windows-extra / ${{ matrix.build }}
+    runs-on: windows-2025
+    if: ${{ github.event_name == 'workflow_dispatch' && !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
+
+    env:
+      OPENBLAS_VERSION: 0.3.23
+      SDE_VERSION: 9.33.0-2024-01-07
+
+    strategy:
+      matrix:
+        include:
+          - build: 'x64-openblas'
+            arch: 'x64'
+            defines: '-G "Ninja Multi-Config" -D CMAKE_TOOLCHAIN_FILE=cmake/x64-windows-llvm.cmake -DGGML_NATIVE=OFF -DLLAMA_BUILD_SERVER=ON -DGGML_RPC=ON -DGGML_BACKEND_DL=ON -DGGML_CPU_ALL_VARIANTS=ON -DGGML_OPENMP=OFF -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS -DBLAS_INCLUDE_DIRS="$env:RUNNER_TEMP/openblas/include" -DBLAS_LIBRARIES="$env:RUNNER_TEMP/openblas/lib/openblas.lib"'
+          - build: 'arm64'
+            arch: 'arm64'
+            defines: '-G "Ninja Multi-Config" -D CMAKE_TOOLCHAIN_FILE=cmake/arm64-windows-llvm.cmake -DGGML_NATIVE=OFF -DGGML_OPENMP_FETCH=ON -DLLAMA_BUILD_SERVER=ON'
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v6
+
+      - name: ccache
+        uses: ggml-org/ccache-action@v1.2.24
+        with:
+          key: cpu-windows-2025-${{ matrix.build }}
+          variant: ccache
+          evict-old-files: 1d
+          save: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+
+      - name: Download OpenBLAS
+        id: get_openblas
+        if: ${{ matrix.build == 'x64-openblas' }}
+        run: |
+          curl.exe -o $env:RUNNER_TEMP/openblas.zip -L "https://github.com/xianyi/OpenBLAS/releases/download/v${env:OPENBLAS_VERSION}/OpenBLAS-${env:OPENBLAS_VERSION}-x64.zip"
+          curl.exe -o $env:RUNNER_TEMP/OpenBLAS.LICENSE.txt -L "https://github.com/xianyi/OpenBLAS/raw/v${env:OPENBLAS_VERSION}/LICENSE"
+          mkdir $env:RUNNER_TEMP/openblas
+          tar.exe -xvf $env:RUNNER_TEMP/openblas.zip -C $env:RUNNER_TEMP/openblas
+          $vcdir = $(vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath)
+          $msvc = $(join-path $vcdir $('VC\Tools\MSVC\'+$(gc -raw $(join-path $vcdir 'VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt')).Trim()))
+          $lib =  $(join-path $msvc 'bin\Hostx64\x64\lib.exe')
+          & $lib /machine:x64 "/def:${env:RUNNER_TEMP}/openblas/lib/libopenblas.def" "/out:${env:RUNNER_TEMP}/openblas/lib/openblas.lib" /name:openblas.dll
+
+      - name: Install Ninja
+        id: install_ninja
+        run: |
+          choco install ninja
+
+      - name: Build
+        id: cmake_build
+        run: |
+          cmake -S . -B build ${{ matrix.defines }} `
+            -DLLAMA_BUILD_BORINGSSL=ON
+          cmake --build build --config Release -j ${env:NUMBER_OF_PROCESSORS}
+
+      - name: Add libopenblas.dll
+        id: add_libopenblas_dll
+        if: ${{ matrix.build == 'x64-openblas' }}
+        run: |
+          cp $env:RUNNER_TEMP/openblas/bin/libopenblas.dll ./build/bin/Release/openblas.dll
+          cp $env:RUNNER_TEMP/OpenBLAS.LICENSE.txt ./build/bin/Release/OpenBLAS-${env:OPENBLAS_VERSION}.txt
+
+      - name: Test
+        id: cmake_test
+        if: ${{ matrix.arch == 'x64' }}
+        run: |
+          cd build
+          ctest -L main -C Release --verbose --timeout 900
+
+      - name: ccache-clear
+        uses: ./.github/actions/ccache-clear
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          key: cpu-windows-2025-${{ matrix.build }}
+          older: 5m
+          min: 1
+          dry-run: ${{ github.event_name != 'push' || github.ref != 'refs/heads/master' }}
+
+  # Publish the CPU build artifacts as a "nightly" pre-release. Reuses the
+  # artifacts already uploaded by the build jobs (no rebuild). Promoting the
+  # nightly to a full release never stops the flow: the promoted release is
+  # left untouched and the next run publishes on a fallback tag instead.
+  release:
+    name: Publish to Release
+    needs: [build-cmake-pkg, ubuntu, windows, rpm]
+    # Only on pushes to master (or manual dispatch), never on pull requests and
+    # never for an A/B experiment build
+    if: >-
+      ${{
+        !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) &&
+        (github.event_name == 'workflow_dispatch' ||
+         (github.event_name == 'push' && github.ref == 'refs/heads/master'))
+      }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # required to create/update the release
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      # Drop the previous nightly release/tag so each run starts clean (the
+      # upload below only adds assets, it never removes stale ones). Leftover
+      # drafts count too: they carry the same tag and make the publish step
+      # below fail with "already_exists / tag_name". This job has no checkout,
+      # so gh needs the repo spelled out, and drafts are only reachable by id.
+      #
+      # Only drafts and prereleases are ours to replace. A nightly that has been
+      # promoted to a full release (prerelease unchecked) is a published
+      # artifact others may already depend on, so it is never touched - but the
+      # nightly still has to go out, so it moves to a rolling fallback tag
+      # rather than being dropped. Re-tagging the promoted release frees the
+      # canonical tag and the next run returns to it on its own.
+      - name: Remove previous nightly release and pick the publish tag
+        id: nightly
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo="${{ github.repository }}"
+          list="repos/$repo/releases"
+          fallback=nightly-cpu-latest
+
+          # tags carrying a promoted (non-draft, non-prerelease) release: those
+          # are published artifacts and must never be overwritten or re-tagged
+          promoted=$(gh api --paginate "$list" \
+            --jq '.[] | select((.tag_name == "nightly-cpu" or .tag_name == "nightly-cpu-latest") and .draft == false and .prerelease == false) | .tag_name')
+
+          # ours to replace: drafts and prereleases on either nightly tag
+          for t in nightly-cpu "$fallback"; do
+            ids=$(gh api --paginate "$list" \
+              --jq ".[] | select(.tag_name == \"$t\" and (.draft or .prerelease)) | .id")
+            for id in $ids; do
+              echo "deleting previous nightly release $id (tag $t)"
+              gh api -X DELETE "repos/$repo/releases/$id"
+            done
+          done
+
+          if echo "$promoted" | grep -qx nightly-cpu; then
+            tag="$fallback"
+            echo "::warning::nightly-cpu is owned by a published release; publishing this nightly on $fallback. Re-tag that release to the version it carries to free nightly-cpu, e.g. gh api -X PATCH repos/$repo/releases/<release-id> -f tag_name=<version>"
+          else
+            tag=nightly-cpu
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          # start clean so the tag moves onto this commit; never touch a tag
+          # that a published release owns
+          if echo "$promoted" | grep -qx "$tag"; then
+            echo "::warning::$tag is owned by a published release; leaving its tag alone"
+          else
+            gh api -X DELETE "repos/$repo/git/refs/tags/$tag" || true
+          fi
+
+      # Bundle each platform into a single archive. Uploading hundreds of loose
+      # binaries individually trips GitHub's secondary rate limit and causes
+      # basename collisions (linux vs windows .exe), so publish one archive per
+      # platform instead. `tar` also descends into directories, so the cmake
+      # package (bin/ lib/ include/ ...) is captured in full. Every archive
+      # carries the version-release of this build, like the RPMs do, so the
+      # assets are self-describing.
+      - name: Package artifacts
+        run: |
+          cd artifacts
+          # llama-cpu-<version>-<release>.<dist>.<arch>.rpm -> <version>-<release>
+          # every architecture carries the same version, so any RPM can act as
+          # the reference for the archive names
+          rpm_file=$(find . -name 'llama-cpu-*.rpm' | head -1)
+          if [ -z "$rpm_file" ]; then
+            echo "error: no llama-cpu RPM among the artifacts, cannot version the archives"
+            exit 1
+          fi
+          version=$(basename "$rpm_file" .rpm)  # drop .rpm
+          version=${version%.*}                 # drop <arch>
+          version=${version%.*}                 # drop <dist>
+          version=${version#llama-cpu-}         # drop the package name
+          echo "packaging version $version"
+          for d in llama-cpu-el8-x64 llama-cpu-el8-arm64 llama-cpu-windows-x64-cpu llama-cmake-pkg; do
+            if [ -d "$d" ]; then
+              tar -czf "${d}-${version}.tar.gz" -C "$d" .
+            fi
+          done
+          # RPMs are single files already, publish them as-is
+          find . -mindepth 2 -name '*.rpm' -exec cp -v {} . \;
+
+      - name: Publish CPU build to nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.nightly.outputs.tag }}
+          name: CPU Nightly Build
+          prerelease: true
+          overwrite_files: true
+          files: |
+            artifacts/*.tar.gz
+            artifacts/*.rpm
