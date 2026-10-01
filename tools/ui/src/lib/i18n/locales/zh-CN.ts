@@ -305,6 +305,7 @@ export const ZH_CN: Record<string, string> = {
 	'Selected model is not available, please select another': '所选模型不可用，请另选一个',
 	'Add files, prompts, tools or MCP Servers': '添加文件、提示词、工具或 MCP 服务器',
 	'Reasoning': '推理',
+	'Tool use': '工具调用',
 	Default: '默认',
 	Off: '关闭',
 	Low: '低',
