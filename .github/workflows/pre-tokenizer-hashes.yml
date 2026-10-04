@@ -2,6 +2,11 @@ name: Check Pre-Tokenizer Hashes
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 jobs:
     pre-tokenizer-hashes:
         runs-on: ubuntu-slim

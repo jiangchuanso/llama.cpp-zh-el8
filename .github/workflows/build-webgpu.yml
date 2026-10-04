@@ -2,6 +2,11 @@ name: CI (webgpu)
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
   cancel-in-progress: true
@@ -48,7 +53,7 @@ jobs:
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
         with:
-          key: webgpu-macos-latest
+          restore: false
           save: false
 
       - name: Dawn Dependency
@@ -109,7 +114,7 @@ jobs:
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
         with:
-          key: webgpu-ubuntu-24.04
+          restore: false
           save: false
 
       - name: Dependencies

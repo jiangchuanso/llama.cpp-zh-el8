@@ -2,6 +2,11 @@ name: CI (vulkan)
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
   cancel-in-progress: true
@@ -34,7 +39,7 @@ jobs:
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
         with:
-          key: vulkan-ubuntu-24.04-arm
+          restore: false
           variant: ccache
           save: false
 
@@ -103,7 +108,7 @@ jobs:
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
         with:
-          key: vulkan-ubuntu-24.04-llvmpipe
+          restore: false
           save: false
 
       - name: ccache-buckets-restore
@@ -147,6 +152,11 @@ jobs:
 
   windows:
     runs-on: windows-2025
+
+    cache-mode: write
+    permissions:
+      actions: write
+      contents: read
 
     env:
       VULKAN_VERSION: 1.4.357.0

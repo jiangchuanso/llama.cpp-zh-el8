@@ -1,10 +1,14 @@
 name: CI (cross)
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
   cancel-in-progress: true
-
 
 jobs:
   # ubuntu-24-riscv64-cpu-cross:

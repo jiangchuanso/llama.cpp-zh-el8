@@ -51,6 +51,8 @@ on:
       '**/*.cpp'
     ]
 
+cache-mode: none
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
   cancel-in-progress: true
@@ -126,7 +128,7 @@ jobs:
       - name: ccache
         uses: ggml-org/ccache-action@v1.2.24
         with:
-          key: cpu-${{ matrix.dist }}
+          restore: false
           save: false
 
       - name: System Dependencies (EL8 / dnf)
@@ -294,6 +296,11 @@ jobs:
     needs: ui-build
     # an experiment only needs the el8 artifacts
     if: ${{ !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
+
+    cache-mode: write
+    permissions:
+      actions: write
+      contents: read
 
     env:
       OPENBLAS_VERSION: 0.3.23

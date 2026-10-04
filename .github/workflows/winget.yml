@@ -2,6 +2,11 @@ name: Update Winget Package
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 jobs:
   update:
     name: Update Winget Package

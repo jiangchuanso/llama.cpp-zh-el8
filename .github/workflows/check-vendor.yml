@@ -2,6 +2,11 @@ name: Check vendor
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 jobs:
   check-vendor:
     runs-on: ubuntu-slim

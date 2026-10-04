@@ -6,6 +6,12 @@ name: CI (CUDA, windows)
 #       this can be used before merging a PR to speed up the release workflow
 on:
   workflow_dispatch:
+
+cache-mode: write
+permissions:
+  actions: write
+  contents: read
+
 # note: this will run in queue with the release workflow
 concurrency:
   group: release

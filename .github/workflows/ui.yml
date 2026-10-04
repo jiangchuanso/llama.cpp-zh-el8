@@ -2,6 +2,12 @@ name: UI
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  actions: read
+  contents: read
+
 env:
   LLAMA_ARG_LOG_COLORS: 1
   LLAMA_ARG_LOG_PREFIX: 1
@@ -16,6 +22,9 @@ jobs:
   ui-build:
     name: Build static output
     uses: ./.github/workflows/ui-build.yml
+    permissions:
+      actions: write
+      contents: read
 
   ui-checks:
     name: Checks

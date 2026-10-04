@@ -2,6 +2,11 @@ name: AI review (issues)
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 jobs:
   find-related:
     if: github.event.action == 'opened'

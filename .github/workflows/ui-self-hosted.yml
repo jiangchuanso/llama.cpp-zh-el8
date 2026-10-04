@@ -6,6 +6,12 @@ name: UI (self-hosted)
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  actions: read
+  contents: read
+
 env:
   LLAMA_ARG_LOG_COLORS: 1
   LLAMA_ARG_LOG_PREFIX: 1
@@ -20,6 +26,9 @@ jobs:
   ui-build:
     name: Build static output
     uses: ./.github/workflows/ui-build-self-hosted.yml
+    permissions:
+      actions: write
+      contents: read
 
   ui-checks:
     name: Checks

@@ -2,6 +2,9 @@ name: Convert PR to draft
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+
 permissions:
   pull-requests: write
   issues: write

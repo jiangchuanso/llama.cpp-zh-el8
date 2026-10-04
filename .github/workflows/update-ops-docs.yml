@@ -2,6 +2,11 @@ name: Update Operations Documentation
 
 on:
   workflow_dispatch:
+
+cache-mode: none
+permissions:
+  contents: read
+
 jobs:
     update-ops-docs:
         runs-on: ubuntu-slim
