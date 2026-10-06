@@ -125,6 +125,11 @@
 	);
 
 	let formattedAgenticTotalTime = $derived(formatPerformanceTime(agenticTotalTimeMs));
+
+	const fixedFormatter = new Intl.NumberFormat(undefined, {
+		maximumFractionDigits: 2,
+		minimumFractionDigits: 2
+	});
 </script>
 
 {#snippet viewButton(opts: {
@@ -224,14 +229,14 @@
 				class="bg-transparent"
 				icon={Gauge}
 				tooltipLabel="Generation speed"
-				value={t('{value} t/s', { value: tokensPerSecond.toFixed(2) })}
+				value={t('{value} t/s', { value: fixedFormatter.format(tokensPerSecond) })}
 			/>
 		{:else if activeView === ChatMessageStatsView.TOOLS && hasAgenticStats}
 			<ChatMessageStatisticsBadge
 				class="bg-transparent"
 				icon={Wrench}
 				tooltipLabel="Tool calls executed"
-				value={t('{value} calls', { value: agenticTimings!.toolCallsCount })}
+				value={t('{value} calls', { value: agenticTimings!.toolCallsCount.toLocaleString() })}
 			/>
 
 			<ChatMessageStatisticsBadge
@@ -245,14 +250,14 @@
 				class="bg-transparent"
 				icon={Gauge}
 				tooltipLabel="Tool execution rate"
-				value={t('{value} calls/s', { value: agenticToolsPerSecond.toFixed(2) })}
+				value={t('{value} calls/s', { value: fixedFormatter.format(agenticToolsPerSecond) })}
 			/>
 		{:else if activeView === ChatMessageStatsView.SUMMARY && hasAgenticStats}
 			<ChatMessageStatisticsBadge
 				class="bg-transparent"
 				icon={Layers}
 				tooltipLabel="Agentic turns (LLM calls)"
-				value={t('{value} turns', { value: agenticTimings!.turns })}
+				value={t('{value} turns', { value: agenticTimings!.turns.toLocaleString() })}
 			/>
 
 			<ChatMessageStatisticsBadge
@@ -275,7 +280,7 @@
 				class="bg-transparent"
 				icon={WholeWord}
 				tooltipLabel="Prompt tokens"
-				value={t('{value} tokens', { value: promptTokens ?? 0 })}
+				value={t('{value} tokens', { value: (promptTokens ?? 0).toLocaleString() })}
 			/>
 
 			<ChatMessageStatisticsBadge
@@ -289,7 +294,7 @@
 				class="bg-transparent"
 				icon={Gauge}
 				tooltipLabel="Prompt processing speed"
-				value={t('{value} tokens/s', { value: promptTokensPerSecond!.toFixed(2) })}
+				value={t('{value} tokens/s', { value: fixedFormatter.format(promptTokensPerSecond!) })}
 			/>
 		{/if}
 	</div>
