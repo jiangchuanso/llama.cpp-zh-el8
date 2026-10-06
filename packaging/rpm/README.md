@@ -44,6 +44,43 @@ spec 里用 `AutoReqProv: no` 关闭了自动依赖扫描，因此包内既**不
 安装时报缺失运行库的错，那是打包 bug，请用 `rpm -qp --requires <file.rpm>` 把依赖列表
 反馈上来。
 
+## CUDA 附加包（llama-cuda，可选）
+
+`llama-cuda` 给本包加 NVIDIA GPU 加速，自身**不含**可执行文件、服务或配置，只往
+`/opt/llama-cpu/bin` 放一个文件：
+
+| 路径 | 内容 |
+| ---- | ---- |
+| `libggml-cuda.so*` | CUDA 后端，llama-server 启动时在自己目录里发现并加载它 |
+
+CUDA 运行库**不随包提供**（cudart + cublas 有数百 MB），由目标机自行安装，见下面的说明。
+
+只发布 x86_64 一种架构：
+
+```sh
+sudo rpm -Uvh llama-cpu-<版本>.<release>.el8.x86_64.rpm \
+              llama-cuda-<版本>.<release>.el8.x86_64.rpm
+```
+
+- `llama-cuda` 用 `Requires: llama-cpu = <完全相同的 Version-Release>` 精确锁定，两个包必须
+  来自同一次发布。升级时也要**一条命令同时升级两个包**，只升 `llama-cpu` 会因依赖不满足而失败
+  （两个包都升则正常）。
+- 目标机需要自己提供两样东西，缺任一样后端都不会被加载（服务照旧纯 CPU 运行）：
+  1. **CUDA 12.x 运行库**：至少 `libcudart.so.12` 与 `libcublas.so.12`（`libcublas` 自己会带出
+     `libcublasLt`）。NVIDIA 的 rhel8 仓库里有现成包，例如 `cuda-cudart-12-8` +
+     `cuda-libraries-12-8`（或直接装 `cuda-runtime-12-8`）。这些库必须能被动态加载器找到：
+     NVIDIA 的包若没把 `/usr/local/cuda-12.8/lib64` 写进 `/etc/ld.so.conf.d/`，就自己加一条并
+     执行 `ldconfig`，或者把 `libcudart.so.12`、`libcublas.so.12`、`libcublasLt.so.12` 直接放到
+     `/opt/llama-cpu/bin/`（后端带 `$ORIGIN` rpath，同目录优先）。
+  2. **NVIDIA 驱动**：提供 `libcuda.so.1`。本包按 CUDA 12.8 构建，对应 570 系列驱动
+     （>= 570.26）；更旧的 12.x 驱动（>= 525.60.13）多数情况下也能跑，属于 NVIDIA 的 minor
+     version compatibility 范围，不保证。
+- 装好后不用改配置：`--n-gpu-layers` 默认为 `auto`，按显存自动决定往 GPU 放几层。想强制不用
+  GPU 就传 `--n-gpu-layers 0`，或直接 `rpm -e llama-cuda`。
+- 后端按上游默认的 CUDA 架构集合编译（Maxwell 及更新的卡都能用）。
+- nightly 里除了 RPM 还有对应的 tarball `llama-cuda-el8-x64-<版本>.tar.gz`，解压到
+  `llama-cpu-el8-x64-<版本>.tar.gz` 解压出来的同一个目录即可，效果与装 RPM 相同。
+
 ## 配置
 
 ```sh

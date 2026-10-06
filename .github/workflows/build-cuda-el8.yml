@@ -1,0 +1,215 @@
+name: Build CUDA backend packages
+
+# Fork-only workflow. It builds the EL8 (Kylin V10 compatible) CUDA backend of
+# ggml and repackages it into an add-on RPM for llama-cpu. The CUDA runtime is
+# not part of the artifact: the host installs it itself. Nothing here is
+# upstream, so it can never conflict when merging upstream/master.
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  cuda:
+    name: cuda / el8-x64
+    # x86_64 only: the GPU hosts these packages target are x86_64 servers, and
+    # the rhel8 repository used below is the x86_64 one.
+    runs-on: ubuntu-24.04
+    # The CPU packages are built in almalinux:8 and this backend ends up loaded
+    # into the very same process, so it has to come from the same OS line: EL8
+    # keeps it on glibc 2.28 and on the libstdc++ that llama-cpu bundles. The
+    # CUDA toolkit therefore comes from NVIDIA's rhel8 repository instead of an
+    # nvidia/cuda image: those images are only published for Ubuntu, UBI8 and
+    # newer RHEL lines, the el8 line is not among them.
+    container: almalinux:8
+
+    steps:
+      # almalinux:8 has no git. Without it actions/checkout falls back to a REST
+      # archive download (no .git dir) and the later `git rev-list` fails.
+      - name: Install git
+        run: dnf -y install --setopt=install_weak_deps=False git
+
+      # fetch-depth 0: the release number of the RPM is `git rev-list --count HEAD`
+      # and has to match the llama-cpu RPM built from the same commit
+      - name: Clone
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: System Dependencies (EL8 / dnf)
+        run: |
+          # gcc-toolset-14 is the compiler the EL8 CPU build uses, and CUDA 12.8
+          # takes GCC 14 as host compiler, so nvcc accepts it as-is
+          dnf -y install --setopt=install_weak_deps=False \
+            gcc-toolset-14 binutils make cmake which tar
+          echo "PATH=/opt/rh/gcc-toolset-14/root/usr/bin:$PATH" >> "$GITHUB_ENV"
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+
+      # Just the compiler and the math library development files: those carry
+      # nvcc and the cudart/cublas files the backend links against. CUDA 12
+      # rather than 13 is deliberate: a 12.x build runs on the whole 12.x driver
+      # range (525.60.13 and newer), a CUDA 13 build would need a 580+ one.
+      - name: CUDA Toolkit (NVIDIA EL8 repo)
+        run: |
+          dnf -y install --setopt=install_weak_deps=False dnf-plugins-core
+          dnf config-manager --add-repo \
+            https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
+          # cuda-libraries-devel holds cuBLAS and its headers; if NVIDIA ever
+          # renames that meta package, the full toolkit covers the same ground
+          dnf -y install --setopt=install_weak_deps=False \
+            cuda-compiler-12-8 cuda-libraries-devel-12-8 \
+            || dnf -y install --setopt=install_weak_deps=False cuda-toolkit-12-8
+          # the packages install under /usr/local/cuda-12.8 and only the
+          # /etc/profile.d snippet puts them on PATH, which a CI step never reads
+          nvcc=$(ls -d /usr/local/cuda*/bin/nvcc 2>/dev/null | sort -V | tail -1)
+          CUDA_HOME=$(dirname "$(dirname "$nvcc")")
+          echo "CUDA_HOME=$CUDA_HOME" >> "$GITHUB_ENV"
+          echo "$CUDA_HOME/bin" >> "$GITHUB_PATH"
+          "$CUDA_HOME/bin/nvcc" --version
+
+      # Only ggml-cuda is built here: llama-server, the CPU backend and the
+      # shared ggml-base library all come from the llama-cpu package, and
+      # GGML_BACKEND_DL turns the backend into a module that llama-server finds
+      # in its own directory at startup.
+      - name: Build CUDA backend
+        run: |
+          cmake -B build \
+            -DGGML_NATIVE=OFF \
+            -DGGML_BACKEND_DL=ON \
+            -DGGML_CPU=OFF \
+            -DGGML_CUDA=ON \
+            -DGGML_CUDA_NCCL=OFF \
+            -DGGML_CUDA_CCCL_VERSION=v3.4.3 \
+            -DLLAMA_BUILD_SERVER=OFF \
+            -DLLAMA_BUILD_EXAMPLES=OFF \
+            -DLLAMA_BUILD_TOOLS=OFF \
+            -DLLAMA_BUILD_TESTS=OFF \
+            -DCUDAToolkit_ROOT="$CUDA_HOME" \
+            -DCMAKE_BUILD_RPATH='$ORIGIN'
+          # no CMAKE_CUDA_ARCHITECTURES: keep the broad default set from
+          # ggml/src/ggml-cuda/CMakeLists.txt so that one library covers the GPUs
+          # these servers come with (trim the list there if build time or size
+          # ever becomes a problem)
+          time cmake --build build --config Release --target ggml-cuda -j $(nproc)
+
+      # The backend is loaded from /opt/llama-cpu/bin next to llama-server, so it
+      # resolves its C++ runtime from that directory ($ORIGIN) and never from the
+      # host. What it asks for must therefore stay within what llama-cpu ships:
+      # EL8's glibc 2.28 and the EL8 libstdc++ that the CPU packages bundle.
+      - name: Check runtime baseline
+        run: |
+          ldd --version | head -1
+          echo "== dynamic section =="
+          readelf -d build/bin/libggml-cuda.so | grep -E 'NEEDED|RPATH|RUNPATH'
+          fail=0
+          for sym in GLIBCXX_ CXXABI_; do
+            n=$(strings -a build/bin/libggml-cuda.so | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
+            h=$(strings -a /usr/lib64/libstdc++.so.6 | grep -oE "${sym}[0-9.]+" | sort -uV | tail -1)
+            echo "${sym} need='${n}' provided='${h}'"
+            if [ -n "$n" ] && [ "$(printf '%s\n%s\n' "$n" "$h" | sort -V | tail -1)" != "$h" ]; then
+              echo "error: llama-cpu bundles $h but the backend needs $n"; fail=1
+            fi
+          done
+          max_ver=2.28
+          dynsyms=$(objdump -T build/bin/libggml-cuda.so 2>/dev/null)
+          if echo "$dynsyms" | grep -q GLIBC_PRIVATE; then
+            echo "error: the backend references GLIBC_PRIVATE"; fail=1
+          fi
+          vers=$(echo "$dynsyms" | grep -oE 'GLIBC_2\.[0-9]+' | sort -uV)
+          if [ -n "$vers" ] && [ "$(printf '%s\nGLIBC_%s\n' "$vers" "$max_ver" | sort -V | tail -1)" != "GLIBC_$max_ver" ]; then
+            echo "error: the backend needs $(echo "$vers" | tail -1), above glibc $max_ver"; fail=1
+          fi
+          [ "$fail" = 0 ] || exit 1
+          echo "backend stays within glibc $max_ver"
+
+      # Only the backend is shipped: the CUDA runtime stays out of the package
+      # (it is hundreds of MB) and is expected as a system package on the target
+      # host instead, see packaging/rpm/README.md.
+      - name: Collect the CUDA backend
+        run: |
+          mkdir -p dist
+          cp -a build/bin/libggml-cuda.so* dist/
+          ls -l dist
+
+          # Every library the backend links has to come from llama-cpu (ggml-base
+          # and the C++ runtime) or from the CUDA runtime the host installs. A
+          # name outside this list would be missing at run time, so fail here
+          # instead of shipping a backend that cannot load.
+          needs=$(readelf -d dist/libggml-cuda.so | sed -nE 's/.*\(NEEDED\).*\[(.*)\]/\1/p')
+          echo "== needed =="
+          echo "$needs"
+          for lib in $needs; do
+            case "$lib" in
+              libggml-base.so.*|libstdc++.so.*|libgomp.so.*|libgcc_s.so.*|libm.so.*|libc.so.*|libdl.so.*|libpthread.so.*|librt.so.*)
+                echo "from llama-cpu: $lib" ;;
+              libcu*.so.*|libnv*.so.*)
+                echo "from the host CUDA runtime: $lib" ;;
+              *)
+                echo "error: $lib is neither shipped by llama-cuda nor expected on the host"
+                exit 1 ;;
+            esac
+          done
+
+      # Same shape as the llama-cpu RPM: version and release come from
+      # CMakeLists.txt and the commit count, so that llama-cuda can require the
+      # exact llama-cpu it was built against.
+      - name: Build RPM
+        run: |
+          dnf -y install --setopt=install_weak_deps=False rpm-build
+          set -e
+          major=$(grep -oE 'set\(LLAMA_VERSION_MAJOR[[:space:]]+[0-9]+' CMakeLists.txt | grep -oE '[0-9]+$')
+          minor=$(grep -oE 'set\(LLAMA_VERSION_MINOR[[:space:]]+[0-9]+' CMakeLists.txt | grep -oE '[0-9]+$')
+          patch=$(grep -oE 'set\(LLAMA_VERSION_PATCH[[:space:]]+[0-9]+' CMakeLists.txt | grep -oE '[0-9]+$')
+          version="$major.$minor.$patch"
+          build_number=$(git rev-list --count HEAD)
+          echo "packaging llama-cuda $version, build $build_number"
+
+          mkdir -p rpmbuild/SOURCES/bin
+          cp -a dist/. rpmbuild/SOURCES/bin/
+          cp packaging/rpm/README.md rpmbuild/SOURCES/
+          rpmbuild -bb packaging/rpm/llama-cuda.spec \
+            --define "_topdir $(pwd)/rpmbuild" \
+            --define "llama_version $version" \
+            --define "llama_build $build_number" \
+            --define "dist .el8"
+
+      # The dependency on llama-cpu is what keeps the backend and the server it
+      # is loaded into on the same build; a typo here would be invisible until
+      # install time. The sonames of the CUDA runtime must not show up as
+      # dependencies either: the host installs that runtime outside RPM (driver
+      # and cuda-runtime from a .run file, or packages from NVIDIA's repo), so a
+      # soname dependency would block installation.
+      - name: Verify package metadata
+        run: |
+          set -e
+          rpm="$(find rpmbuild/RPMS -name '*.rpm' | head -1)"
+          echo "== requires =="
+          rpm -qp --requires "$rpm"
+          echo "== files =="
+          rpm -qpl "$rpm"
+          if rpm -qp --requires "$rpm" | grep -E 'GLIBCXX_|CXXABI_|GOMP_|libcudart|libcublas'; then
+            echo "error: package requires a bundled runtime library symbol or soname"
+            exit 1
+          fi
+          if ! rpm -qp --requires "$rpm" | grep -qE '^llama-cpu[[:space:]]*='; then
+            echo "error: package does not require llama-cpu"
+            exit 1
+          fi
+          if ! rpm -qpl "$rpm" | grep -q 'opt/llama-cpu/bin/libggml-cuda\.so\.'; then
+            echo "error: the ggml-cuda backend is not in the package"
+            exit 1
+          fi
+
+      - name: Upload CUDA backend
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-cuda-el8-x64
+          path: dist
+          if-no-files-found: error
+
+      - name: Upload RPM
+        uses: actions/upload-artifact@v6
+        with:
+          name: llama-rpm-cuda-el8-x64
+          path: rpmbuild/RPMS/**/*.rpm
+          if-no-files-found: error

@@ -85,6 +85,23 @@ jobs:
     if: ${{ !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) }}
     uses: ./.github/workflows/build-rpm.yml
 
+  # Build and package the CUDA backend. Fork-only workflow file so this one stays
+  # close to upstream, but it runs inside the same workflow run so the release
+  # job below can publish its artifacts together with the CPU ones.
+  cuda:
+    # Same condition as the release job: the CUDA build is the most expensive job
+    # here and its artifacts only end up in the nightly release, so pull requests
+    # and A/B experiments skip it. Keeping the two conditions identical also
+    # keeps the release job runnable: a needed job that is skipped would take the
+    # release down with it.
+    if: >-
+      ${{
+        !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) &&
+        (github.event_name == 'workflow_dispatch' ||
+         (github.event_name == 'push' && github.ref == 'refs/heads/master'))
+      }}
+    uses: ./.github/workflows/build-cuda-el8.yml
+
   ubuntu:
     needs: ui-build
     strategy:
@@ -505,14 +522,22 @@ jobs:
   # left untouched and the next run publishes on a fallback tag instead.
   release:
     name: Publish to Release
-    needs: [build-cmake-pkg, ubuntu, windows, rpm]
+    needs: [build-cmake-pkg, ubuntu, windows, rpm, cuda]
     # Only on pushes to master (or manual dispatch), never on pull requests and
-    # never for an A/B experiment build
+    # never for an A/B experiment build. `!cancelled()` plus the explicit result
+    # checks below stand in for the implicit success() test: a failed CUDA job
+    # must not take the CPU nightly down with it, the CPU assets are then
+    # published with the CUDA ones missing (warned about below).
     if: >-
       ${{
+        !cancelled() &&
         !(inputs.opt_flags || inputs.opt_flags_x64 || inputs.opt_flags_arm64 || inputs.lto) &&
         (github.event_name == 'workflow_dispatch' ||
-         (github.event_name == 'push' && github.ref == 'refs/heads/master'))
+         (github.event_name == 'push' && github.ref == 'refs/heads/master')) &&
+        needs.build-cmake-pkg.result == 'success' &&
+        needs.ubuntu.result == 'success' &&
+        needs.windows.result == 'success' &&
+        needs.rpm.result == 'success'
       }}
     runs-on: ubuntu-latest
     permissions:
@@ -599,7 +624,12 @@ jobs:
           version=${version%.*}                 # drop <dist>
           version=${version#llama-cpu-}         # drop the package name
           echo "packaging version $version"
-          for d in llama-cpu-el8-x64 llama-cpu-el8-arm64 llama-cpu-windows-x64-cpu llama-cmake-pkg; do
+          # the CUDA backend is an add-on: without it (failed CUDA job) the
+          # nightly simply ships the CPU assets alone
+          if [ ! -d llama-cuda-el8-x64 ]; then
+            echo "::warning::no CUDA backend among the artifacts, publishing CPU assets only"
+          fi
+          for d in llama-cpu-el8-x64 llama-cpu-el8-arm64 llama-cuda-el8-x64 llama-cpu-windows-x64-cpu llama-cmake-pkg; do
             if [ -d "$d" ]; then
               tar -czf "${d}-${version}.tar.gz" -C "$d" .
             fi
@@ -607,11 +637,14 @@ jobs:
           # RPMs are single files already, publish them as-is
           find . -mindepth 2 -name '*.rpm' -exec cp -v {} . \;
 
-      - name: Publish CPU build to nightly release
+      # The tag stays nightly-cpu: the step above treats existing releases on it
+      # as reusable drafts/prereleases, and renaming it would leave the current
+      # nightly behind under the old name.
+      - name: Publish the nightly build to the release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.nightly.outputs.tag }}
-          name: CPU Nightly Build
+          name: Nightly Build (CPU + CUDA)
           prerelease: true
           overwrite_files: true
           files: |
