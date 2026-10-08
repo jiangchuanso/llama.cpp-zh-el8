@@ -12,15 +12,23 @@ jobs:
   cuda:
     name: cuda / el8-x64
     # x86_64 only: the GPU hosts these packages target are x86_64 servers, and
-    # the rhel8 repository used below is the x86_64 one.
+    # the runfile used below is the x86_64 Linux one.
     runs-on: ubuntu-24.04
     # The CPU packages are built in almalinux:8 and this backend ends up loaded
     # into the very same process, so it has to come from the same OS line: EL8
     # keeps it on glibc 2.28 and on the libstdc++ that llama-cpu bundles. The
-    # CUDA toolkit therefore comes from NVIDIA's rhel8 repository instead of an
-    # nvidia/cuda image: those images are only published for Ubuntu, UBI8 and
+    # CUDA toolkit therefore comes from NVIDIA's official Linux runfile (the
+    # universal EL8-compatible installer) instead of an nvidia/cuda image or the
+    # rhel8 dnf repository: those images are only published for Ubuntu, UBI8 and
     # newer RHEL lines, the el8 line is not among them.
     container: almalinux:8
+
+    env:
+      # CUDA 13 runfile published for RHEL 8 (EL8 / Kylin V10, glibc 2.28).
+      # Keep both in sync with what NVIDIA currently ships: the runfile name
+      # embeds the bundled driver version, so a wrong CUDA_RUN_DRIVER 404s.
+      CUDA_VERSION: "13.0.0"
+      CUDA_RUN_DRIVER: "580.95.05"
 
     steps:
       # almalinux:8 has no git. Without it actions/checkout falls back to a REST
@@ -37,7 +45,7 @@ jobs:
 
       - name: System Dependencies (EL8 / dnf)
         run: |
-          # gcc-toolset-14 is the compiler the EL8 CPU build uses, and CUDA 12.8
+          # gcc-toolset-14 is the compiler the EL8 CPU build uses, and CUDA 13
           # takes GCC 14 as host compiler, so nvcc accepts it as-is
           dnf -y install --setopt=install_weak_deps=False \
             gcc-toolset-14 binutils make cmake which tar
@@ -45,24 +53,24 @@ jobs:
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
 
-      # Just the compiler and the math library development files: those carry
-      # nvcc and the cudart/cublas files the backend links against. CUDA 12
-      # rather than 13 is deliberate: a 12.x build runs on the whole 12.x driver
-      # range (525.60.13 and newer), a CUDA 13 build would need a 580+ one.
-      - name: CUDA Toolkit (NVIDIA EL8 repo)
+      # CUDA 13 comes from NVIDIA's official Linux runfile instead of the dnf
+      # repository: the runfile is the universal EL8-compatible installer and is
+      # the same .run the host uses for the driver. Only the toolkit is needed
+      # here (--toolkit skips the driver); the driver and the CUDA runtime on the
+      # target host are installed from the matching .run as well, and are never
+      # bundled into the RPM (see packaging/rpm/README.md). glibc stays at 2.28
+      # because the runfile targets RHEL 8.
+      - name: CUDA Toolkit (official runfile, CUDA 13)
         run: |
-          dnf -y install --setopt=install_weak_deps=False dnf-plugins-core
-          dnf config-manager --add-repo \
-            https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-          # cuda-libraries-devel holds cuBLAS and its headers; if NVIDIA ever
-          # renames that meta package, the full toolkit covers the same ground
-          dnf -y install --setopt=install_weak_deps=False \
-            cuda-compiler-12-8 cuda-libraries-devel-12-8 \
-            || dnf -y install --setopt=install_weak_deps=False cuda-toolkit-12-8
-          # the packages install under /usr/local/cuda-12.8 and only the
-          # /etc/profile.d snippet puts them on PATH, which a CI step never reads
-          nvcc=$(ls -d /usr/local/cuda*/bin/nvcc 2>/dev/null | sort -V | tail -1)
-          CUDA_HOME=$(dirname "$(dirname "$nvcc")")
+          dnf -y install --setopt=install_weak_deps=False wget perl
+          runfile="cuda_${CUDA_VERSION}_${CUDA_RUN_DRIVER}_linux.run"
+          wget -q "https://developer.download.nvidia.com/compute/cuda/${CUDA_VERSION}/local_installers/${runfile}"
+          sh "${runfile}" --toolkit --silent --override --no-drm \
+            --installpath="/usr/local/cuda-${CUDA_VERSION%.*}"
+          rm -f "${runfile}"
+          # the runfile installs under /usr/local/cuda-<major>.<minor> and only
+          # the /etc/profile.d snippet puts it on PATH, which a CI step never reads
+          CUDA_HOME="/usr/local/cuda-${CUDA_VERSION%.*}"
           echo "CUDA_HOME=$CUDA_HOME" >> "$GITHUB_ENV"
           echo "$CUDA_HOME/bin" >> "$GITHUB_PATH"
           "$CUDA_HOME/bin/nvcc" --version

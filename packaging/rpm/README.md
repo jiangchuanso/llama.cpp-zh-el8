@@ -65,16 +65,15 @@ sudo rpm -Uvh llama-cpu-<版本>.<release>.el8.x86_64.rpm \
 - `llama-cuda` 用 `Requires: llama-cpu = <完全相同的 Version-Release>` 精确锁定，两个包必须
   来自同一次发布。升级时也要**一条命令同时升级两个包**，只升 `llama-cpu` 会因依赖不满足而失败
   （两个包都升则正常）。
-- 目标机需要自己提供两样东西，缺任一样后端都不会被加载（服务照旧纯 CPU 运行）：
-  1. **CUDA 12.x 运行库**：至少 `libcudart.so.12` 与 `libcublas.so.12`（`libcublas` 自己会带出
-     `libcublasLt`）。NVIDIA 的 rhel8 仓库里有现成包，例如 `cuda-cudart-12-8` +
-     `cuda-libraries-12-8`（或直接装 `cuda-runtime-12-8`）。这些库必须能被动态加载器找到：
-     NVIDIA 的包若没把 `/usr/local/cuda-12.8/lib64` 写进 `/etc/ld.so.conf.d/`，就自己加一条并
-     执行 `ldconfig`，或者把 `libcudart.so.12`、`libcublas.so.12`、`libcublasLt.so.12` 直接放到
-     `/opt/llama-cpu/bin/`（后端带 `$ORIGIN` rpath，同目录优先）。
-  2. **NVIDIA 驱动**：提供 `libcuda.so.1`。本包按 CUDA 12.8 构建，对应 570 系列驱动
-     （>= 570.26）；更旧的 12.x 驱动（>= 525.60.13）多数情况下也能跑，属于 NVIDIA 的 minor
-     version compatibility 范围，不保证。
+- 目标机需要自己提供两样东西，缺任一样后端都不会被加载（服务照旧纯 CPU 运行）。两者都用
+  NVIDIA 官方的 Linux runfile 安装器装，不随包、也不走 RPM：
+  1. **CUDA 13.x 运行库**：至少 `libcudart.so.13` 与 `libcublas.so.13`（`libcublas` 自己会带出
+     `libcublasLt`）。用与构建同版本的 runfile（如 `cuda_13.0.0_580.95.05_linux.run`，仅装
+     runtime/toolkit 时加 `--toolkit`）安装，装完把 `/usr/local/cuda-13.0/lib64` 写进
+     `/etc/ld.so.conf.d/` 后 `ldconfig`，或者把 `libcudart.so.13`、`libcublas.so.13`、
+     `libcublasLt.so.13` 直接放到 `/opt/llama-cpu/bin/`（后端带 `$ORIGIN` rpath，同目录优先）。
+  2. **NVIDIA 驱动**：提供 `libcuda.so.1`。本包按 CUDA 13 构建，对应 580 系列驱动
+     （>= 580.26，具体看所用 CUDA 13 小版本捆绑的驱动版本）；驱动同样用官方 `.run` 安装器装。
 - 装好后不用改配置：`--n-gpu-layers` 默认为 `auto`，按显存自动决定往 GPU 放几层。想强制不用
   GPU 就传 `--n-gpu-layers 0`，或直接 `rpm -e llama-cuda`。
 - 后端按上游默认的 CUDA 架构集合编译（Maxwell 及更新的卡都能用）。
