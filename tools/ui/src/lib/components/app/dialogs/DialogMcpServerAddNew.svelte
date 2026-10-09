@@ -11,7 +11,7 @@
 	} from '$lib/constants';
 	import { BooleanString, HealthCheckStatus } from '$lib/enums';
 	import { t } from '$lib/i18n';
-	import { mcpStore } from '$lib/stores';
+	import { deviceStore, mcpStore } from '$lib/stores';
 	import { canonicalizeServerUrl, parseHeadersToArray, uuid } from '$lib/utils';
 
 	interface Props {
@@ -245,7 +245,10 @@
 </script>
 
 <Dialog.Root onOpenChange={handleOpenChange} {open}>
-	<Dialog.Content class="max-w-2xl!">
+	<Dialog.Content
+		class="max-w-2xl! p-4"
+		onOpenAutoFocus={(event) => deviceStore.isMobile && event.preventDefault()}
+	>
 		<Dialog.Header>
 			<Dialog.Title class="select-none">{t('Add New MCP Server')}</Dialog.Title>
 		</Dialog.Header>

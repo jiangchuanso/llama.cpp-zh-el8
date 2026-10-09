@@ -1,12 +1,10 @@
 <script lang="ts">
-	import { FolderOpen, Sparkles } from '@lucide/svelte';
 	import {
 		ChatFormPickerList,
 		ChatFormPickerListItem,
 		ChatFormPickerPopover
 	} from '$lib/components/app/chat';
-	import { MODEL_SELECTOR_ICON } from '$lib/constants';
-	import { ChatFormCommandAction } from '$lib/enums';
+	import { CHAT_FORM_COMMAND_ICONS } from '$lib/constants';
 	import { usePickerNavigation } from '$lib/hooks/use-picker-navigation.svelte';
 	import { t } from '$lib/i18n';
 	import type { ChatFormCommand } from '$lib/types';
@@ -26,12 +24,6 @@
 	}
 
 	let { class: className = '', commands, isOpen, onClose, onSelect, query }: Props = $props();
-
-	const commandIcon: Record<ChatFormCommandAction, typeof Sparkles> = {
-		[ChatFormCommandAction.CWD]: FolderOpen,
-		[ChatFormCommandAction.MODEL]: MODEL_SELECTOR_ICON,
-		[ChatFormCommandAction.PROMPT]: Sparkles
-	};
 
 	const trimmedQuery = $derived((query ?? '').trim().toLowerCase());
 
@@ -120,7 +112,7 @@
 		showSearchInput={false}
 	>
 		{#snippet item(command, index, isSelected)}
-			{@const Icon = commandIcon[command.action]}
+			{@const Icon = CHAT_FORM_COMMAND_ICONS[command.action]}
 			<ChatFormPickerListItem
 				dataIndex={index}
 				disabled={command.disabled}

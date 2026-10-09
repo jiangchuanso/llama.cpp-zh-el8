@@ -8,8 +8,10 @@
 		gaugePopup,
 		gaugePopupClose
 	} from './gauge-popup.svelte';
+	import * as Drawer from '$lib/components/ui/drawer';
 	import { useContextGauge } from '$lib/hooks/use-context-gauge.svelte';
 	import { t } from '$lib/i18n';
+	import { deviceStore } from '$lib/stores';
 	import { formatParameters } from '$lib/utils/formatters';
 
 	const gauge = useContextGauge();
@@ -25,9 +27,10 @@
 
 	// Any press outside the card and outside the dial closes the card.
 	// Presses on the dial are excluded because the dial handles its own
-	// toggle; the listener only exists while the card is open.
+	// toggle; the listener only exists while the card is open. A phone shows
+	// the panel in a drawer instead, which brings its own dismissal.
 	$effect(() => {
-		if (!gaugePopup.open) return;
+		if (!gaugePopup.open || deviceStore.isMobile) return;
 
 		const onPointerDown = (event: PointerEvent) => {
 			const target = event.target;
@@ -53,7 +56,79 @@
 	);
 </script>
 
-{#if gaugePopup.open}
+{#snippet usage()}
+	<span class="font-mono text-muted-foreground">
+		{formatParameters(gauge.contextUsed)}
+		/ {gauge.contextTotal !== null ? formatParameters(gauge.contextTotal) : '-'}
+	</span>
+{/snippet}
+
+{#snippet body()}
+	{#if gauge.activeModelId !== null && !gauge.isActiveModelLoaded}
+		<ContextGaugeLoadModel
+			isLoading={gauge.isActiveModelLoading}
+			modelId={gauge.activeModelId}
+			onLoad={gauge.loadModel}
+		/>
+	{:else if showProgressBar}
+		<div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+			<div
+				class="h-full rounded-full transition-all duration-300 {colorLevelBgClass(
+					gauge.colorLevel
+				)}"
+				style="width: {gauge.contextPercent}%"
+			></div>
+		</div>
+
+		<div class="flex justify-between text-xs text-muted-foreground max-md:text-[13px]">
+			<span>
+				<span class={colorLevelTextClass(gauge.colorLevel)}>{gauge.contextPercent}%</span>
+				{t('used')}
+			</span>
+
+			<span>
+				{t('{value} remaining', { value: formatParameters(gauge.contextAvailable ?? 0) })}
+			</span>
+		</div>
+	{:else}
+		<div class="text-xs text-muted-foreground">{t('No context info available')}</div>
+	{/if}
+
+	{#if gauge.hasAnyUsage}
+		<ContextGaugeDetails
+			averageTokensPerSecond={gauge.averageTokensPerSecond}
+			cumulativeCacheTotal={gauge.cumulativeCacheTotal}
+			cumulativeOutput={gauge.cumulativeOutput}
+			cumulativeRead={gauge.cumulativeRead}
+			currentCache={gauge.currentCache}
+			currentFresh={gauge.currentFresh}
+			currentOutput={gauge.currentOutput}
+			currentRead={gauge.currentRead}
+			kvTotal={gauge.kvTotal}
+			transientDetails={gauge.transientDetails}
+		/>
+	{/if}
+{/snippet}
+
+{#if deviceStore.isMobile}
+	<Drawer.Root bind:open={gaugePopup.open}>
+		<Drawer.Content>
+			<Drawer.Header>
+				<Drawer.Title>{t('Context')}</Drawer.Title>
+
+				<Drawer.Description class="sr-only">
+					{t('Context window usage of the model the chat runs')}
+				</Drawer.Description>
+			</Drawer.Header>
+
+			<div class="flex flex-col gap-2 px-4 pb-4 max-md:gap-3.5">
+				{@render usage()}
+
+				{@render body()}
+			</div>
+		</Drawer.Content>
+	</Drawer.Root>
+{:else if gaugePopup.open}
 	<div
 		bind:this={cardEl}
 		class="absolute z-50 w-64 -translate-x-1/2 rounded-lg border border-border/50 bg-popover p-3 text-sm text-popover-foreground shadow-lg ring-1 ring-foreground/10"
@@ -64,60 +139,14 @@
 	>
 		<div class="flex flex-col gap-2">
 			<div class="flex items-center gap-2">
-				<span class="font-medium">{t('Context')}</span>
+				<span class="font-medium">Context</span>
 
 				<span class="text-muted-foreground">·</span>
 
-				<span class="font-mono text-muted-foreground">
-					{formatParameters(gauge.contextUsed)}
-					/ {gauge.contextTotal !== null ? formatParameters(gauge.contextTotal) : '-'}
-				</span>
+				{@render usage()}
 			</div>
 
-			{#if gauge.activeModelId !== null && !gauge.isActiveModelLoaded}
-				<ContextGaugeLoadModel
-					isLoading={gauge.isActiveModelLoading}
-					modelId={gauge.activeModelId}
-					onLoad={gauge.loadModel}
-				/>
-			{:else if showProgressBar}
-				<div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-					<div
-						class="h-full rounded-full transition-all duration-300 {colorLevelBgClass(
-							gauge.colorLevel
-						)}"
-						style="width: {gauge.contextPercent}%"
-					></div>
-				</div>
-
-				<div class="flex justify-between text-xs text-muted-foreground">
-					<span>
-						<span class={colorLevelTextClass(gauge.colorLevel)}>{gauge.contextPercent}%</span>
-						{t('used')}
-					</span>
-
-					<span>
-						{t('{value} remaining', { value: formatParameters(gauge.contextAvailable ?? 0) })}
-					</span>
-				</div>
-			{:else}
-				<div class="text-xs text-muted-foreground">{t('No context info available')}</div>
-			{/if}
-
-			{#if gauge.hasAnyUsage}
-				<ContextGaugeDetails
-					averageTokensPerSecond={gauge.averageTokensPerSecond}
-					cumulativeCacheTotal={gauge.cumulativeCacheTotal}
-					cumulativeOutput={gauge.cumulativeOutput}
-					cumulativeRead={gauge.cumulativeRead}
-					currentCache={gauge.currentCache}
-					currentFresh={gauge.currentFresh}
-					currentOutput={gauge.currentOutput}
-					currentRead={gauge.currentRead}
-					kvTotal={gauge.kvTotal}
-					transientDetails={gauge.transientDetails}
-				/>
-			{/if}
+			{@render body()}
 		</div>
 	</div>
 {/if}

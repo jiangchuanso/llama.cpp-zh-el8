@@ -12,6 +12,8 @@
 		onClose?: () => void;
 		onKeyDown?: (event: KeyboardEvent) => void;
 		class?: string;
+		/** Input height, matching the small size of the other controls. */
+		size?: 'sm' | 'default';
 		id?: string;
 		ref?: HTMLInputElement | null;
 		isCancelAlwaysVisible?: boolean;
@@ -27,6 +29,7 @@
 		onKeyDown,
 		placeholder = 'Search...',
 		ref = $bindable(null),
+		size = 'default',
 		value = $bindable('')
 	}: Props = $props();
 
@@ -59,7 +62,7 @@
 		bind:ref
 		bind:value
 		{autofocus}
-		class="pl-9 {showClearButton ? 'pr-9' : ''}"
+		class="max-md:h-10 pl-9 {showClearButton ? 'pr-9' : ''} {size === 'sm' ? 'h-8' : ''}"
 		{id}
 		oninput={handleInput}
 		onkeydown={onKeyDown}

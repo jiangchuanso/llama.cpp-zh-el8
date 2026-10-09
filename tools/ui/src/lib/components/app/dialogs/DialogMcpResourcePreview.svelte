@@ -6,7 +6,7 @@
 	import { DEFAULT_RESOURCE_FILENAME, MIME_TYPE_SUBSTRINGS } from '$lib/constants';
 	import { MimeTypeText } from '$lib/enums';
 	import { t } from '$lib/i18n';
-	import { mcpStore } from '$lib/stores';
+	import { deviceStore, mcpStore } from '$lib/stores';
 	import type { DatabaseMessageExtraMcpResource } from '$lib/types';
 	import {
 		downloadResourceContent,
@@ -52,7 +52,10 @@
 </script>
 
 <Dialog.Root bind:open {onOpenChange}>
-	<Dialog.Content class="grid max-h-[90vh] max-w-5xl overflow-hidden sm:w-auto sm:max-w-6xl">
+	<Dialog.Content
+		class="grid max-h-[90vh] max-w-5xl overflow-hidden p-4 sm:w-auto sm:max-w-6xl"
+		onOpenAutoFocus={(event) => deviceStore.isMobile && event.preventDefault()}
+	>
 		<Dialog.Header>
 			<Dialog.Title class="pr-8">{extra.name}</Dialog.Title>
 

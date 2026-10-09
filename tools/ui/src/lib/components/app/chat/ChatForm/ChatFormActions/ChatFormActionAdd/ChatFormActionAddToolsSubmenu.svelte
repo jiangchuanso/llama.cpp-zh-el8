@@ -4,7 +4,7 @@
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Tooltip from '$lib/components/ui/tooltip';
-	import { CLI_FLAGS, ICON_CLASS_DEFAULT } from '$lib/constants';
+	import { ATTACHMENT_MENU_TEXT, CLI_FLAGS, ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { useToolsPanel } from '$lib/hooks/use-tools-panel.svelte';
 	import { t } from '$lib/i18n';
 	import { mcpStore, toolsStore } from '$lib/stores';
@@ -18,7 +18,7 @@
 	<DropdownMenu.SubTrigger class="flex cursor-pointer items-center gap-2">
 		<PencilRuler class={ICON_CLASS_DEFAULT} />
 
-		<span>{t('Tools')}</span>
+		<span>{t(ATTACHMENT_MENU_TEXT.TOOLS)}</span>
 	</DropdownMenu.SubTrigger>
 
 	<DropdownMenu.SubContent class="w-72 p-0">

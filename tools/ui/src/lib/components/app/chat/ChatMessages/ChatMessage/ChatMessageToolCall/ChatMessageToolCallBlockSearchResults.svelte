@@ -8,6 +8,7 @@
 	import { mcpStore } from '$lib/stores';
 	import type { AgenticSection, SearchResult } from '$lib/types';
 	import {
+		buildProxiedIconUrl,
 		extractSearchQuery,
 		extractSearchResults,
 		faviconForUrl,
@@ -83,7 +84,7 @@
 </script>
 
 {#snippet pill(result: SearchResult)}
-	{@const faviconUrl = faviconForUrl(result.url)}
+	{@const faviconUrl = buildProxiedIconUrl(faviconForUrl(result.url), mcpStore.isProxyAvailable)}
 	{@const safeUrl = sanitizeExternalUrl(result.url)}
 	{@const showHoverCard = safeUrl !== null && hasDetails(result)}
 	{#if safeUrl}

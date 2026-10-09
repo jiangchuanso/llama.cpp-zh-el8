@@ -2,16 +2,18 @@
 	import { SkipForward, Square } from '@lucide/svelte';
 	import { page } from '$app/state';
 	import {
-		ChatFormActionModels,
+		ChatFormActionReasoning,
 		ChatFormActionRecord,
 		ChatFormActionsAdd,
 		ChatFormActionSubmit,
-		ChatFormContextGauge
+		ChatFormContextGauge,
+		ModelsSelector
 	} from '$lib/components/app';
 	import { Button } from '$lib/components/ui/button';
 	import { ICON_CLASS_DEFAULT } from '$lib/constants';
 	import { setChatFormActionsContext } from '$lib/contexts';
 	import { FileTypeCategory, MessageRole } from '$lib/enums';
+	import { useChatFormModel } from '$lib/hooks/use-chat-form-model.svelte';
 	import { t } from '$lib/i18n';
 	import { ChatService } from '$lib/services';
 	import { chatStore, conversationsStore, settingsStore } from '$lib/stores';
@@ -32,7 +34,6 @@
 		onMicClick?: () => void;
 		onStop?: () => void;
 		onSystemPromptClick?: () => void;
-		onMcpSettingsClick?: () => void;
 	}
 
 	let {
@@ -44,7 +45,6 @@
 		isReasoning = false,
 		isRecording = false,
 		onFileUpload,
-		onMcpSettingsClick,
 		onMicClick,
 		onStop,
 		onSystemPromptClick,
@@ -55,12 +55,20 @@
 
 	let currentConfig = $derived(settingsStore.config);
 
-	let hasAudioModality = $state(false);
-	let hasVideoModality = $state(false);
-	let hasVisionModality = $state(false);
-	let hasModelSelected = $state(false);
-	let isSelectedModelInCache = $state(true);
-	let submitTooltip = $state('');
+	const formModel = useChatFormModel();
+
+	let hasAudioModality = $derived(formModel.hasAudioModality);
+	let hasVideoModality = $derived(formModel.hasVideoModality);
+	let hasVisionModality = $derived(formModel.hasVisionModality);
+	let hasModelSelected = $derived(formModel.hasModelSelected);
+	let isSelectedModelInCache = $derived(formModel.isSelectedModelInCache);
+	let submitTooltip = $derived.by(() => {
+		if (!hasModelSelected) return 'Please select a model first';
+
+		if (!isSelectedModelInCache) return 'Selected model is not available, please select another';
+
+		return '';
+	});
 
 	let hasAudioAttachments = $derived(
 		uploadedFiles.some((file) => getFileTypeCategory(file.type) === FileTypeCategory.AUDIO)
@@ -69,7 +77,7 @@
 		hasAudioModality && !canSubmit && !hasAudioAttachments && currentConfig.autoMicOnEmpty
 	);
 
-	let selectorModelRef: ChatFormActionModels | undefined = $state(undefined);
+	let selectorModelRef: ModelsSelector | undefined = $state(undefined);
 
 	export function openModelSelector() {
 		selectorModelRef?.open();
@@ -136,9 +144,6 @@
 		get onFileUpload() {
 			return onFileUpload;
 		},
-		get onMcpSettingsClick() {
-			return onMcpSettingsClick;
-		},
 		get onSystemPromptClick() {
 			return onSystemPromptClick;
 		}
@@ -161,13 +166,9 @@
 		{/if}
 
 		{#if showModelSelector}
-			<ChatFormActionModels
-				bind:hasAudioModality
-				bind:hasModelSelected
-				bind:hasVideoModality
-				bind:hasVisionModality
-				bind:isSelectedModelInCache
-				bind:submitTooltip
+			<ChatFormActionReasoning />
+
+			<ModelsSelector
 				bind:this={selectorModelRef}
 				{disabled}
 				forceForegroundText
@@ -178,7 +179,7 @@
 
 	{#if isReasoning}
 		<Button
-			class="group h-8 w-8 rounded-full p-0"
+			class="group h-8 w-8 rounded-full p-0 max-md:h-9 max-md:w-9"
 			onclick={() =>
 				ChatService.stopReasoning(activeMessage?.completionId ?? '', activeMessage?.model)}
 			title={t('Skip reasoning')}
@@ -195,7 +196,7 @@
 
 	{#if isLoading && !canSubmit}
 		<Button
-			class="group h-8 w-8 rounded-full p-0 hover:bg-destructive/10!"
+			class="group h-8 w-8 rounded-full p-0 max-md:h-9 max-md:w-9 hover:bg-destructive/10!"
 			onclick={onStop}
 			type="button"
 			variant="secondary"
