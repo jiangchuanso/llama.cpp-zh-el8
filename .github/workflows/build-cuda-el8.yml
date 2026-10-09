@@ -24,11 +24,13 @@ jobs:
     container: almalinux:8
 
     env:
-      # CUDA 13 runfile published for RHEL 8 (EL8 / Kylin V10, glibc 2.28).
-      # Keep both in sync with what NVIDIA currently ships: the runfile name
-      # embeds the bundled driver version, so a wrong CUDA_RUN_DRIVER 404s.
+      # CUDA 13 runfile. 13.0.0 is the 13.x floor and needs the least-new driver
+      # (>= 580), so it fits the widest range of GPU hosts. The runfile name
+      # embeds the bundled driver version, so CUDA_RUN_DRIVER must match the
+      # NVIDIA archive: 13.0.0 GA bundles 580.65.06. A mismatch 404s the
+      # download (the step prints a hint).
       CUDA_VERSION: "13.0.0"
-      CUDA_RUN_DRIVER: "580.95.05"
+      CUDA_RUN_DRIVER: "580.65.06"
 
     steps:
       # almalinux:8 has no git. Without it actions/checkout falls back to a REST
@@ -64,8 +66,12 @@ jobs:
         run: |
           dnf -y install --setopt=install_weak_deps=False wget perl
           runfile="cuda_${CUDA_VERSION}_${CUDA_RUN_DRIVER}_linux.run"
-          wget -q "https://developer.download.nvidia.com/compute/cuda/${CUDA_VERSION}/local_installers/${runfile}"
-          sh "${runfile}" --toolkit --silent --override --no-drm \
+          url="https://developer.download.nvidia.com/compute/cuda/${CUDA_VERSION}/local_installers/${runfile}"
+          if ! wget -q "$url"; then
+            echo "error: cannot download $runfile - check CUDA_VERSION / CUDA_RUN_DRIVER against NVIDIA's archive"
+            exit 1
+          fi
+          sh "${runfile}" --toolkit --silent --override \
             --installpath="/usr/local/cuda-${CUDA_VERSION%.*}"
           rm -f "${runfile}"
           # the runfile installs under /usr/local/cuda-<major>.<minor> and only
