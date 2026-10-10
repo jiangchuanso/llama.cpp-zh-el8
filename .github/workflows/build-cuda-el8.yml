@@ -235,7 +235,11 @@ jobs:
             echo "error: package does not require llama-cpu"
             exit 1
           fi
-          if ! rpm -qpl "$rpm" | grep -q 'opt/llama-cpu/bin/libggml-cuda\.so\.'; then
+          # the backend is a DL module, so it is shipped without a version
+          # suffix (libggml-cuda.so, the way libggml-cpu-<variant>.so are in
+          # llama-cpu); only normally linked libraries carry one, like the
+          # libggml-base.so.0 llama-cpu ships. Accept both shapes.
+          if ! rpm -qpl "$rpm" | grep -qE '/opt/llama-cpu/bin/libggml-cuda\.so($|\.)'; then
             echo "error: the ggml-cuda backend is not in the package"
             exit 1
           fi
