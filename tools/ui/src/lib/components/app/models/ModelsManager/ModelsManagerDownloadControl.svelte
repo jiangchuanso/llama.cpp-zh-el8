@@ -3,6 +3,7 @@
 	import { ActionIcon } from '$lib/components/app';
 	import { MODEL_DOWNLOAD_ICONS } from '$lib/constants';
 	import { ModelRowDownloadState } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 	import type { ModelOption } from '$lib/types/models';
 
@@ -30,7 +31,7 @@
 	<span
 		class="text-xs text-muted-foreground tabular-nums group-hover:hidden [@media(pointer:coarse)]:hidden"
 	>
-		{percent !== null ? `${percent}%` : isPaused ? 'Paused' : ''}
+		{percent !== null ? `${percent}%` : isPaused ? t('Paused') : ''}
 	</span>
 
 	<div class="hidden group-hover:flex [@media(pointer:coarse)]:flex">
@@ -43,7 +44,7 @@
 					? modelsStore.status.downloadModel(option.model)
 					: modelsStore.status.pauseDownload(option.model))}
 			stopPropagationOnClick
-			tooltip={isPaused ? 'Resume downloading' : 'Pause downloading'}
+			tooltip={isPaused ? t('Resume downloading') : t('Pause downloading')}
 			tooltipAsTitle
 		/>
 	</div>

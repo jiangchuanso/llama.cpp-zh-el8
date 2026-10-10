@@ -199,7 +199,7 @@
 					<DropdownMenu.Item class="gap-2" onSelect={handleManageModels}>
 						<MODEL_ICON class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 
-						Manage models
+						{t('Manage models')}
 					</DropdownMenu.Item>
 				</DropdownMenu.Group>
 			{/snippet}

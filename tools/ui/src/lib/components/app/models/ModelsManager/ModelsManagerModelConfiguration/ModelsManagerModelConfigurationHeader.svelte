@@ -4,6 +4,7 @@
 	import { ModelAvatar, ModelId } from '$lib/components/app';
 	import { Button } from '$lib/components/ui/button';
 	import { ServerModelStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { deviceStore } from '$lib/stores';
 	import type { ModelOption } from '$lib/types/models';
 
@@ -25,15 +26,15 @@
 	let isLoading = $derived(status === ServerModelStatus.LOADING);
 
 	let statusLabel = $derived.by(() => {
-		if (status === ServerModelStatus.LOADING) return 'Loading';
+		if (status === ServerModelStatus.LOADING) return t('Loading');
 
-		if (status === ServerModelStatus.FAILED) return 'Failed to load';
+		if (status === ServerModelStatus.FAILED) return t('Failed to load');
 
-		if (status === ServerModelStatus.SLEEPING) return 'Sleeping';
+		if (status === ServerModelStatus.SLEEPING) return t('Sleeping');
 
-		if (isLoaded) return 'Loaded';
+		if (isLoaded) return t('Loaded');
 
-		return 'Not loaded';
+		return t('Not loaded');
 	});
 
 	let statusDot = $derived.by(() => {
@@ -87,7 +88,7 @@
 		</div>
 
 		<Button
-			aria-label="Close details"
+			aria-label={t('Close details')}
 			class="h-7 w-7 max-md:-mt-3 max-md:-mr-3 max-md:h-10 max-md:w-10 max-md:rounded-full"
 			onclick={onClose}
 			size="icon"

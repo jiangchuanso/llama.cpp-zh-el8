@@ -11,6 +11,7 @@ import {
 	MERMAID_WRAPPER_CLASS
 } from '$lib/constants';
 import { BooleanString } from '$lib/enums';
+import { t } from '$lib/i18n';
 import { copyCodeToClipboard, copyToClipboard } from '$lib/utils';
 
 export interface PreviewState {
@@ -222,7 +223,7 @@ export function createHandleImageError(
 		// Get the fallback HTML and replace the image
 		const fallbackHtml = `<div class="image-error-placeholder" ${MARKDOWN_DATA_ATTRS.ORIGINAL_SRC}="${img.src}">
 			<span class="image-error-icon">⚠️</span>
-			<span class="image-error-text">Failed to load image</span>
+			<span class="image-error-text">${t('Failed to load image')}</span>
 		</div>`;
 		// Replace the img element with fallback in the block's HTML
 		const newHtml = block.html.replace(/img[^>]*src=["']([^"']*)[^>]*>/g, (match, src) => {

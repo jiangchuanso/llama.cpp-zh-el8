@@ -35,7 +35,7 @@
 				deviceStore.isMobile
 					? uiStore.openModelInformation(option)
 					: uiStore.openModelsManager(option.id)}
-			tooltip="Manage model"
+			tooltip={t('Manage model')}
 			tooltipAsTitle
 		/>
 	</span>

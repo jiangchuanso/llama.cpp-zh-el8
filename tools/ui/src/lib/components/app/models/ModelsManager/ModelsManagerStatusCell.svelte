@@ -3,6 +3,7 @@
 	import ModelsManagerDownloadControl from './ModelsManagerDownloadControl.svelte';
 	import type { ModelRowDownloadState } from '$lib/enums';
 	import { ServerModelStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore, serverStore } from '$lib/stores';
 	import type { ModelOption } from '$lib/types/models';
 
@@ -36,7 +37,7 @@
 {:else}
 	<span
 		class="justify-self-center text-sm text-muted-foreground {className}"
-		title="Served by this server"
+		title={t('Served by this server')}
 	>
 		-
 	</span>

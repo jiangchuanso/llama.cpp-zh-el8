@@ -6,6 +6,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { type ModalityKey } from '$lib/constants';
 	import { ModelCapability } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { deviceStore, uiStore } from '$lib/stores';
 	import type { Snippet } from 'svelte';
 
@@ -59,7 +60,7 @@
 		bind:ref={filterInput}
 		bind:value={filter}
 		class="w-full md:w-auto md:max-w-64"
-		placeholder="Search your models"
+		placeholder={t('Search your models')}
 		size={deviceStore.isMobile ? 'default' : 'sm'}
 	/>
 
@@ -78,7 +79,7 @@
 		>
 			<X class="h-3.5 w-3.5" />
 
-			Clear filters
+			{t('Clear filters')}
 		</Button>
 	{/if}
 

@@ -4,6 +4,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { t } from '$lib/i18n';
 	import { deviceStore } from '$lib/stores';
 	import type { Component } from 'svelte';
 
@@ -61,14 +62,14 @@
 		{@render iconComponent(triggerIcon, 'h-3 w-3')}
 
 		{#if triggerTooltip}
-			<span class="sr-only">{triggerTooltip}</span>
+			<span class="sr-only">{t(triggerTooltip)}</span>
 		{/if}
 	</button>
 
 	<Drawer.Root bind:open>
 		<Drawer.Content>
 			<Drawer.Header>
-				<Drawer.Title>{triggerTooltip ?? 'Actions'}</Drawer.Title>
+				<Drawer.Title>{t(triggerTooltip ?? 'Actions')}</Drawer.Title>
 			</Drawer.Header>
 
 			<div class="flex flex-col px-2 pb-4">
@@ -88,7 +89,7 @@
 					>
 						{@render iconComponent(action.icon, 'h-4 w-4 shrink-0')}
 
-						<span class="flex-1">{action.label}</span>
+						<span class="flex-1">{t(action.label)}</span>
 
 						{#if action.shortcut}
 							<KeyboardShortcutInfo keys={action.shortcut} variant={action.variant} />
@@ -120,7 +121,7 @@
 
 			{#if triggerTooltip}
 				<Tooltip.Content>
-					<p>{triggerTooltip}</p>
+					<p>{t(triggerTooltip)}</p>
 				</Tooltip.Content>
 			{/if}
 		</Tooltip.Root>
@@ -142,7 +143,7 @@
 							action.icon,
 							`h-4 w-4 ${action.variant === 'destructive' ? 'text-destructive' : ''}`
 						)}
-						{action.label}
+						{t(action.label)}
 					</div>
 
 					{#if action.shortcut}

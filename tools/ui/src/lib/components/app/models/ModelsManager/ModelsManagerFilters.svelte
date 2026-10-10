@@ -15,6 +15,7 @@
 		type ModalityKey
 	} from '$lib/constants';
 	import { ModelCapability } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 	import { SvelteSet } from 'svelte/reactivity';
 
@@ -84,7 +85,7 @@
 	}
 
 	let contextLabel = $derived(
-		CONTEXT_STEPS.find((step) => step.value === contextLimit)?.label ?? CONTEXT_STEPS[0].label
+		t(CONTEXT_STEPS.find((step) => step.value === contextLimit)?.label ?? CONTEXT_STEPS[0].label)
 	);
 </script>
 
@@ -102,14 +103,14 @@
 		value={String(contextLimit)}
 	>
 		<Select.Trigger class={FILTER_TRIGGER_CLASS} size="sm">
-			<span class="text-muted-foreground">Context:</span>
+			<span class="text-muted-foreground">{t('Context:')}</span>
 
 			{contextLabel}
 		</Select.Trigger>
 
 		<Select.Content>
 			{#each CONTEXT_STEPS as step (step.value)}
-				<Select.Item label={step.label} value={String(step.value)}>{step.label}</Select.Item>
+				<Select.Item label={t(step.label)} value={String(step.value)}>{t(step.label)}</Select.Item>
 			{/each}
 		</Select.Content>
 	</Select.Root>
@@ -123,9 +124,9 @@
 	>
 		{#each toggles as toggle (toggle.value)}
 			<ToggleGroup.Item
-				aria-label={toggle.label}
+				aria-label={t(toggle.label)}
 				class={FILTER_TOGGLE_ITEM_CLASS}
-				title={toggle.label}
+				title={t(toggle.label)}
 				value={toggle.value}
 			>
 				<toggle.icon class="h-3.5 w-3.5" />

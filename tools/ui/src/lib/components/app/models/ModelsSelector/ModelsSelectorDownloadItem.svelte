@@ -3,6 +3,7 @@
 	import ModelOrgAvatar from '../ModelOrgAvatar.svelte';
 	import { Loader2, Pause, Play, X } from '@lucide/svelte';
 	import { ActionIcon, ModelId } from '$lib/components/app';
+	import { t } from '$lib/i18n';
 	import { HuggingFaceService, ModelsService } from '$lib/services';
 	import { modelsStore } from '$lib/stores';
 	import type { ModelDownloadEntry } from '$lib/types';
@@ -24,7 +25,9 @@
 			: null
 	);
 
-	let actionText = $derived(entry.isPaused ? 'Resume downloading' : 'Pause downloading');
+	let actionText = $derived(
+		entry.isPaused ? t('Resume downloading') : t('Pause downloading')
+	);
 
 	// the base model org resolves lazily via HF when unknown
 	let orgName = $derived(ModelsService.parseModelId(entry.repoWithTag).orgName);
@@ -89,7 +92,7 @@
 		{#if percent !== null}
 			<span class="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">{percent}%</span>
 		{:else if entry.isPaused}
-			<span class="shrink-0 text-xs text-muted-foreground">Paused</span>
+			<span class="shrink-0 text-xs text-muted-foreground">{t('Paused')}</span>
 		{/if}
 
 		<!-- status action: spinner -> pause on hover while in flight, play on hover
@@ -113,7 +116,7 @@
 
 	<!-- the row actions keep the sizing and reveal of the other selector rows -->
 	<ActionIcon
-		ariaLabel="Cancel downloading"
+		ariaLabel={t('Cancel downloading')}
 		class="pointer-events-none h-5 w-5 shrink-0 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 hover:text-destructive [@media(pointer:coarse)]:pointer-events-auto [@media(pointer:coarse)]:opacity-100"
 		icon={X}
 		iconSize="h-4 w-4"

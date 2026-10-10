@@ -45,6 +45,7 @@
 		ModelsTableGroupKind,
 		ModelsTableSortKey
 	} from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore, settingsStore } from '$lib/stores';
 	import type { ModelOption } from '$lib/types/models';
 	import { groupModelFamilies, type ModelFamilyGroup } from '$lib/utils/model-families';
@@ -186,11 +187,13 @@
 	}
 
 	function sortTitle(key: ModelsTableSortKey, label: string): string {
-		const name = label.toLowerCase();
+		const name = t(label).toLowerCase();
 
-		if (sortKey !== key) return `Sort by ${name}, lowest first`;
+		if (sortKey !== key) return t('Sort by {name}, lowest first', { name });
 
-		return sortAsc ? `Sort by ${name}, highest first` : `Stop sorting by ${name}`;
+		return sortAsc
+			? t('Sort by {name}, highest first', { name })
+			: t('Stop sorting by {name}', { name });
 	}
 
 	function handleFamilyKeydown(event: KeyboardEvent, toggle: () => void): void {
@@ -207,7 +210,7 @@
 		title={sortTitle(key, label)}
 		type="button"
 	>
-		{label}
+		{t(label)}
 
 		{#if sortKey === key}
 			{#if sortAsc}
@@ -261,7 +264,10 @@
 	group: ModelFamilyGroup<ModelQuantGroup>;
 	toggle: () => void;
 })}
-	{@const countLabel = `${family.entries.length} model${family.entries.length === 1 ? '' : 's'}`}
+	{@const countLabel =
+		family.entries.length === 1
+			? t('{count} model', { count: family.entries.length })
+			: t('{count} models', { count: family.entries.length })}
 
 	<div
 		class="{MODEL_ROW_GRID_CLASS} relative group cursor-pointer rounded-md px-2 py-1 transition hover:bg-muted/40 max-md:px-3 max-md:py-2.5"
@@ -322,7 +328,7 @@
 			onclick={onMore}
 			type="button"
 		>
-			Show {count} more {SHOW_MORE_NOUNS[unit]}
+			{t('Show {count} more {noun}', { count, noun: t(SHOW_MORE_NOUNS[unit]) })}
 		</button>
 	</div>
 {/snippet}
@@ -352,9 +358,9 @@
 			{@render sortHeader(ModelsTableSortKey.CONTEXT, 'Context')}
 		</span>
 
-		<span class="justify-self-center max-md:hidden">Status</span>
+		<span class="justify-self-center max-md:hidden">{t('Status')}</span>
 
-		<span class="text-center max-md:hidden">Actions</span>
+		<span class="text-center max-md:hidden">{t('Actions')}</span>
 	</div>
 
 	<div class="min-h-0 flex-1 overflow-y-auto">
@@ -408,7 +414,7 @@
 
 		{#if isEmpty}
 			<p class="px-4 py-10 text-center text-sm text-muted-foreground">
-				{hasFilters ? 'No models match these filters.' : 'No models found.'}
+				{hasFilters ? t('No models match these filters.') : t('No models found.')}
 			</p>
 		{/if}
 	</div>

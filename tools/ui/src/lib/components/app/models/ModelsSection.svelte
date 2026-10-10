@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ChevronLeft, CircleAlert, Loader2 } from '@lucide/svelte';
 	import { CollapsibleSection } from '$lib/components/app';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 	import type { Snippet } from 'svelte';
 
@@ -63,7 +64,7 @@
 	{#snippet trigger()}
 		{#if onBack}
 			<button
-				aria-label="Back to all providers"
+				aria-label={t('Back to all providers')}
 				class="-ml-1 inline-flex shrink-0 cursor-pointer items-center rounded-sm p-0.5 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
 				onclick={(event) => {
 					// the back control must not collapse the list it is leaving

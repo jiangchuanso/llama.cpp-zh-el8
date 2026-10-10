@@ -6,6 +6,7 @@
 	import { DialogConfirmDownload } from '$lib/components/app/dialogs';
 	import { Button } from '$lib/components/ui/button';
 	import { ModelDownloadConfirmAction, ServerModelStatus } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { HuggingFaceService } from '$lib/services';
 	import { deviceStore, modelsStore } from '$lib/stores';
 	import type { HfModelDetailInfo } from '$lib/types/huggingface';
@@ -83,7 +84,7 @@
 				variant="ghost"
 			>
 				<Trash2 class="h-4 w-4" />
-				Delete this model from disk
+				{t('Delete this model from disk')}
 			</Button>
 		</div>
 	</div>

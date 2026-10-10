@@ -166,7 +166,7 @@
 
 	{#if visibleRows.length === 0}
 		<p class="py-2.5 text-sm text-muted-foreground">
-			The model reports its metadata once it is loaded.
+			{t('The model reports its metadata once it is loaded.')}
 		</p>
 	{/if}
 
@@ -181,8 +181,9 @@
 
 {#if !serverProps}
 	<p class="pt-2 text-xs text-muted-foreground">
-		/props values - file path, slots, build info - appear once the model is loaded. Reading this
-		page never loads a model.
+		{t(
+			'/props values - file path, slots, build info - appear once the model is loaded. Reading this page never loads a model.'
+		)}
 	</p>
 {/if}
 
@@ -195,6 +196,6 @@
 		<pre
 			class="mt-1 rounded-md bg-muted/50 p-2 text-xs whitespace-pre-wrap">{serverProps?.chat_template ??
 				gguf?.chat_template ??
-				'Shown once the model is loaded.'}</pre>
+				t('Shown once the model is loaded.')}</pre>
 	</CollapsibleSection>
 </div>

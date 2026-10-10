@@ -1,6 +1,7 @@
 <script lang="ts">
 	import DialogConfirmation from '$lib/components/app/dialogs/DialogConfirmation.svelte';
 	import { ModelDownloadConfirmAction } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { modelsStore } from '$lib/stores';
 
 	interface Props {
@@ -22,18 +23,20 @@
 	// destructive confirmations identically.
 	const COPY = {
 		[ModelDownloadConfirmAction.CANCEL]: {
-			cancelText: 'Keep downloading',
-			confirmText: 'Cancel download',
+			cancelText: t('Keep downloading'),
+			confirmText: t('Cancel download'),
 			description: (name: string) =>
-				`This stops the download of ${name} and removes the partial files. Pause it instead to keep the progress.`,
-			title: 'Cancel download'
+				t('This stops the download of {name} and removes the partial files. Pause it instead to keep the progress.', {
+					name
+				}),
+			title: t('Cancel download')
 		},
 		[ModelDownloadConfirmAction.DELETE]: {
-			cancelText: 'Keep model',
-			confirmText: 'Delete',
+			cancelText: t('Keep model'),
+			confirmText: t('Delete'),
 			description: (name: string) =>
-				`This permanently removes ${name} from disk. You can download it again later.`,
-			title: 'Delete model'
+				t('This permanently removes {name} from disk. You can download it again later.', { name }),
+			title: t('Delete model')
 		}
 	} as const;
 

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Eject, Loader2, MessageSquare, Power, SquarePen } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { t } from '$lib/i18n';
 	import { conversationsStore, deviceStore } from '$lib/stores';
 
 	interface Props {
@@ -40,11 +41,11 @@
 			{#if hasChat}
 				<MessageSquare class="h-3.5 w-3.5" />
 
-				Use in this chat
+				{t('Use in this chat')}
 			{:else}
 				<SquarePen class="h-3.5 w-3.5" />
 
-				Start a new chat
+				{t('Start a new chat')}
 			{/if}
 		</Button>
 	{/if}
@@ -54,7 +55,7 @@
 			<Button class="flex-1 gap-1.5" onclick={onUseInNewChat} {size}>
 				<SquarePen class="h-3.5 w-3.5" />
 
-				Start a new chat
+				{t('Start a new chat')}
 			</Button>
 		{/if}
 
@@ -69,15 +70,15 @@
 				{#if isLoading}
 					<Loader2 class="h-3.5 w-3.5 animate-spin" />
 
-					Loading...
+					{t('Loading...')}
 				{:else if isLoaded}
 					<Eject class="h-3.5 w-3.5" />
 
-					Unload model
+					{t('Unload model')}
 				{:else}
 					<Power class="h-3.5 w-3.5" />
 
-					Load model
+					{t('Load model')}
 				{/if}
 			</Button>
 		{/if}

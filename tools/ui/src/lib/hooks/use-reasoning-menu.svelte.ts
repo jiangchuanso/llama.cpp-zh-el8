@@ -1,5 +1,6 @@
 import { REASONING_EFFORT_LEVELS, REASONING_EFFORT_TOKENS } from '$lib/constants';
 import { ReasoningEffort } from '$lib/enums';
+import { t } from '$lib/i18n';
 import { conversationsStore, modelsStore, serverStore } from '$lib/stores';
 import type { ReasoningEffortLevel } from '$lib/types';
 import type { DatabaseMessage } from '$lib/types/database';
@@ -91,13 +92,15 @@ export function useReasoningMenu(): UseReasoningMenuReturn {
 			return thinkingEnabled;
 		},
 		tokenLabel(level: ReasoningEffortLevel): string | null {
-			if (level.value === ReasoningEffort.DEFAULT) return 'Model default';
+			if (level.value === ReasoningEffort.DEFAULT) return t('Model default');
 
 			const tokens = REASONING_EFFORT_TOKENS[level.value];
 
 			if (tokens === undefined) return null;
 
-			return tokens === -1 ? 'Unlimited' : `Max ${tokens.toLocaleString()} tokens`;
+			return tokens === -1
+				? t('Unlimited')
+				: t('Max {count} tokens', { count: tokens.toLocaleString() });
 		}
 	};
 }

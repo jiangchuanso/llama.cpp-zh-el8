@@ -2,6 +2,7 @@
 	import ModelsManager from '$lib/components/app/models/ModelsManager/ModelsManager.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { MODEL_ICON } from '$lib/constants';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		open?: boolean;
@@ -25,11 +26,11 @@
 			<Dialog.Title class="flex min-h-7 items-center gap-2">
 				<MODEL_ICON class="h-5 w-5 shrink-0" />
 
-				<span>Models</span>
+				<span>{t('Models')}</span>
 			</Dialog.Title>
 
 			<Dialog.Description class="sr-only">
-				Browse, load and delete the models the server can serve.
+				{t('Browse, load and delete the models the server can serve.')}
 			</Dialog.Description>
 		</Dialog.Header>
 
