@@ -45,6 +45,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: System Dependencies (EL8 / dnf)
+        run: |
+          # gcc-toolset-14 is the compiler the EL8 CPU build uses, and CUDA 13
+          # takes GCC 14 as host compiler, so nvcc accepts it as-is
+          dnf -y install --setopt=install_weak_deps=False \
+            gcc-toolset-14 binutils make cmake which tar
+          # the PATH written here reaches this job's step environment but did not
+          # put the toolset on the PATH cmake searched (see the build step), so
+          # the compiler is also named by path there; CC/CXX stay for the tools
+          # that read them
+          echo "PATH=/opt/rh/gcc-toolset-14/root/usr/bin:$PATH" >> "$GITHUB_ENV"
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+          # assert the toolset landed and runs, so a bad install fails here and
+          # not three steps later as cmake's "Could not find compiler set in
+          # environment variable CC". `test -x` first on purpose: `gcc --version
+          # | head -1` exits 0 even when gcc is missing, a pipeline reporting the
+          # status of its last command
+          test -x /opt/rh/gcc-toolset-14/root/usr/bin/gcc
+          /opt/rh/gcc-toolset-14/root/usr/bin/gcc --version
+
       # CUDA 13 comes from NVIDIA's official Linux runfile instead of the dnf
       # repository: the runfile is the universal EL8-compatible installer and is
       # the same .run the host uses for the driver. Only the toolkit is needed
@@ -52,13 +73,6 @@ jobs:
       # target host are installed from the matching .run as well, and are never
       # bundled into the RPM (see packaging/rpm/README.md). glibc stays at 2.28
       # because the runfile targets RHEL 8.
-      #
-      # This step runs before the compiler is installed on purpose. The runfile
-      # unpacks several GB and, in --silent mode, prints nothing about what else
-      # it touches; one run that installed gcc-toolset-14 first reached the build
-      # step with /opt/rh/gcc-toolset-14/root/usr/bin/gcc gone and cmake failed
-      # with "Could not find compiler set in environment variable CC: gcc".
-      # Installing the toolchain afterwards keeps the toolkit out of its way.
       - name: CUDA Toolkit (official runfile, CUDA 13)
         run: |
           dnf -y install --setopt=install_weak_deps=False wget perl
@@ -68,13 +82,9 @@ jobs:
             echo "error: cannot download $runfile - check CUDA_VERSION / CUDA_RUN_DRIVER against NVIDIA's archive"
             exit 1
           fi
-          # the toolkit unpacks a few GB next to the runfile, so the free space
-          # before and after is worth having in the log when a run misbehaves
-          df -h / | tail -1
           sh "${runfile}" --toolkit --silent --override \
             --installpath="/usr/local/cuda-${CUDA_VERSION%.*}"
           rm -f "${runfile}"
-          df -h / | tail -1
           # the runfile installs under /usr/local/cuda-<major>.<minor> and only
           # the /etc/profile.d snippet puts it on PATH, which a CI step never reads
           CUDA_HOME="/usr/local/cuda-${CUDA_VERSION%.*}"
@@ -82,27 +92,25 @@ jobs:
           echo "$CUDA_HOME/bin" >> "$GITHUB_PATH"
           "$CUDA_HOME/bin/nvcc" --version
 
-      - name: System Dependencies (EL8 / dnf)
-        run: |
-          # gcc-toolset-14 is the compiler the EL8 CPU build uses, and CUDA 13
-          # takes GCC 14 as host compiler, so nvcc accepts it as-is
-          dnf -y install --setopt=install_weak_deps=False \
-            gcc-toolset-14 binutils make cmake which tar
-          echo "PATH=/opt/rh/gcc-toolset-14/root/usr/bin:$PATH" >> "$GITHUB_ENV"
-          echo "CC=gcc" >> "$GITHUB_ENV"
-          echo "CXX=g++" >> "$GITHUB_ENV"
-          # the build below resolves `gcc` from PATH only, and a missing compiler
-          # there reads as cmake's "Could not find compiler set in environment
-          # variable CC" instead of naming the file that is absent
-          /opt/rh/gcc-toolset-14/root/usr/bin/gcc --version | head -1
-
       # Only ggml-cuda is built here: llama-server, the CPU backend and the
       # shared ggml-base library all come from the llama-cpu package, and
       # GGML_BACKEND_DL turns the backend into a module that llama-server finds
       # in its own directory at startup.
       - name: Build CUDA backend
         run: |
+          # The compiler is named by path, not left to CC + PATH: this job's
+          # container had /opt/rh/gcc-toolset-14/root/usr/bin first on PATH and a
+          # working gcc inside it seven milliseconds earlier, yet cmake's first
+          # probe still failed with "Could not find compiler set in environment
+          # variable CC: gcc" - while the identical CC + PATH pair resolves fine
+          # in build-cpu's ubuntu job. An absolute compiler takes PATH out of the
+          # decision, and the two prints below record what PATH resolved to.
+          echo "PATH=$PATH"
+          command -v gcc || echo "gcc is not on PATH"
           cmake -B build \
+            -DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-14/root/usr/bin/gcc \
+            -DCMAKE_CXX_COMPILER=/opt/rh/gcc-toolset-14/root/usr/bin/g++ \
+            -DCMAKE_CUDA_HOST_COMPILER=/opt/rh/gcc-toolset-14/root/usr/bin/g++ \
             -DGGML_NATIVE=OFF \
             -DGGML_BACKEND_DL=ON \
             -DGGML_CPU=OFF \
