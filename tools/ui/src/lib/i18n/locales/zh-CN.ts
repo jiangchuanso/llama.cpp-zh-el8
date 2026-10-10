@@ -108,9 +108,9 @@ export const ZH_CN: Record<string, string> = {
 	'Show model tags': '显示模型标签',
 	'Display model tags (e.g. "vision", "reasoning") next to model names throughout the interface.':
 		'在界面各处的模型名称旁显示模型标签（如 "vision"、"reasoning"）。',
-	'Show organization name in model selector trigger': '在模型选择器中显示组织名称',
-	'Display the organization name in the model selector trigger button.':
-		'在模型选择器的触发按钮中显示组织名称。',
+	'Show organization name in model selector': '在模型选择器中显示组织名称',
+	'Display the organization name alongside model names in the model selector, in the trigger and in the model rows.':
+		'在模型选择器中（触发按钮与模型行）将组织名称与模型名称一并显示。',
 	'Show build version information': '显示构建版本信息',
 	'Display the current build version in the bottom-right corner of the interface.':
 		'在界面右下角显示当前构建版本。',
@@ -270,28 +270,20 @@ export const ZH_CN: Record<string, string> = {
 	'File type not supported': '不支持该文件类型',
 	'Not supported by current model': '当前模型不支持',
 	'This model supports:': '当前模型支持：',
-	'Model Information': '模型信息',
-	'Current model details and capabilities': '当前模型的详情与能力',
 	'Details of the model, from the server or the Hub.': '模型详情，来自服务器或 Hugging Face Hub。',
-	'Loading model information...': '正在加载模型信息…',
-	'No model information available': '暂无模型信息',
 	Model: '模型',
 	'File Path': '文件路径',
 	'Context Size': '上下文大小',
-	'Not available': '不可用',
-	'Training Context': '训练上下文',
 	'Model Size': '模型大小',
 	Parameters: '参数量',
 	'Embedding Size': '嵌入维度',
 	'Vocabulary Size': '词表大小',
-	'Vocabulary Type': '词表类型',
 	'Parallel Slots': '并行槽位',
 	Modalities: '模态',
 	'Build Info': '构建信息',
 	'Chat Template': '对话模板',
 	'{count} tokens': '{count} 个 token',
 	'Copy model name to clipboard': '复制模型名称',
-	'Copy model path to clipboard': '复制模型路径',
 
 	// ── Chat form ────────────────────────────────────────────────────────────
 	'Type a message...': '输入消息…',
@@ -334,7 +326,6 @@ export const ZH_CN: Record<string, string> = {
 	Vision: '视觉',
 	'MCP Servers': 'MCP 服务器',
 	'Add to chat': '添加到对话',
-	'Add files, system prompt or configure MCP servers': '添加文件、系统提示词或配置 MCP 服务器',
 	'Add files, system prompt or pick the tools the model may call':
 		'添加文件、系统提示词，或选择模型可调用的工具',
 	'{count} tools': '{count} 个工具',
@@ -779,19 +770,14 @@ export const ZH_CN: Record<string, string> = {
 	'Loading weights': '正在加载权重',
 
 	// ── Model selector & tabs ────────────────────────────────────────────────
-	'Loading models…': '正在加载模型…',
 	'Loading models...': '正在加载模型…',
-	'No models available.': '暂无可用模型。',
 	'No models yet.': '暂无模型。',
 	'Select model': '选择模型',
-	'No model': '无模型',
 	'No models found.': '未找到模型。',
 	'Search models...': '搜索模型…',
 	'(not available)': '（不可用）',
 	'Loaded models': '已加载模型',
 	'Favorites': '收藏',
-	'Favorite models': '收藏模型',
-	'Available models': '可用模型',
 	'Local models': '本地模型',
 	'Downloading': '下载中',
 	'Quantization': '量化',
@@ -806,7 +792,7 @@ export const ZH_CN: Record<string, string> = {
 	'Clear search': '清除搜索',
 	'Remove from favorites': '取消收藏',
 	'Add to favorites': '收藏',
-	'Model information': '模型信息',
+	'Manage model': '管理模型',
 	'Retry loading model': '重试加载模型',
 	'Unload model': '卸载模型',
 	'Load model': '加载模型',
@@ -828,9 +814,7 @@ export const ZH_CN: Record<string, string> = {
 	'Close Sidebar': '关闭侧边栏',
 	'Delete "{name}"? This action cannot be undone.': '删除“{name}”？此操作无法撤销。',
 
-	// ── Model selector (mobile sheet) & model load toasts ────────────────────
-	'Select Model': '选择模型',
-	'Choose a model to use for the conversation': '选择用于该对话的模型',
+	// ── Model load toasts ────────────────────────────────────────────────────
 	'Model loaded: {name}': '模型已加载：{name}',
 	'Model unloaded: {name}': '模型已卸载：{name}',
 	'Failed to load model: {name}': '加载模型失败：{name}',
