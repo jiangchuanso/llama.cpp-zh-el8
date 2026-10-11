@@ -1,19 +1,33 @@
 name: Build CUDA backend packages
 
 # Fork-only workflow. It builds the EL8 (Kylin V10 compatible) CUDA backend of
-# ggml and repackages it into an add-on RPM for llama-cpu. The CUDA runtime is
-# not part of the artifact: the host installs it itself. Nothing here is
-# upstream, so it can never conflict when merging upstream/master.
+# ggml and repackages it into an add-on RPM for llama-cpu, together with the few
+# CUDA runtime libraries the backend links so that the host only needs the NVIDIA
+# driver. Nothing here is upstream, so it can never conflict when merging
+# upstream/master.
 on:
   workflow_dispatch:
   workflow_call:
 
 jobs:
   cuda:
-    name: cuda / el8-x64
-    # x86_64 only: the GPU hosts these packages target are x86_64 servers, and
-    # the runfile used below is the x86_64 Linux one.
-    runs-on: ubuntu-24.04
+    name: cuda / ${{ matrix.dist }}
+    # One library per architecture: the CUDA runtime shipped inside the package
+    # is native code, so an aarch64 host cannot load the x86_64 backend. The
+    # aarch64 build covers servers with an NVIDIA card, same as the x86_64 one.
+    strategy:
+      matrix:
+        include:
+          - build: 'x64'
+            os: ubuntu-24.04
+            dist: 'el8-x64'
+            # NVIDIA publishes two Linux runfiles: x86_64 and ARM SBSA (server)
+            runfile: 'linux'
+          - build: 'arm64'
+            os: ubuntu-24.04-arm
+            dist: 'el8-arm64'
+            runfile: 'linux_sbsa'
+    runs-on: ${{ matrix.os }}
     # The CPU packages are built in almalinux:8 and this backend ends up loaded
     # into the very same process, so it has to come from the same OS line: EL8
     # keeps it on glibc 2.28 and on the libstdc++ that llama-cpu bundles. The
@@ -68,20 +82,23 @@ jobs:
 
       # CUDA 13 comes from NVIDIA's official Linux runfile instead of the dnf
       # repository: the runfile is the universal EL8-compatible installer and is
-      # the same .run the host uses for the driver. Only the toolkit is needed
-      # here (--toolkit skips the driver); the driver and the CUDA runtime on the
-      # target host are installed from the matching .run as well, and are never
-      # bundled into the RPM (see packaging/rpm/README.md). glibc stays at 2.28
-      # because the runfile targets RHEL 8.
+      # the same .run the host uses for the driver (x86_64 and ARM SBSA are two
+      # separate runfiles, picked by the matrix). Only the toolkit is needed
+      # here (--toolkit skips the driver): it provides nvcc plus the runtime
+      # libraries, and the ones the backend links are copied into the package
+      # below. What the host installs itself is only the driver, which no RPM can
+      # ship (see packaging/rpm/README.md). glibc stays at 2.28 because the
+      # runfile targets RHEL 8.
       - name: CUDA Toolkit (official runfile, CUDA 13)
         run: |
           dnf -y install --setopt=install_weak_deps=False wget perl
-          runfile="cuda_${CUDA_VERSION}_${CUDA_RUN_DRIVER}_linux.run"
+          runfile="cuda_${CUDA_VERSION}_${CUDA_RUN_DRIVER}_${{ matrix.runfile }}.run"
           url="https://developer.download.nvidia.com/compute/cuda/${CUDA_VERSION}/local_installers/${runfile}"
           if ! wget -q "$url"; then
             echo "error: cannot download $runfile - check CUDA_VERSION / CUDA_RUN_DRIVER against NVIDIA's archive"
             exit 1
           fi
+          uname -m
           sh "${runfile}" --toolkit --silent --override \
             --installpath="/usr/local/cuda-${CUDA_VERSION%.*}"
           rm -f "${runfile}"
@@ -122,7 +139,14 @@ jobs:
             -DLLAMA_BUILD_TOOLS=OFF \
             -DLLAMA_BUILD_TESTS=OFF \
             -DCUDAToolkit_ROOT="$CUDA_HOME" \
-            -DCMAKE_BUILD_RPATH='$ORIGIN'
+            -DCMAKE_BUILD_RPATH='$ORIGIN' \
+            -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--disable-new-dtags
+          # --disable-new-dtags makes the linker emit DT_RPATH instead of
+            # DT_RUNPATH. Only DT_RPATH is inherited along the dependency chain,
+            # so it is what lets libcublas, loaded from /opt/llama-cpu/bin, find
+            # the libcublasLt shipped next to it (cublas loads it at run time,
+            # it is not a NEEDED entry). With DT_RUNPATH it would fall back to
+            # the system loader paths and miss it.
           # no CMAKE_CUDA_ARCHITECTURES: keep the broad default set from
           # ggml/src/ggml-cuda/CMakeLists.txt so that one library covers the GPUs
           # these servers come with (trim the list there if build time or size
@@ -159,19 +183,51 @@ jobs:
           [ "$fail" = 0 ] || exit 1
           echo "backend stays within glibc $max_ver"
 
-      # Only the backend is shipped: the CUDA runtime stays out of the package
-      # (it is hundreds of MB) and is expected as a system package on the target
-      # host instead, see packaging/rpm/README.md.
-      - name: Collect the CUDA backend
+      # The backend ships together with the CUDA libraries it links, so the target
+      # host only needs the NVIDIA driver: installing the whole toolkit (several
+      # GB) for three files is not worth it. libcuda.so.1 stays out on purpose,
+      # it comes from the driver and must never be bundled.
+      - name: Collect the backend and the CUDA runtime
         run: |
           mkdir -p dist
           cp -a build/bin/libggml-cuda.so* dist/
+
+          # Take the CUDA libraries straight from the backend's own NEEDED list
+          # instead of a hardcoded list: a CUDA upgrade that renames or adds one
+          # is then picked up on its own. A soname is a symlink, so the file it
+          # points at is copied too. libcublasLt is not a NEEDED entry, cublas
+          # loads it itself at run time, so it is added explicitly.
+          cuda_lib="$CUDA_HOME/lib64"
+          # a soname is a symlink, so the file it points at goes in as well
+          ship() {
+            for f in "$@"; do
+              if [ ! -e "$f" ]; then
+                echo "error: $f is needed but missing"
+                exit 1
+              fi
+              cp -a "$f" dist/
+              if [ -L "$f" ]; then
+                cp -a "$(readlink -f "$f")" dist/
+              fi
+            done
+          }
+          # libcuda.so.1 is dropped here: it comes from the driver, not from the
+          # toolkit, and bundling it would pin the host to one driver version
+          ship $(readelf -d dist/libggml-cuda.so \
+                 | sed -nE 's/.*\(NEEDED\).*\[(libcu.*|libnv.*)\]/\1/p' \
+                 | grep -v '^libcuda\.so' | sort -u | sed "s|^|$cuda_lib/|")
+          # libcublasLt is not a NEEDED entry: cublas loads it itself at run time
+          ship "$cuda_lib"/libcublasLt.so.*
           ls -l dist
+          # the CUDA runtime is the bulk of the package, print it so a size jump
+          # shows up in the log instead of in the release assets
+          du -sh dist
+          du -sh dist/* | sort -h
 
           # Every library the backend links has to come from llama-cpu (ggml-base
-          # and the C++ runtime) or from the CUDA runtime the host installs. A
-          # name outside this list would be missing at run time, so fail here
-          # instead of shipping a backend that cannot load.
+          # and the C++ runtime), from this package, or from the driver. A name
+          # outside those would be missing at run time, so fail here instead of
+          # shipping a backend that cannot load.
           needs=$(readelf -d dist/libggml-cuda.so | sed -nE 's/.*\(NEEDED\).*\[(.*)\]/\1/p')
           echo "== needed =="
           echo "$needs"
@@ -179,8 +235,15 @@ jobs:
             case "$lib" in
               libggml-base.so.*|libstdc++.so.*|libgomp.so.*|libgcc_s.so.*|libm.so.*|libc.so.*|libdl.so.*|libpthread.so.*|librt.so.*)
                 echo "from llama-cpu: $lib" ;;
+              libcuda.so.*)
+                echo "from the host NVIDIA driver: $lib" ;;
               libcu*.so.*|libnv*.so.*)
-                echo "from the host CUDA runtime: $lib" ;;
+                # collected above, so it has to be here now
+                if [ ! -e "dist/$lib" ]; then
+                  echo "error: $lib is needed but was not collected"
+                  exit 1
+                fi
+                echo "shipped with this package: $lib" ;;
               *)
                 echo "error: $lib is neither shipped by llama-cuda nor expected on the host"
                 exit 1 ;;
@@ -215,10 +278,9 @@ jobs:
 
       # The dependency on llama-cpu is what keeps the backend and the server it
       # is loaded into on the same build; a typo here would be invisible until
-      # install time. The sonames of the CUDA runtime must not show up as
-      # dependencies either: the host installs that runtime outside RPM (driver
-      # and cuda-runtime from a .run file, or packages from NVIDIA's repo), so a
-      # soname dependency would block installation.
+      # install time. The bundled CUDA libraries must not show up as dependencies
+      # either: they are in the package, so a soname requirement would demand a
+      # second copy from the host and block installation.
       - name: Verify package metadata
         run: |
           set -e
@@ -227,6 +289,7 @@ jobs:
           rpm -qp --requires "$rpm"
           echo "== files =="
           rpm -qpl "$rpm"
+          du -h "$rpm"
           if rpm -qp --requires "$rpm" | grep -E 'GLIBCXX_|CXXABI_|GOMP_|libcudart|libcublas'; then
             echo "error: package requires a bundled runtime library symbol or soname"
             exit 1
@@ -243,17 +306,31 @@ jobs:
             echo "error: the ggml-cuda backend is not in the package"
             exit 1
           fi
+          # the CUDA runtime is what makes the package work without a toolkit on
+          # the host, so a missing library is a hard failure
+          for lib in libcudart libcublas libcublasLt; do
+            if ! rpm -qpl "$rpm" | grep -qE "/opt/llama-cpu/bin/${lib}\.so"; then
+              echo "error: $lib is not in the package, the backend would not load"
+              exit 1
+            fi
+          done
+          # but the driver must never be bundled: it is the only thing the host
+          # still has to install, and pinning it here would break other drivers
+          if rpm -qpl "$rpm" | grep -qE '/opt/llama-cpu/bin/libcuda\.so'; then
+            echo "error: libcuda.so.1 comes from the host driver and must not be bundled"
+            exit 1
+          fi
 
       - name: Upload CUDA backend
         uses: actions/upload-artifact@v6
         with:
-          name: llama-cuda-el8-x64
+          name: llama-cuda-${{ matrix.dist }}
           path: dist
           if-no-files-found: error
 
       - name: Upload RPM
         uses: actions/upload-artifact@v6
         with:
-          name: llama-rpm-cuda-el8-x64
+          name: llama-rpm-cuda-${{ matrix.dist }}
           path: rpmbuild/RPMS/**/*.rpm
           if-no-files-found: error

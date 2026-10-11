@@ -47,39 +47,43 @@ spec 里用 `AutoReqProv: no` 关闭了自动依赖扫描，因此包内既**不
 ## CUDA 附加包（llama-cuda，可选）
 
 `llama-cuda` 给本包加 NVIDIA GPU 加速，自身**不含**可执行文件、服务或配置，只往
-`/opt/llama-cpu/bin` 放一个文件：
+`/opt/llama-cpu/bin` 放后端和它要用的 CUDA 运行库：
 
 | 路径 | 内容 |
 | ---- | ---- |
 | `libggml-cuda.so*` | CUDA 后端，llama-server 启动时在自己目录里发现并加载它 |
+| `libcudart.so.13*`、`libcublas.so.13*`、`libcublasLt.so.13*` | 后端链接的 CUDA 运行库，**随包提供** |
 
-CUDA 运行库**不随包提供**（cudart + cublas 有数百 MB），由目标机自行安装，见下面的说明。
+也就是说目标机**不用装 CUDA toolkit**（完整 toolkit 有几个 GB，而后端只用到其中三个库），
+装好 NVIDIA 驱动就够了。
 
-只发布 x86_64 一种架构：
+按架构选包，`llama-cuda` 与 `llama-cpu` 必须是同一种架构（包里的 CUDA 运行库是原生代码，
+x86_64 的后端在 aarch64 上加载不了）：
 
 ```sh
+# x86_64
 sudo rpm -Uvh llama-cpu-<版本>.<release>.el8.x86_64.rpm \
               llama-cuda-<版本>.<release>.el8.x86_64.rpm
+# aarch64
+sudo rpm -Uvh llama-cpu-<版本>.<release>.el8.aarch64.rpm \
+              llama-cuda-<版本>.<release>.el8.aarch64.rpm
 ```
 
 - `llama-cuda` 用 `Requires: llama-cpu = <完全相同的 Version-Release>` 精确锁定，两个包必须
   来自同一次发布。升级时也要**一条命令同时升级两个包**，只升 `llama-cpu` 会因依赖不满足而失败
   （两个包都升则正常）。
-- 目标机需要自己提供两样东西，缺任一样后端都不会被加载（服务照旧纯 CPU 运行）。两者都用
-  NVIDIA 官方的 Linux runfile 安装器装，不随包、也不走 RPM：
-  1. **CUDA 13.x 运行库**：至少 `libcudart.so.13` 与 `libcublas.so.13`（`libcublas` 自己会带出
-     `libcublasLt`）。用与构建同版本的 runfile（如 `cuda_13.0.0_580.65.06_linux.run`，仅装
-     runtime/toolkit 时加 `--toolkit`）安装，装完把 `/usr/local/cuda-13.0/lib64` 写进
-     `/etc/ld.so.conf.d/` 后 `ldconfig`，或者把 `libcudart.so.13`、`libcublas.so.13`、
-     `libcublasLt.so.13` 直接放到 `/opt/llama-cpu/bin/`（后端带 `$ORIGIN` rpath，同目录优先）。
-  2. **NVIDIA 驱动**：提供 `libcuda.so.1`。本包按 CUDA 13 构建，对应 580 系列驱动
-     （>= 580.65.06；13.x 的次版本兼容下限为 580，具体看所用 CUDA 13 小版本捆绑的驱动）；
-     驱动同样用官方 `.run` 安装器装。
+- 目标机唯一要自备的是 **NVIDIA 驱动**（提供 `libcuda.so.1`），用官方 `.run` 安装器装，
+  不随包也不走 RPM。本包按 CUDA 13 构建，对应 580 系列驱动（>= 580.65.06；13.x 的次版本
+  兼容下限为 580，具体看所用 CUDA 13 小版本捆绑的驱动）。没装驱动或没有可用 GPU 时后端
+  不会被加载，服务照旧纯 CPU 运行。
+- 目标机上已有的 CUDA toolkit/运行库不必卸载：后端带 `$ORIGIN` rpath，会优先用同目录下
+  随包带来的那份，两者互不干扰。
 - 装好后不用改配置：`--n-gpu-layers` 默认为 `auto`，按显存自动决定往 GPU 放几层。想强制不用
   GPU 就传 `--n-gpu-layers 0`，或直接 `rpm -e llama-cuda`。
 - 后端按上游默认的 CUDA 架构集合编译（Maxwell 及更新的卡都能用）。
-- nightly 里除了 RPM 还有对应的 tarball `llama-cuda-el8-x64-<版本>.tar.gz`，解压到
-  `llama-cpu-el8-x64-<版本>.tar.gz` 解压出来的同一个目录即可，效果与装 RPM 相同。
+- nightly 里除了 RPM 还有对应的 tarball（`llama-cuda-el8-x64-<版本>.tar.gz`、
+  `llama-cuda-el8-arm64-<版本>.tar.gz`），解压到同架构的 `llama-cpu-el8-*-<版本>.tar.gz`
+  解压出来的同一个目录即可，效果与装 RPM 相同。
 
 ## 配置
 
