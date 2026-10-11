@@ -79,6 +79,10 @@ jobs:
           # status of its last command
           test -x /opt/rh/gcc-toolset-14/root/usr/bin/gcc
           /opt/rh/gcc-toolset-14/root/usr/bin/gcc --version
+          # recorded because FindCUDAToolkit is version sensitive: if the cmake
+          # coming from the EL8 repos is too old to parse CUDA 13, the failure
+          # shows up as "CUDA Toolkit not found" three steps later
+          cmake --version | head -1
 
       # CUDA 13 comes from NVIDIA's official Linux runfile instead of the dnf
       # repository: the runfile is the universal EL8-compatible installer and is
@@ -140,17 +144,24 @@ jobs:
             -DLLAMA_BUILD_TESTS=OFF \
             -DCUDAToolkit_ROOT="$CUDA_HOME" \
             -DCMAKE_BUILD_RPATH='$ORIGIN' \
-            -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--disable-new-dtags
+            -DCMAKE_SHARED_LINKER_FLAGS=-Wl,--disable-new-dtags \
+            -DCMAKE_CUDA_ARCHITECTURES='120a-real;121a-real'
+          # Blackwell only: every GPU these hosts have is sm_120 (RTX 50 series,
+          # RTX Pro Blackwell), so the upstream default set is cut down to it.
+          # That set also carries 75/80/86/89/90 for older cards, and each
+          # architecture is compiled into every kernel template instance, so
+          # dropping them is what keeps the build time and libggml-cuda.so small.
+          # Consequence: on a pre-Blackwell card the backend finds no cubin and no
+          # PTX to JIT, so it is not loaded and the server stays on the CPU.
+          # 121a is kept because it costs one more pass and covers the other
+          # Blackwell parts; there is no point in a *-virtual Blackwell entry,
+          # PTX cannot JIT downwards to older cards anyway.
           # --disable-new-dtags makes the linker emit DT_RPATH instead of
-            # DT_RUNPATH. Only DT_RPATH is inherited along the dependency chain,
-            # so it is what lets libcublas, loaded from /opt/llama-cpu/bin, find
-            # the libcublasLt shipped next to it (cublas loads it at run time,
-            # it is not a NEEDED entry). With DT_RUNPATH it would fall back to
-            # the system loader paths and miss it.
-          # no CMAKE_CUDA_ARCHITECTURES: keep the broad default set from
-          # ggml/src/ggml-cuda/CMakeLists.txt so that one library covers the GPUs
-          # these servers come with (trim the list there if build time or size
-          # ever becomes a problem)
+          # DT_RUNPATH: only DT_RPATH is inherited along the dependency chain, so
+          # it is what lets libcublas, loaded from /opt/llama-cpu/bin, find the
+          # libcublasLt shipped next to it (cublas loads it at run time, it is
+          # not a NEEDED entry). With DT_RUNPATH it would fall back to the system
+          # loader paths and miss it.
           time cmake --build build --config Release --target ggml-cuda -j $(nproc)
 
       # The backend is loaded from /opt/llama-cpu/bin next to llama-server, so it

@@ -47,8 +47,9 @@ A host that already has the CUDA runtime installed is unaffected: the copies in
 /opt/llama-cpu/bin are found first through the $ORIGIN rpath and stay inside
 this package, nothing is written outside /opt/llama-cpu.
 
-The backend is built with the upstream default CUDA architecture set, which
-covers Maxwell and newer GPUs.
+The backend is built for Blackwell only (sm_120 and sm_121, that is the RTX 50
+series and RTX Pro Blackwell). On an older card there is no cubin and no PTX to
+compile, so the backend is not loaded and the server stays on the CPU.
 
 %prep
 # nothing to unpack, the prebuilt files are used as-is

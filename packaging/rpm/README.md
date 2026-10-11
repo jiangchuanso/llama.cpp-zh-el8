@@ -80,7 +80,9 @@ sudo rpm -Uvh llama-cpu-<版本>.<release>.el8.aarch64.rpm \
   随包带来的那份，两者互不干扰。
 - 装好后不用改配置：`--n-gpu-layers` 默认为 `auto`，按显存自动决定往 GPU 放几层。想强制不用
   GPU 就传 `--n-gpu-layers 0`，或直接 `rpm -e llama-cuda`。
-- 后端按上游默认的 CUDA 架构集合编译（Maxwell 及更新的卡都能用）。
+- 后端**只为 Blackwell 编译**（sm_120 / sm_121，即 RTX 50 系列与 RTX Pro Blackwell）。
+  在更早的卡上没有对应的 cubin、也没有可 JIT 的 PTX，后端不会被加载，服务照旧纯 CPU 运行；
+  想确认的话 `llama-server` 启动日志里看后端是否被加载。
 - nightly 里除了 RPM 还有对应的 tarball（`llama-cuda-el8-x64-<版本>.tar.gz`、
   `llama-cuda-el8-arm64-<版本>.tar.gz`），解压到同架构的 `llama-cpu-el8-*-<版本>.tar.gz`
   解压出来的同一个目录即可，效果与装 RPM 相同。
