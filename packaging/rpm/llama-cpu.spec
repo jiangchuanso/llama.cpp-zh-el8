@@ -22,6 +22,13 @@ AutoReqProv:    no
 # binaries, archives and libraries are shipped exactly as built: do not strip
 %global __os_install_post %{nil}
 
+# rpm drops build-id links under /usr/lib/.build-id, which this package must not
+# do: it ships into /opt/llama-cpu only and writes nothing outside it, and there
+# is no debuginfo package to point at anyway, the files are prebuilt. The rm is
+# the belt to the macro's braces: with __os_install_post emptied above, rpm may
+# still add them.
+%global _build_id_links none
+
 # Thread counts substituted into llama-cpu-models.ini below. Left unset,
 # llama-server uses every logical core, which is a bad default on many-core
 # hosts: a 128-core Phytium S5000C generates 32.5 t/s with 8 threads but only
@@ -82,6 +89,8 @@ install -m 0644 %{SOURCE2} %{buildroot}%{_docdir}/llama-cpu/README.md
 
 install -d %{buildroot}/var/lib/llama-cpu
 install -d -m 0750 %{buildroot}/var/lib/llama-cpu/models
+
+rm -rf %{buildroot}/usr/lib/.build-id
 
 %pre
 getent group llama-cpu >/dev/null || groupadd -r llama-cpu

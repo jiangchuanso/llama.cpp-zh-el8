@@ -331,6 +331,14 @@ jobs:
             echo "error: libcuda.so.1 comes from the host driver and must not be bundled"
             exit 1
           fi
+          # the package owns /opt/llama-cpu/bin and its doc dir and nothing else.
+          # rpm drops build-id links under /usr/lib unless told not to, which
+          # would be a file outside those two places
+          if rpm -qpl "$rpm" | grep -qE '^/usr/lib/'; then
+            echo "error: the package writes into /usr/lib:"
+            rpm -qpl "$rpm" | grep -E '^/usr/lib/'
+            exit 1
+          fi
 
       - name: Upload CUDA backend
         uses: actions/upload-artifact@v6

@@ -100,6 +100,16 @@ jobs:
             exit 1
           fi
 
+          # this package owns /opt/llama-cpu, /etc/llama-cpu, the /usr/bin
+          # symlinks, the systemd unit and its doc dir - nothing else. rpm drops
+          # build-id links under /usr/lib unless told not to, and the README
+          # promises the package writes no global library paths
+          if rpm -qpl "$rpm" | grep -E '^/usr/lib/' | grep -qv '^/usr/lib/systemd/'; then
+            echo "error: the package writes into /usr/lib outside the systemd unit:"
+            rpm -qpl "$rpm" | grep -E '^/usr/lib/' | grep -v '^/usr/lib/systemd/'
+            exit 1
+          fi
+
       - name: Upload RPM
         uses: actions/upload-artifact@v6
         with:

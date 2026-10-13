@@ -218,7 +218,15 @@ jobs:
             -DCMAKE_C_FLAGS="$FLAGS" \
             -DCMAKE_CXX_FLAGS="$FLAGS" \
             -DLLAMA_USE_PREBUILT_UI=OFF \
-            -DCMAKE_BUILD_RPATH='$ORIGIN'
+            -DCMAKE_BUILD_RPATH='$ORIGIN' \
+            -DCMAKE_EXE_LINKER_FLAGS=-pthread
+          # -pthread: the tests use std::thread (test-backend-ops does), but
+          # tests/CMakeLists.txt links them to llama/llama-common only, never to
+          # Threads. On glibc >= 2.34 pthread lives in libc so it links anyway,
+          # which is why upstream CI never notices; EL8 is on glibc 2.28 where
+          # pthread_create is still in the separate libpthread.so.0, and the
+          # linker refuses to pull it in implicitly - "DSO missing from command
+          # line". Adding it for every executable keeps this out of the sources.
           time cmake --build build --config Release -j $(nproc)
           # the toolset ships no loadable libstdc++.so.6, so the binaries always
           # resolve the system one; ship EL8's copy so that systems with an older

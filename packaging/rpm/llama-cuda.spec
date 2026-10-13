@@ -20,6 +20,12 @@ AutoReqProv:    no
 # binaries, archives and libraries are shipped exactly as built: do not strip
 %global __os_install_post %{nil}
 
+# rpm drops build-id links under /usr/lib/.build-id, which this package must not
+# do: it ships into /opt/llama-cpu only, and there is no debuginfo package to
+# point at anyway, the files are prebuilt. The rm is the belt to the macro's
+# braces: with __os_install_post emptied above, rpm may still add them.
+%global _build_id_links none
+
 # llama-server loads the backend at run time and the backend links libggml-base
 # from llama-cpu: both have to come from the same build, hence the exact pin.
 # Upgrading therefore means installing both RPMs in one `rpm -Uvh` transaction.
@@ -65,6 +71,8 @@ chmod 0755 %{buildroot}/opt/llama-cpu/bin/*
 
 install -d %{buildroot}%{_docdir}/llama-cuda
 install -m 0644 %{SOURCE0} %{buildroot}%{_docdir}/llama-cuda/README.md
+
+rm -rf %{buildroot}/usr/lib/.build-id
 
 %files
 /opt/llama-cpu/bin/libggml-cuda.so*
