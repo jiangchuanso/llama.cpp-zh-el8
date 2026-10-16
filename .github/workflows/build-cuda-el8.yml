@@ -244,7 +244,10 @@ jobs:
           echo "$needs"
           for lib in $needs; do
             case "$lib" in
-              libggml-base.so.*|libstdc++.so.*|libgomp.so.*|libgcc_s.so.*|libm.so.*|libc.so.*|libdl.so.*|libpthread.so.*|librt.so.*)
+              # ld-linux is the glibc loader, which CUDA 13's host link adds as
+              # an explicit NEEDED; it comes from the base system like libc.so.6
+              # and is never bundled
+              libggml-base.so.*|libstdc++.so.*|libgomp.so.*|libgcc_s.so.*|libm.so.*|libc.so.*|libdl.so.*|libpthread.so.*|librt.so.*|ld-linux*.so.*)
                 echo "from llama-cpu: $lib" ;;
               libcuda.so.*)
                 echo "from the host NVIDIA driver: $lib" ;;
