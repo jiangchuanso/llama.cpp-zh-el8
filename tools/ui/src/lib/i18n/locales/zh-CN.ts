@@ -951,6 +951,56 @@ export const ZH_CN: Record<string, string> = {
 	'This permanently removes {name} from disk. You can download it again later.':
 		'这会从磁盘上永久删除 {name}，之后可以重新下载。',
 
+	Downloaded: '已下载',
+	'Paused at': '暂停于',
+	'Waiting for progress...': '等待下载进度…',
+	'See in Discover': '在「发现」中查看',
+
+	// ── Models discover (upstream #29584) ───────────────────────────────────
+	Discover: '发现',
+	'Discover Models': '发现模型',
+	'Suggested models': '推荐模型',
+	'No models found': '未找到模型',
+	'Search models on Hugging Face': '在 Hugging Face 上搜索模型',
+	'View on Hugging Face': '在 Hugging Face 上查看',
+	'Back to models': '返回模型列表',
+	'View base model on HuggingFace': '在 HuggingFace 上查看基础模型',
+	'Chat template': '对话模板',
+	'Copy chat template': '复制对话模板',
+	'Copy command': '复制命令',
+	'Draft type': '草稿类型',
+	'Model size': '模型规模',
+	License: '许可证',
+	gated: '受限访问',
+	'Updated {time}': '更新于 {time}',
+	'Model not found': '未找到模型',
+	'Failed to load model': '加载模型失败',
+	Failed: '失败',
+	'Download model with a': '下载模型时附带',
+	'draft sidecar': '草稿旁路模型',
+	'Download {file}': '下载 {file}',
+	'Delete {file}': '删除 {file}',
+	'Retry download: {file}': '重新下载：{file}',
+	'Add the {kind} draft for {repo}': '为 {repo} 添加 {kind} 草稿模型',
+	'needs at least {memory} memory': '至少需要 {memory} 内存',
+	'{count} params': '{count} 参数',
+	'Enable Discover Models': '启用「发现模型」',
+	'Show the Discover Models sidebar action to browse and download HuggingFace GGUF models. Turns the Hugging Face Hub API on while it is enabled. Only available in router mode.':
+		'在侧边栏显示「发现模型」入口，用于浏览和下载 HuggingFace 的 GGUF 模型；启用时会一并打开 Hugging Face Hub API。仅在路由模式下可用。',
+	'Use the Hugging Face Hub API': '使用 Hugging Face Hub API',
+	'Fetch model display data (avatars, context length, chat template) and everything in the Discover Models view from the Hugging Face Hub API. Locked on while Discover Models is enabled; can be turned on alone for just the display data.':
+		'从 Hugging Face Hub API 获取模型展示数据（头像、上下文长度、对话模板）以及「发现模型」视图的全部内容。启用「发现模型」时该项被锁定为开启，也可单独开启以仅获取展示数据。',
+
+	// ── Hugging Face relative timestamps & file labels ──────────────────────
+	Today: '今天',
+	Yesterday: '昨天',
+	'{count} days ago': '{count} 天前',
+	'{count} weeks ago': '{count} 周前',
+	'{count} months ago': '{count} 个月前',
+	'{count} years ago': '{count} 年前',
+	Other: '其他',
+	draft: '草稿',
+
 	// ── Content, reasoning & settings follow-ups ─────────────────────────────
 	'Failed to load image': '图片加载失败',
 	'Image cannot be displayed': '无法显示图片',
@@ -959,6 +1009,5 @@ export const ZH_CN: Record<string, string> = {
 	Unlimited: '无限制',
 	'Max {count} tokens': '最多 {count} token',
 	'Show model modalities & capabilities in models selector': '在模型选择器中显示模型模态与能力',
-	'Group models by family': '按模型系列分组',
-	'Use Hugging Face Hub API for models metadata': '使用 Hugging Face Hub API 获取模型元数据'
+	'Group models by family': '按模型系列分组'
 };

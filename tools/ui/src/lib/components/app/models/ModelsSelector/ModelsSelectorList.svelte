@@ -23,6 +23,7 @@
 		groupModelFamilies,
 		type ModelFamilyGroup,
 		type ModelItem,
+		repoOf,
 		windowLocalGroups
 	} from '$lib/utils';
 
@@ -203,7 +204,12 @@
 	<p class={headerClass} style={headerStyle}>{t('Downloading')}</p>
 
 	{#each downloadEntries as entry (entry.repoWithTag)}
-		<ModelsSelectorDownloadItem {entry} onRequestCancel={requestCancel} {showOrgName} />
+		<ModelsSelectorDownloadItem
+			{entry}
+			onRequestCancel={requestCancel}
+			{showOrgName}
+			sidecars={modelsStore.status.getDraftSidecars(repoOf(entry.repoWithTag))}
+		/>
 	{/each}
 {/if}
 
@@ -231,6 +237,7 @@
 <DialogConfirmDownload
 	action={ModelDownloadConfirmAction.CANCEL}
 	onClose={() => (cancelOpen = false)}
+	onConfirm={() => void modelsStore.status.cancelDownload(pendingCancel)}
 	open={cancelOpen}
 	repoWithTag={pendingCancel}
 />
