@@ -2,11 +2,13 @@
 	import { parseEditFileMeta, parseEditFileTitleMeta } from './parsers/edit-file';
 	import ToolCallBlock from './ToolCallBlock.svelte';
 	import { XCircle } from '@lucide/svelte';
+	import { SyntaxHighlightedCode } from '$lib/components/app';
 	import { MAX_HEIGHT_CODE_BLOCK, RESULT_STAT_SEPARATOR } from '$lib/constants';
+	import { FileTypeText } from '$lib/enums';
 	import { t } from '$lib/i18n';
 	import { toolsStore } from '$lib/stores';
 	import type { AgenticSection } from '$lib/types';
-	import { abbreviateHome, computeLineDiff, prefixFor } from '$lib/utils';
+	import { abbreviateHome, computeLineDiff, formatJsonPretty, prefixFor } from '$lib/utils';
 
 	interface Props {
 		section: AgenticSection;
@@ -45,16 +47,16 @@
 		</span>
 	{/snippet}
 
-	{#snippet children(meta, _ctx)}
-		{#if meta?.errorMessage}
+	{#snippet children(_meta, ctx)}
+		{#if editFileBody?.errorMessage}
 			<div
 				class="flex items-start gap-2 rounded bg-red-500/10 p-2 text-xs text-red-600 italic dark:text-red-400"
 			>
 				<XCircle class="mt-0.5 h-3 w-3 shrink-0" />
 
-				<span>{meta.errorMessage}</span>
+				<span>{editFileBody.errorMessage}</span>
 			</div>
-		{:else if meta && editFileBody && editFileBody.edits.length > 0}
+		{:else if editFileBody?.edits.length}
 			{#each editDiffs as diffLines, ei (ei)}
 				<div class={ei === 0 ? '' : 'mt-3'}>
 					<div class="mb-1.5 text-xs text-muted-foreground/70 italic">
@@ -83,13 +85,27 @@
 			{/each}
 
 			<div class="mt-1.5 text-xs text-muted-foreground/70 italic">
-				{#if meta.resultMessage}
-					{meta.resultMessage}{meta.editsApplied != null ? RESULT_STAT_SEPARATOR : ''}{/if}
+				{#if editFileBody.resultMessage}
+					{editFileBody.resultMessage}{editFileBody.editsApplied != null
+						? RESULT_STAT_SEPARATOR
+						: ''}{/if}
 
-				{#if meta.editsApplied != null}
-					<span class="font-mono">{meta.editsApplied}</span>
-					{t('{count} edits applied', { count: meta.editsApplied })}
+				{#if editFileBody.editsApplied != null}
+					<span class="font-mono">{editFileBody.editsApplied}</span>
+					{t('{count} edits applied', { count: editFileBody.editsApplied })}
 				{/if}
+			</div>
+		{:else if section.toolArgs}
+			<!-- no usable edits: not streamed yet, or a same-named tool with other arg names -->
+			<SyntaxHighlightedCode
+				code={formatJsonPretty(section.toolArgs)}
+				language={FileTypeText.JSON}
+				maxHeight={MAX_HEIGHT_CODE_BLOCK}
+				streaming={ctx.isCodeStreaming}
+			/>
+		{:else if ctx.isStreaming}
+			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
+				{t('Receiving arguments...')}
 			</div>
 		{:else}
 			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">

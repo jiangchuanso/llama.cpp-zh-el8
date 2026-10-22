@@ -78,9 +78,12 @@ export const ZH_CN: Record<string, string> = {
 		'在智能体响应的每个轮次下显示统计（token、耗时）。仅在启用“显示消息生成统计”时显示。',
 	'Show thought in progress': '生成中显示思考过程',
 	'Expand thought process by default when generating messages.': '生成消息时默认展开思考过程。',
+	'Show tool call in progress': '生成中显示工具调用',
+	'Expand tool call details while the call is being generated and executed, and collapse them again once its result is in. Mirrors "Show thought in progress". Tool calls you expand or collapse by hand keep your choice.':
+		'在工具调用生成和执行期间展开其详情，结果就位后重新折叠。与“生成中显示思考过程”行为一致。手动展开或折叠过的工具调用会保留你的选择。',
 	'Always show tool call content': '始终显示工具调用内容',
-	'Automatically expand tool call details while executing and keep them expanded after completion.':
-		'执行时自动展开工具调用详情，并在完成后保持展开。',
+	'Keep tool call details expanded after completion. Takes precedence over "Show tool call in progress", which only covers the in-flight phases.':
+		'工具调用完成后仍保持展开。优先于“生成中显示工具调用”（后者仅覆盖执行中的阶段）。',
 	'Render user content as Markdown': '将用户内容渲染为 Markdown',
 	'Render user messages using markdown formatting in the chat. Turn this off to keep a message exactly as typed; @-mention badges show either way.':
 		'在聊天中按 Markdown 格式渲染用户消息。关闭后将完全保持输入原样；无论如何仍会显示 @ 提及徽标。',
@@ -493,6 +496,7 @@ export const ZH_CN: Record<string, string> = {
 	'Edit {index} of {total}': '第 {index} 处修改，共 {total} 处',
 	'{count} edits applied': '已应用 {count} 处修改',
 	'No edits': '无修改',
+	'No content': '无内容',
 	Input: '输入',
 	Output: '输出',
 	'Receiving arguments...': '正在接收参数…',
