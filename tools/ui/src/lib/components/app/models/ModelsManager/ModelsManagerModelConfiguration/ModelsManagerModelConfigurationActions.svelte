@@ -11,9 +11,8 @@
 		Trash2
 	} from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { SETTINGS_KEYS } from '$lib/constants';
 	import { t } from '$lib/i18n';
-	import { conversationsStore, deviceStore, settingsStore } from '$lib/stores';
+	import { conversationsStore, deviceStore, uiStore } from '$lib/stores';
 
 	interface Props {
 		/** A provider that cannot load or unload has no button to offer. */
@@ -49,10 +48,7 @@
 		size = 'sm'
 	}: Props = $props();
 
-	// the discover view exists only while its setting is on
-	let discoverEnabled = $derived(
-		Boolean(settingsStore.getConfig(SETTINGS_KEYS.ENABLE_DISCOVER_MODELS))
-	);
+	let discoverEnabled = $derived(uiStore.isDiscoverEnabled);
 
 	// a chat with anything in it takes the model, a new chat is not what its user asked for
 	let hasChat = $derived(
