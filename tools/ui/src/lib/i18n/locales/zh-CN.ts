@@ -647,6 +647,7 @@ export const ZH_CN: Record<string, string> = {
 	'Attach a file': '添加文件',
 	'Drop your files here to upload': '将文件拖放到此处上传',
 	'Scroll to bottom': '滚动到底部',
+	'Drag to resize or hide, double-click to reset': '拖动可调整宽度或隐藏，双击可重置',
 	'Preview {language}': '预览 {language}',
 	'Close preview': '关闭预览',
 	'Export Settings': '导出设置',

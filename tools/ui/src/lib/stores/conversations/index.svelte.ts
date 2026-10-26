@@ -157,7 +157,7 @@ class ConversationsStore implements ConversationsPreferencesHost {
 
 				tabsStore.removeTabs([...idsToRemove].filter((id) => id !== activeId));
 				this.clearActiveConversation();
-				await tabsStore.close(activeId, activeId);
+				await tabsStore.closeConversation(activeId);
 			} else {
 				tabsStore.removeTabs([...idsToRemove]);
 			}
@@ -341,7 +341,7 @@ class ConversationsStore implements ConversationsPreferencesHost {
 
 					tabsStore.removeTabs([...idsToRemove].filter((id) => id !== activeId));
 					this.clearActiveConversation();
-					await tabsStore.close(activeId, activeId);
+					await tabsStore.closeConversation(activeId);
 				} else {
 					tabsStore.removeTabs([...idsToRemove]);
 				}
@@ -362,7 +362,7 @@ class ConversationsStore implements ConversationsPreferencesHost {
 
 				if (this.activeConversation?.id === convId) {
 					this.clearActiveConversation();
-					await tabsStore.close(convId, convId);
+					await tabsStore.closeConversation(convId);
 				} else {
 					tabsStore.removeTabs([convId]);
 				}
