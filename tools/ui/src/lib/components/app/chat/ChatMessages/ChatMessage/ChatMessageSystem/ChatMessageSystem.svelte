@@ -5,7 +5,7 @@
 	import { Card } from '$lib/components/ui/card';
 	import { INPUT_CLASSES } from '$lib/constants';
 	import { getChatMessageEditContext } from '$lib/contexts';
-	import { KeyboardKey, MessageRole } from '$lib/enums';
+	import { KeyboardKey } from '$lib/enums';
 	import { t } from '$lib/i18n';
 	import { settingsStore } from '$lib/stores';
 	import { autoResizeTextarea, isIMEComposing } from '$lib/utils';
@@ -192,7 +192,7 @@
 
 		{#if message.timestamp}
 			<div class="max-w-[80%]">
-				<ChatMessageActionIcons actionsPosition="right" justify="end" role={MessageRole.USER} />
+				<ChatMessageActionIcons actionsPosition="right" justify="end" />
 			</div>
 		{/if}
 	{/if}

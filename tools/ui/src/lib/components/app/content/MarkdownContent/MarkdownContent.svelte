@@ -32,7 +32,7 @@
 		UI_DATA_ATTRS
 	} from '$lib/constants';
 	import { BooleanString, ColorMode, UrlProtocol } from '$lib/enums';
-	import { createAutoScrollController } from '$lib/hooks/use-auto-scroll.svelte';
+	import { createStickToBottom } from '$lib/hooks/use-stick-to-bottom.svelte';
 	import { t } from '$lib/i18n';
 	import { settingsStore } from '$lib/stores';
 	import type { DatabaseMessageExtra } from '$lib/types/database';
@@ -124,8 +124,8 @@
 
 	let streamingCodeScrollContainer = $state<HTMLDivElement>();
 
-	// Auto-scroll controller for streaming code block content
-	const streamingAutoScroll = createAutoScrollController();
+	// Follows the code that streams into the fixed-height block below.
+	const streamingScroll = createStickToBottom();
 
 	let pendingMarkdown: string | null = null;
 	let isProcessing = false;
@@ -801,18 +801,16 @@
 		}
 	});
 
-	// Auto-scroll for streaming code block
+	// Follow the streaming code block while the reader stays at its bottom; the
+	// resize observer does the pinning, so no polling for a stable height.
 	$effect(() => {
-		streamingAutoScroll.setContainer(streamingCodeScrollContainer);
-	});
+		streamingScroll.attach(streamingCodeScrollContainer);
 
-	$effect(() => {
-		streamingAutoScroll.updateInterval(incompleteCodeBlock !== null);
+		return () => streamingScroll.detach();
 	});
 
 	onDestroy(() => {
 		cleanupEventListeners();
-		streamingAutoScroll.destroy();
 	});
 </script>
 
@@ -906,7 +904,7 @@
 				<div
 					bind:this={streamingCodeScrollContainer}
 					class="streaming-code-scroll-container"
-					onscroll={() => streamingAutoScroll.handleScroll()}
+					onscroll={() => streamingScroll.handleScroll()}
 				>
 					<pre class="streaming-code-pre"><code
 							class="hljs language-{incompleteCodeBlock.language || 'text'}"

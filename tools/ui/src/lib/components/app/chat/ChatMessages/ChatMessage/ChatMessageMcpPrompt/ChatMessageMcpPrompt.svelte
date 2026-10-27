@@ -5,7 +5,7 @@
 		ChatMessageMcpPromptContent
 	} from '$lib/components/app';
 	import { getChatMessageEditContext } from '$lib/contexts';
-	import { McpPromptVariant, MessageRole } from '$lib/enums';
+	import { McpPromptVariant } from '$lib/enums';
 	import { t } from '$lib/i18n';
 	import type { DatabaseMessageExtraMcpPrompt } from '$lib/types';
 
@@ -37,7 +37,7 @@
 
 		{#if message.timestamp}
 			<div class="max-w-[80%]">
-				<ChatMessageActionIcons actionsPosition="right" justify="end" role={MessageRole.USER} />
+				<ChatMessageActionIcons actionsPosition="right" justify="end" />
 			</div>
 		{/if}
 	{/if}

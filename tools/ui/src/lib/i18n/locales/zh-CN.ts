@@ -96,6 +96,14 @@ export const ZH_CN: Record<string, string> = {
 	'Disable automatic scroll': '禁用自动滚动',
 	'Disable automatic scrolling while messages stream so you can control the viewport position manually.':
 		'消息流式输出时禁用自动滚动，以便手动控制视口位置。',
+	'Stop the view from following new content while messages stream, so you control the viewport position yourself.':
+		'消息流式输出时不再跟随新内容，由你自己控制视口位置。',
+	'Compaction prompt': '压缩提示词',
+	'Optional override for the instruction sent to the model when compacting a conversation.':
+		'可选覆盖项：压缩对话时发送给模型的指令。',
+	'Compaction preserved steps': '压缩保留步数',
+	'Last steps a compaction keeps as written after the summary: a user message, or an assistant message with its tool results.':
+		'压缩后摘要之后按原样保留的最后几步：一条用户消息，或一条带工具结果的助手消息。',
 	'Always show sidebar on desktop': '桌面端始终显示侧边栏',
 	'Always keep the sidebar visible on desktop instead of auto-hiding it.':
 		'在桌面端始终保持侧边栏可见，而不是自动隐藏。',
@@ -274,6 +282,12 @@ export const ZH_CN: Record<string, string> = {
 	'Not supported by current model': '当前模型不支持',
 	'This model supports:': '当前模型支持：',
 	'Details of the model, from the server or the Hub.': '模型详情，来自服务器或 Hugging Face Hub。',
+	'Model details': '模型详情',
+	'Configuration, actions and metadata of the selected model.': '所选模型的配置、操作与元数据。',
+	'Conversation compacted': '对话已压缩',
+	'Compacting conversation': '正在压缩对话',
+	'Generating summary': '正在生成摘要',
+	'Conversation compacted from {tokens}': '对话已压缩，压缩前 {tokens}',
 	Model: '模型',
 	'File Path': '文件路径',
 	'Context Size': '上下文大小',

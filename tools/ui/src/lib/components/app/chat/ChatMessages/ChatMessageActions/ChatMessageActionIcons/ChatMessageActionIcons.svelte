@@ -10,12 +10,10 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { Switch } from '$lib/components/ui/switch';
 	import { getChatMessageActionsContext, getChatMessageEditContext } from '$lib/contexts';
-	import { MessageRole } from '$lib/enums';
 	import { t } from '$lib/i18n';
 	import { conversationsStore } from '$lib/stores';
 
 	interface Props {
-		role: MessageRole.USER | MessageRole.ASSISTANT;
 		justify: 'start' | 'end';
 		actionsPosition: 'left' | 'right';
 		onRegenerate?: () => void;
@@ -32,7 +30,6 @@
 		onRawOutputToggle,
 		onRegenerate,
 		rawOutputEnabled = false,
-		role,
 		showRawOutputSwitch = false
 	}: Props = $props();
 
@@ -82,11 +79,11 @@
 
 			<ActionIcon icon={Edit} onclick={editCtx.startEdit} tooltip={t('Edit')} />
 
-			{#if role === MessageRole.ASSISTANT && onRegenerate}
+			{#if onRegenerate}
 				<ActionIcon icon={RefreshCw} onclick={() => onRegenerate()} tooltip={t('Regenerate')} />
 			{/if}
 
-			{#if role === MessageRole.ASSISTANT && onContinue}
+			{#if onContinue}
 				<ActionIcon icon={ArrowRight} onclick={onContinue} tooltip={t('Continue')} />
 			{/if}
 
