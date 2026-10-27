@@ -1316,7 +1316,7 @@ static void oaicompat_content_load_media(json & content, const server_chat_param
             p.erase("input_video");
             p.erase("video_url");
 
-        } else if (type != "text") {
+        } else if (type != "text" && type != "tool_reference") {
             throw std::invalid_argument("unsupported content[].type");
         }
     }
@@ -1442,7 +1442,7 @@ json oaicompat_chat_params_parse(
     inputs.json_schema            = json_schema.is_null() ? "" : json_schema.dump();
     inputs.grammar                = grammar;
     inputs.use_jinja              = opt.use_jinja;
-    inputs.parallel_tool_calls    = json_value(body, "parallel_tool_calls", caps["supports_parallel_tool_calls"]);
+    inputs.parallel_tool_calls    = json_value(body, "parallel_tool_calls", caps.at("supports_parallel_tool_calls").get<bool>());
     inputs.add_generation_prompt  = json_value(body, "add_generation_prompt", true);
     inputs.continue_final_message = body.contains("continue_final_message") ?
         common_chat_continuation_parse(body.at("continue_final_message")) :
