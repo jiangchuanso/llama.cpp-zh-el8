@@ -94,8 +94,6 @@ export const ZH_CN: Record<string, string> = {
 	'Always display code blocks at their full natural height, overriding any height limits.':
 		'始终以完整自然高度显示代码块，忽略高度限制。',
 	'Disable automatic scroll': '禁用自动滚动',
-	'Disable automatic scrolling while messages stream so you can control the viewport position manually.':
-		'消息流式输出时禁用自动滚动，以便手动控制视口位置。',
 	'Stop the view from following new content while messages stream, so you control the viewport position yourself.':
 		'消息流式输出时不再跟随新内容，由你自己控制视口位置。',
 	'Compaction prompt': '压缩提示词',
@@ -281,7 +279,6 @@ export const ZH_CN: Record<string, string> = {
 	'File type not supported': '不支持该文件类型',
 	'Not supported by current model': '当前模型不支持',
 	'This model supports:': '当前模型支持：',
-	'Details of the model, from the server or the Hub.': '模型详情，来自服务器或 Hugging Face Hub。',
 	'Model details': '模型详情',
 	'Configuration, actions and metadata of the selected model.': '所选模型的配置、操作与元数据。',
 	'Conversation compacted': '对话已压缩',
@@ -831,7 +828,6 @@ export const ZH_CN: Record<string, string> = {
 	'Open Sidebar': '打开侧边栏',
 	'Collapse navigation': '收起导航',
 	'Close Sidebar': '关闭侧边栏',
-	'Delete "{name}"? This action cannot be undone.': '删除“{name}”？此操作无法撤销。',
 
 	// ── Model load toasts ────────────────────────────────────────────────────
 	'Model loaded: {name}': '模型已加载：{name}',
@@ -928,7 +924,6 @@ export const ZH_CN: Record<string, string> = {
 	'Manage models': '管理模型',
 	'Search your models': '搜索你的模型',
 	'Clear filters': '清除筛选',
-	'No models match these filters.': '没有符合筛选条件的模型。',
 	'No matching models': '没有匹配的模型',
 	'No models yet': '还没有模型',
 	'Load, configure and remove the models this server can run.': '加载、配置并移除本服务器可运行的模型。',
@@ -968,8 +963,6 @@ export const ZH_CN: Record<string, string> = {
 	'Cancel download': '取消下载',
 	'Keep downloading': '继续下载',
 	'Keep model': '保留模型',
-	'Browse, load and delete the models the server can serve.':
-		'浏览、加载和删除服务器可提供的模型。',
 	'This stops the download of {name} and removes the partial files. Pause it instead to keep the progress.':
 		'这会停止 {name} 的下载并删除已下载的部分文件；改为暂停可保留进度。',
 	'This permanently removes {name} from disk. You can download it again later.':
@@ -987,7 +980,6 @@ export const ZH_CN: Record<string, string> = {
 	'No models found': '未找到模型',
 	'Search models on Hugging Face': '在 Hugging Face 上搜索模型',
 	'View on Hugging Face': '在 Hugging Face 上查看',
-	'Back to models': '返回模型列表',
 	'View base model on HuggingFace': '在 HuggingFace 上查看基础模型',
 	'Chat template': '对话模板',
 	'Copy chat template': '复制对话模板',
