@@ -21,7 +21,6 @@
 
 	interface Props {
 		canSend?: boolean;
-		canSubmit?: boolean;
 		class?: string;
 		disabled?: boolean;
 		isLoading?: boolean;
@@ -38,7 +37,6 @@
 
 	let {
 		canSend = false,
-		canSubmit = false,
 		class: className = '',
 		disabled = false,
 		isLoading = false,
@@ -74,7 +72,7 @@
 		uploadedFiles.some((file) => getFileTypeCategory(file.type) === FileTypeCategory.AUDIO)
 	);
 	let shouldShowRecordButton = $derived(
-		hasAudioModality && !canSubmit && !hasAudioAttachments && currentConfig.autoMicOnEmpty
+		hasAudioModality && !canSend && !hasAudioAttachments && currentConfig.autoMicOnEmpty
 	);
 
 	let selectorModelRef: ModelsSelector | undefined = $state(undefined);
@@ -177,7 +175,7 @@
 		{/if}
 	</div>
 
-	{#if isReasoning}
+	{#if isReasoning && !canSend}
 		<Button
 			class="group h-8 w-8 rounded-full p-0 max-md:h-9 max-md:w-9"
 			onclick={() =>
@@ -194,7 +192,7 @@
 		</Button>
 	{/if}
 
-	{#if isLoading && !canSubmit}
+	{#if isLoading && !canSend}
 		<Button
 			class="group h-8 w-8 rounded-full p-0 max-md:h-9 max-md:w-9 hover:bg-destructive/10!"
 			onclick={onStop}
