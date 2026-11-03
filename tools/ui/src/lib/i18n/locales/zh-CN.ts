@@ -1025,5 +1025,10 @@ export const ZH_CN: Record<string, string> = {
 	Unlimited: '无限制',
 	'Max {count} tokens': '最多 {count} token',
 	'Show model modalities & capabilities in models selector': '在模型选择器中显示模型模态与能力',
-	'Group models by family': '按模型系列分组'
+	'Group models by family': '按模型系列分组',
+	'Hide model': '隐藏模型',
+	'Unhide model': '取消隐藏模型',
+	'Found in --models-dir: delete the file from that folder to remove it.': '在 --models-dir 中找到：请从该文件夹删除文件以移除它。',
+	'Defined in a --models-preset file: remove its section from the preset to delete it.': '在 --models-preset 文件中定义：请从预设中删除对应段落以移除它。',
+	'The server does not allow deleting this model: it is not from the Hugging Face cache.': '服务器不允许删除此模型：它并非来自 Hugging Face 缓存。'
 };
