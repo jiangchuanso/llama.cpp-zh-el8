@@ -8,6 +8,7 @@
 		height?: string;
 		id: string;
 		imageClass?: string;
+		label?: string;
 		onclick?: (event?: MouseEvent) => void;
 		onRemove?: (id: string) => void;
 		name: string;
@@ -21,6 +22,7 @@
 		height = 'h-16',
 		id,
 		imageClass = '',
+		label,
 		name,
 		onclick,
 		onRemove,
@@ -48,6 +50,14 @@
 		</button>
 	{:else}
 		{@render image()}
+	{/if}
+
+	{#if label}
+		<span
+			class="pointer-events-none absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white"
+		>
+			{label}
+		</span>
 	{/if}
 
 	{#if !readonly}

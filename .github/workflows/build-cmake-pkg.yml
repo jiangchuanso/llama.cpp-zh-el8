@@ -11,11 +11,27 @@ jobs:
   linux:
     # self-hosted Linux runners are not provisioned for this fork, use a
     # GitHub-hosted runner so the job does not queue forever
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - name: Clone
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: ccache
+        uses: ggml-org/ccache-action@v1.2.24
+        with:
+          restore: false
+          save: false
+
+      - name: ccache-buckets-restore
+        uses: ./.github/actions/ccache-buckets
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN_CI }}
+        with:
+          key: build-cmake-pkg
+          folder: llama.cpp
+          hf_bucket: ggml-org/cache
 
       - name: Build
         run: |
