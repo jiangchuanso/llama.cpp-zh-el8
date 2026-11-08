@@ -439,7 +439,7 @@ jobs:
     needs: [check-release, ui-build]
     if: ${{ needs.check-release.outputs.should_release == 'true' }}
 
-    runs-on: ubuntu-24.04  # previously ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       NDK_VERSION: "29.0.14206865"
@@ -524,7 +524,7 @@ jobs:
     needs: [check-release, ui-build]
     if: ${{ needs.check-release.outputs.should_release == 'true' }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: 'ghcr.io/snapdragon-toolchain/arm64-android:v0.8'
 
     defaults:
@@ -577,7 +577,7 @@ jobs:
     needs: [check-release, ui-build]
     if: ${{ needs.check-release.outputs.should_release == 'true' }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container: 'ghcr.io/snapdragon-toolchain/arm64-linux:v0.8'
 
     defaults:

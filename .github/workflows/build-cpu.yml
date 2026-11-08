@@ -118,10 +118,10 @@ jobs:
         # instruction scheduler little to reorder.
         include:
           - build: 'x64'
-            os: ubuntu-22.04
+            os: ubuntu-26.04
             dist: 'el8-x64'
           - build: 'arm64'
-            os: ubuntu-24.04-arm
+            os: ubuntu-26.04-arm
             dist: 'el8-arm64'
 
     # GitHub-hosted runner acts as the host; the build runs inside an
