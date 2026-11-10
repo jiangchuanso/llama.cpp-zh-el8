@@ -45,6 +45,9 @@ export const ZH_CN: Record<string, string> = {
 	'Send message on Enter': '回车发送消息',
 	'Use Enter to send messages and Shift + Enter for new lines. When disabled, use Ctrl/Cmd + Enter.':
 		'使用回车发送消息，Shift + 回车换行。关闭后使用 Ctrl/Cmd + 回车发送。',
+	'Live markdown preview in the message input': '消息输入框中的 Markdown 实时预览',
+	'Render the markdown in the message input as you write it: every line but the one you are on shows as it will look in the conversation. When disabled, the input shows the plain markdown text.':
+		'输入时实时渲染消息输入框中的 Markdown：除光标所在行外，其余各行按对话中的显示效果呈现。关闭后，输入框只显示 Markdown 纯文本。',
 	'Show microphone on empty input': '输入为空时显示麦克风',
 	'Automatically show microphone button instead of send button when textarea is empty for models with audio modality support.':
 		'当模型支持音频且输入框为空时，自动显示麦克风按钮而不是发送按钮。',

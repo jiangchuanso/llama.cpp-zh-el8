@@ -36,6 +36,7 @@ export const SETTINGS_KEYS = {
 	JS_SANDBOX_ENABLED: 'jsSandboxEnabled',
 	// General
 	LANGUAGE: 'language',
+	LIVE_MARKDOWN_PREVIEW: 'liveMarkdownPreview',
 	MAX_IMAGE_RESOLUTION: 'maxImageMPixels',
 	MAX_TOKENS: 'max_tokens',
 	MCP_REQUEST_TIMEOUT_SECONDS: 'mcpRequestTimeoutSeconds',
