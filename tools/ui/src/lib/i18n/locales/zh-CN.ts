@@ -1036,7 +1036,7 @@ export const ZH_CN: Record<string, string> = {
 	'Unhide model': '取消隐藏模型',
 	'Found in --models-dir: delete the file from that folder to remove it.': '在 --models-dir 中找到：请从该文件夹删除文件以移除它。',
 	'Defined in a --models-preset file: remove its section from the preset to delete it.': '在 --models-preset 文件中定义：请从预设中删除对应段落以移除它。',
-	'The server does not allow deleting this model: it is not from the Hugging Face cache.': '服务器不允许删除此模型：它并非来自 Hugging Face 缓存。'
+	'The server does not allow deleting this model: it is not from the Hugging Face cache.': '服务器不允许删除此模型：它并非来自 Hugging Face 缓存。',
 	'Choose the directory the chat works in': '选择聊天的工作目录',
 	'Recording unavailable: ': '录音不可用：',
 	'Working directory': '工作目录',
