@@ -15,12 +15,6 @@ static void init_model(llama_model & model, uint32_t n_layer) {
     model.layers.resize(n_layer);
 }
 
-// ggml_set_f32 is in the CPU backend, which may be a dlopen'ed module
-static void set_f32(ggml_tensor * tensor, float value) {
-    GGML_ASSERT(tensor->type == GGML_TYPE_F32 && ggml_nelements(tensor) == 1);
-    *static_cast<float *>(tensor->data) = value;
-}
-
 int main() {
     llama_backend_init();
 
@@ -79,10 +73,10 @@ int main() {
         assistant->layers[0].v_cache_s = ggml_new_tensor_1d(ctx.get(), GGML_TYPE_F32, 1);
         assistant->layers[1].k_cache_s = assistant->layers[0].k_cache_s;
         assistant->layers[1].v_cache_s = assistant->layers[0].v_cache_s;
-        set_f32(target->layers[2].k_cache_s, 0.5f);
-        set_f32(target->layers[2].v_cache_s, 0.25f);
-        set_f32(assistant->layers[0].k_cache_s, 2.0f);
-        set_f32(assistant->layers[0].v_cache_s, 4.0f);
+        *static_cast<float *>(target->layers[2].k_cache_s->data) = 0.5f;
+        *static_cast<float *>(target->layers[2].v_cache_s->data) = 0.25f;
+        *static_cast<float *>(assistant->layers[0].k_cache_s->data) = 2.0f;
+        *static_cast<float *>(assistant->layers[0].v_cache_s->data) = 4.0f;
 
         for (ggml_type type_k : { GGML_TYPE_F16, GGML_TYPE_F8_E4M3 }) {
             for (ggml_type type_v : { GGML_TYPE_F16, GGML_TYPE_F8_E4M3 }) {
