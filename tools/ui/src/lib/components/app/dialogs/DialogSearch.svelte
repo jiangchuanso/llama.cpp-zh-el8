@@ -7,9 +7,11 @@
 		ICON_CLASS_DEFAULT,
 		ICON_CLASS_SM,
 		ICON_CLASS_XS,
-		SIDEBAR_ACTIONS_ITEMS
+		SIDEBAR_ACTIONS_ITEMS,
+		SIDEBAR_FOOTER_ITEMS
 	} from '$lib/constants';
 	import { KeyboardKey, SidebarAction } from '$lib/enums';
+	import { t } from '$lib/i18n';
 	import { RouterService } from '$lib/services/router.service';
 	import { conversationsStore, deviceStore } from '$lib/stores';
 	import { formatRelativeTime, isIMEComposing } from '$lib/utils';
@@ -72,12 +74,13 @@
 	const actionEntries = $derived.by((): SearchEntry[] =>
 		// every sidebar action but Search itself, which is what opened this dialog, and the models
 		// manager on a phone, which picks its models in the selector
-		SIDEBAR_ACTIONS_ITEMS.filter(
-			(item) =>
-				item.action &&
-				item.action !== SidebarAction.SEARCH &&
-				(item.action !== SidebarAction.MANAGE_MODELS || !deviceStore.isMobile)
-		)
+		[...SIDEBAR_ACTIONS_ITEMS, ...SIDEBAR_FOOTER_ITEMS]
+			.filter(
+				(item) =>
+					item.action &&
+					item.action !== SidebarAction.SEARCH &&
+					(item.action !== SidebarAction.MANAGE_MODELS || !deviceStore.isMobile)
+			)
 			.map((item) => ({
 				icon: item.icon,
 				id: `action-${item.action}`,
@@ -141,7 +144,7 @@
 
 {#snippet hint(label: string, keys: (string | Component)[])}
 	<span class="flex items-center gap-1.5">
-		{label}
+		{t(label)}
 
 		<span class="flex items-center gap-1">
 			{#each keys as Key, index (index)}
@@ -178,7 +181,7 @@
 			/>
 
 			<ActionIcon
-				ariaLabel="Close search"
+				ariaLabel={t('Close search')}
 				class="size-8 shrink-0 text-muted-foreground"
 				icon={X}
 				iconSize={ICON_CLASS_DEFAULT}
@@ -266,7 +269,7 @@
 			inputRef?.focus();
 		}}
 	>
-		<Dialog.Title class="sr-only">Search</Dialog.Title>
+		<Dialog.Title class="sr-only">{t('Search')}</Dialog.Title>
 
 		{@render search()}
 	</Dialog.Content>

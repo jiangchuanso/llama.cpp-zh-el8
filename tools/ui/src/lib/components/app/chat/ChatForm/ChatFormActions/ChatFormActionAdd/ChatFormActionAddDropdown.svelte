@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { File, Image, MessageSquare, Mic, Plus, Video } from '@lucide/svelte';
+	import { File, Folder, Image, MessageSquare, Mic, Plus, Video } from '@lucide/svelte';
 	import { ChatFormActionAddToolsSubmenu } from '$lib/components/app';
 	import { buttonVariants } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -143,6 +143,21 @@
 
 				<span>{t(ATTACHMENT_MENU_TEXT.SYSTEM_MESSAGE)}</span>
 			</DropdownMenu.Item>
+
+			{#if chatFormActions.onWorkingDirectoryClick}
+				<DropdownMenu.Item
+					class="flex cursor-pointer items-center gap-2"
+					onclick={() => {
+						// the picker takes the focus, not the menu's trigger
+						suppressCloseAutoFocus = true;
+						chatFormActions.onWorkingDirectoryClick?.();
+					}}
+				>
+					<Folder class={ICON_CLASS_DEFAULT} />
+
+					<span class="truncate">{chatFormActions.workingDirectoryLabel}</span>
+				</DropdownMenu.Item>
+			{/if}
 
 			<ChatFormActionAddToolsSubmenu />
 		</DropdownMenu.Content>

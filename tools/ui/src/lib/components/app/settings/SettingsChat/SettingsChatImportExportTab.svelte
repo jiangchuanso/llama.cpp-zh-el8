@@ -10,7 +10,7 @@
 	import { ConversationSelectionMode, FileExtensionText, HtmlInputType } from '$lib/enums';
 	import { t } from '$lib/i18n';
 	import { ConversationTransferService } from '$lib/services';
-	import { conversationsStore, settingsStore } from '$lib/stores';
+	import { conversationsStore, groupsStore, settingsStore } from '$lib/stores';
 	import { createMessageCountMap } from '$lib/utils';
 	import { fade } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
@@ -207,6 +207,9 @@
 				.snapshot(fullImportData)
 				.filter((item) => selectedIds.has(item.conv.id));
 			const { imported, skipped } = await conversationsStore.importConversationsData(selectedData);
+
+			// an import can add the groups its chats were in
+			await groupsStore.reload();
 
 			// A conversation already in the database is left untouched, so the summary
 			// lists what was written and the toast accounts for the rest.

@@ -282,7 +282,7 @@
 			>
 				<X class="size-4" />
 
-				<span class="sr-only">Close</span>
+				<span class="sr-only">{t('Close')}</span>
 			</Dialog.Close>
 		</Dialog.Header>
 

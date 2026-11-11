@@ -16,6 +16,7 @@
 	 */
 	interface Props {
 		class?: string;
+		customAnchor?: HTMLElement | null;
 		isOpen: boolean;
 		query: string;
 		commands: ChatFormCommand[];
@@ -23,7 +24,15 @@
 		onSelect: (command: ChatFormCommand) => void;
 	}
 
-	let { class: className = '', commands, isOpen, onClose, onSelect, query }: Props = $props();
+	let {
+		class: className = '',
+		commands,
+		customAnchor = null,
+		isOpen,
+		onClose,
+		onSelect,
+		query
+	}: Props = $props();
 
 	const trimmedQuery = $derived((query ?? '').trim().toLowerCase());
 
@@ -97,6 +106,7 @@
 <ChatFormPickerPopover
 	bind:isOpen
 	class={className}
+	{customAnchor}
 	{onClose}
 	onKeydown={handleKeydown}
 	srLabel={t('Open command picker')}

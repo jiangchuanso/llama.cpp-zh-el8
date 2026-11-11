@@ -2,6 +2,7 @@
 	import { Check } from '@lucide/svelte';
 	import { MODEL_BADGE_CLASS, MODEL_VARIANT_BADGE_CLASS } from '$lib/constants';
 	import { ModelRowDownloadState } from '$lib/enums';
+	import { t } from '$lib/i18n';
 
 	interface Props {
 		/**
@@ -46,7 +47,7 @@
 			{#if percent !== null}
 				<span class="font-mono text-xs tabular-nums text-muted-foreground">{percent}%</span>
 			{:else if state === ModelRowDownloadState.PAUSED}
-				<span class="text-xs text-muted-foreground">Paused</span>
+				<span class="text-xs text-muted-foreground">{t('Paused')}</span>
 			{/if}
 		</span>
 	{/if}

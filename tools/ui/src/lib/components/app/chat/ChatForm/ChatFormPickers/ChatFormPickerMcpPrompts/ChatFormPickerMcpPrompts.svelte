@@ -17,6 +17,7 @@
 
 	interface Props {
 		class?: string;
+		customAnchor?: HTMLElement | null;
 		isOpen?: boolean;
 		searchQuery?: string;
 		onClose?: () => void;
@@ -31,6 +32,7 @@
 
 	let {
 		class: className = '',
+		customAnchor = null,
 		isOpen = false,
 		onClose,
 		onPromptLoadComplete,
@@ -359,6 +361,7 @@
 <ChatFormPickerPopover
 	bind:isOpen
 	class={className}
+	{customAnchor}
 	{onClose}
 	onKeydown={handleKeydown}
 	srLabel={t('Open prompt picker')}
