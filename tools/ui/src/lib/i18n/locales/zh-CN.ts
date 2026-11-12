@@ -215,12 +215,10 @@ export const ZH_CN: Record<string, string> = {
 	'Enable raw output toggle': '启用原始输出开关',
 	'Show toggle button to display messages as plain text instead of Markdown-formatted content':
 		'显示切换按钮，以纯文本而非 Markdown 格式显示消息。',
-	'JavaScript sandbox tool': 'JavaScript 沙箱工具',
-	'Expose a run_javascript tool to the model. Code runs in a Web Worker inside a sandboxed iframe with an opaque origin, isolated from the WebUI and its API, with a hard timeout.':
-		'向模型暴露 run_javascript 工具。代码在具有不透明源的沙箱 iframe 内的 Web Worker 中运行，与 WebUI 及其 API 隔离，并有硬性超时。',
 	'Symbolic math (nerdamer)': '符号数学（nerdamer）',
-	'Pre-load nerdamer in the sandbox for symbolic computation: simplify, diff, integrate, solve, and more. Requires "JavaScript sandbox tool" to be enabled.':
-		'在沙箱中预加载 nerdamer 以进行符号计算：化简、求导、积分、求解等。需要启用“JavaScript 沙箱工具”。',
+	'Pre-load nerdamer in the run_javascript sandbox for symbolic computation: simplify, diff, integrate, solve, and more.':
+		'在 run_javascript 沙箱中预加载 nerdamer，用于符号计算：化简、求导、积分、求解等。',
+	'Search chats': '搜索聊天',
 	'Custom JSON': '自定义 JSON',
 	'Custom JSON parameters to send to the API. Must be valid JSON format.':
 		'发送到 API 的自定义 JSON 参数，必须为有效的 JSON 格式。',

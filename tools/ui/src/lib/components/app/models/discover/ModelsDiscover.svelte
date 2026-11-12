@@ -19,11 +19,19 @@
 
 	let selectedId = $state<string | null>(null);
 	let searchQuery = $state('');
-	// running and paused downloads both lead the list; a search owns the pane, so the
-	// section steps aside while a query is active
+	// running and paused downloads both lead the list, with or without a search query
 	let downloadEntries = $derived(modelsStore.status.getDownloadEntries());
 
 	let isSearching = $derived(searchQuery.trim().length > 0);
+
+	// a search hit that is downloading already sits under Downloading, so it is listed once
+	let listedModels = $derived.by(() => {
+		if (!isSearching) return modelsDiscoverStore.models;
+
+		const downloading = new Set(downloadEntries.map((entry) => repoOf(entry.repoWithTag)));
+
+		return modelsDiscoverStore.models.filter((model) => !downloading.has(model.id));
+	});
 
 	/** Hub record for a repo the list does not carry, so its row still renders. */
 	function hubRecord(id: string): HfModelInfo {
@@ -120,7 +128,7 @@
 	<ModelsDiscoverList
 		activeId={selectedId}
 		loading={modelsDiscoverStore.loading || modelsDiscoverStore.searching}
-		models={modelsDiscoverStore.models}
+		models={listedModels}
 		onSelect={(id) => (selectedId = id)}
 		showBaseModelAvatar
 	/>
@@ -131,7 +139,7 @@
 >
 	<ModelsDiscoverListSearch bind:value={searchQuery} onSearch={handleSearchInput} />
 
-	{#if downloadEntries.length > 0 && !isSearching}
+	{#if downloadEntries.length > 0}
 		<ModelsSection
 			count={downloadEntries.length}
 			label={t('Downloading')}
