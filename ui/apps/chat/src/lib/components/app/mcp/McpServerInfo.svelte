@@ -1,0 +1,36 @@
+<script lang="ts">
+	import * as Collapsible from '@ggml-org/llama-ui/ui/collapsible';
+	import { t } from '#lib/i18n/index.ts';
+	import { ChevronDown, ChevronRight } from '@lucide/svelte';
+
+	interface Props {
+		instructions?: string;
+		class?: string;
+	}
+
+	let { class: className, instructions }: Props = $props();
+
+	let isExpanded = $state(false);
+</script>
+
+{#if instructions}
+	<Collapsible.Root bind:open={isExpanded} class={className}>
+		<Collapsible.Trigger
+			class="flex w-full items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+		>
+			{#if isExpanded}
+				<ChevronDown class="size-icon-sm" />
+			{:else}
+				<ChevronRight class="size-icon-sm" />
+			{/if}
+
+			<span>{t('Server instructions')}</span>
+		</Collapsible.Trigger>
+
+		<Collapsible.Content class="mt-2">
+			<p class="rounded bg-muted/50 p-2 text-xs text-muted-foreground">
+				{instructions}
+			</p>
+		</Collapsible.Content>
+	</Collapsible.Root>
+{/if}

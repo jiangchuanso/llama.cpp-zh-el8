@@ -1,0 +1,35 @@
+<script lang="ts">
+	import { Button } from '@ggml-org/llama-ui/ui/button';
+	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
+	import { t } from '#lib/i18n/index.ts';
+
+	interface Props {
+		onPrev: () => void;
+		onNext: () => void;
+		show: boolean;
+	}
+
+	let { onNext, onPrev, show }: Props = $props();
+</script>
+
+{#if show}
+	<Button
+		aria-label={t('Previous')}
+		class="absolute top-1/2 left-4 z-10 size-8 -translate-y-1/2 rounded-full bg-background/5 p-0 text-white!"
+		onclick={onPrev}
+		size="icon"
+		variant="outline"
+	>
+		<ChevronLeft class="size-4" />
+	</Button>
+
+	<Button
+		aria-label={t('Next')}
+		class="absolute top-1/2 right-4 z-10 size-8 -translate-y-1/2 rounded-full bg-background/5 p-0 text-white!"
+		onclick={onNext}
+		size="icon"
+		variant="outline"
+	>
+		<ChevronRight class="size-4" />
+	</Button>
+{/if}

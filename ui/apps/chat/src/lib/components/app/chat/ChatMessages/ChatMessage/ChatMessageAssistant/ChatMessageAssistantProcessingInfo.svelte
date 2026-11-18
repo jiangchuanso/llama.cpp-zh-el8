@@ -1,0 +1,26 @@
+<script lang="ts">
+	import type { UseProcessingStateReturn } from '#lib/hooks/use-processing-state.svelte.ts';
+	import { t } from '#lib/i18n/index.ts';
+	import { fade } from 'svelte/transition';
+
+	interface Props {
+		modelLoadingText: string | null;
+		processingState: UseProcessingStateReturn;
+		position: 'top' | 'bottom';
+	}
+
+	let { modelLoadingText, position, processingState }: Props = $props();
+
+	const marginClass = $derived(position === 'top' ? 'mt-6' : 'mt-4');
+</script>
+
+<div in:fade class="{marginClass} w-full max-w-3xl">
+	<div class="flex flex-col items-start gap-2">
+		<span class="shimmer-text text-sm">
+			{modelLoadingText ??
+				processingState.getPromptProgressText() ??
+				processingState.getProcessingMessage() ??
+				t('Processing...')}
+		</span>
+	</div>
+</div>

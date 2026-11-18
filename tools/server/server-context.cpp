@@ -370,8 +370,8 @@ struct server_slot {
         return true;
     }
 
-    bool prompt_load(server_prompt_cache & prompt_cache, const server_tokens & tokens) {
-        bool res = prompt_cache.load(prompt, tokens, ctx_tgt, ctx_dft, id);
+    bool prompt_load(server_prompt_cache & prompt_cache, const server_tokens & tokens, const std::vector<common_adapter_lora_info> & lora_new) {
+        bool res = prompt_cache.load(prompt, tokens, lora_new, ctx_tgt, ctx_dft, id);
         if (!res) {
             SLT_WRN(*this, "%s", "failed to load prompt from cache\n");
         }
@@ -1108,6 +1108,9 @@ private:
     // if swa_full is enabled, this is set to 0 to simulate a non-SWA model
     int32_t n_swa;
 
+    // n_swa for server_prompt::get_reuse(): 0 with a recurrent state, which holds one position only
+    int32_t n_swa_reuse;
+
     // slots / clients
     std::vector<server_slot> slots;
 
@@ -1444,6 +1447,9 @@ private:
 
         n_swa = params_base.swa_full ? 0 : llama_model_n_swa(model_tgt);
 
+        // the min position of a hybrid memory is the position of its recurrent state, not the start of the SWA window
+        n_swa_reuse = llama_model_is_recurrent(model_tgt) || llama_model_is_hybrid(model_tgt) ? 0 : n_swa;
+
         // Necessary similarity of prompt for slot selection
         slot_sched.slot_prompt_similarity = params_base.slot_prompt_similarity;
 
@@ -1540,6 +1546,10 @@ private:
 
             if (has_cap_tts()) {
                 slot.tts.ctx.init(ctx_tgt, mctx);
+                if (!slot.tts.is_supported()) {
+                    SRV_ERR("%s", "the context cannot run the audio generation of this model\n");
+                    return false;
+                }
             }
 
             SLT_TRC(slot, "new slot, n_ctx = %d\n", slot.n_ctx);
@@ -1820,7 +1830,7 @@ private:
 
         slot.prompt_save(*prompt_cache);
 
-        if (!slot.prompt_load(*prompt_cache, task.tokens)) {
+        if (!slot.prompt_load(*prompt_cache, task.tokens, get_task_lora(task))) {
             slot.prompt_clear();
         }
 
@@ -1874,19 +1884,25 @@ private:
         return output;
     }
 
+    // per-request lora if given, otherwise the global config
+    std::vector<common_adapter_lora_info> get_task_lora(const server_task & task) const {
+        return task.params.lora.empty() ? params_base.lora_adapters : construct_lora_list(task.params.lora);
+    }
+
     bool launch_slot_with_task(server_slot & slot, server_task && task) {
-        // per-request lora if given, otherwise the global config
-        auto task_loras = task.params.lora.empty() ? params_base.lora_adapters : construct_lora_list(task.params.lora);
-        if (!are_lora_equal(task_loras, slot.lora)) {
+        auto task_loras = get_task_lora(task);
+
+        // the state can come from the prompt cache, so it is compared with its own lora config, not with the one of the last task
+        if (!are_lora_equal(task_loras, slot.prompt.lora)) {
             // if lora has changed, check to see if the cache should be cleared
-            if (lora_should_clear_cache(slot.lora, task_loras)) {
-                SLT_TRC(slot, "clearing cache for lora change. %zu loras -> %zu loras\n", slot.lora.size(), task_loras.size());
+            if (lora_should_clear_cache(slot.prompt.lora, task_loras)) {
+                SLT_TRC(slot, "clearing cache for lora change. %zu loras -> %zu loras\n", slot.prompt.lora.size(), task_loras.size());
                 slot.prompt.clear();
             } else {
                 SLT_TRC(slot, "keeping cache for alora. %zu target loras\n", task_loras.size());
             }
-            slot.lora = task_loras;
         }
+        slot.lora = task_loras;
 
         // if using alora, make sure it's only a single one requested and active
         size_t alora_invocation_start = task.tokens.size();
@@ -1936,6 +1952,8 @@ private:
             }
         }
 
+        slot.prompt.lora = slot.lora;
+
         if (!task.tokens.validate(ctx_tgt)) {
             send_error(task, "Prompt contains invalid tokens", ERROR_TYPE_INVALID_REQUEST);
             return false;
@@ -1953,7 +1971,7 @@ private:
             task.tts_inp.data.seq_id = slot.id;
             const int32_t ret = slot.tts.ctx.set_input(task.tts_inp.get());
             if (ret == 2) {
-                send_error(task, "invalid TTS input: the model may not support \"speed\" or \"loudness\", see the server log", ERROR_TYPE_INVALID_REQUEST);
+                send_error(task, "invalid TTS input: the model may not support \"speed\", \"loudness\", \"cfg_scale\" or \"flow_steps\", see the server log", ERROR_TYPE_INVALID_REQUEST);
                 return false;
             }
             if (ret != 0) {
@@ -2952,7 +2970,7 @@ private:
 
                     const int id_task = task.id;
 
-                    const auto plan = slot_sched.select(get_slot_infos(), task);
+                    const auto plan = slot_sched.select(get_slot_infos(), task, get_task_lora(task));
 
                     server_slot * slot = plan.id_slot == -1 ? nullptr : get_slot_by_id(plan.id_slot);
 
@@ -3647,7 +3665,7 @@ private:
                 return;
             }
 
-            const int32_t n_predict = slot.n_predict_max > 0 ? slot.n_predict_max : 512;
+            const int32_t n_predict = slot.tts.ctx.max_frames(slot.n_predict_max);
             if (slot.tts.stop || slot.tts.n_decoded >= n_predict) {
                 int32_t      sample_rate = 0;
                 const char * data        = nullptr;
@@ -4182,7 +4200,7 @@ private:
                                     SLT_WRN(slot, "%s\n", st1.str().c_str());
                                 }
 
-                                auto reuse = slot.prompt.get_reuse(n_past, has_new_tokens, n_swa, pos_min);
+                                auto reuse = slot.prompt.get_reuse(n_past, has_new_tokens, n_swa_reuse, pos_min);
 
                                 if (reuse.ckpt) {
                                     const auto & cur = *reuse.ckpt;
@@ -5650,12 +5668,12 @@ json server_routes::get_model_info() const {
 // body of /tts and /v1/audio/speech; multipart form fields arrive as strings, the numeric and boolean params get their types back
 static json parse_tts_body(const server_http_req & req) {
     json body = json::parse(req.body);
-    for (const char * k : { "top_k", "n_predict", "max_tokens", "seed" }) {
+    for (const char * k : { "top_k", "n_predict", "max_tokens", "seed", "flow_steps" }) {
         if (body.contains(k) && body[k].is_string()) {
             body[k] = std::stoll(body[k].get<std::string>());
         }
     }
-    for (const char * k : { "top_p", "temperature", "repeat_penalty", "speed", "loudness" }) {
+    for (const char * k : { "top_p", "temperature", "repeat_penalty", "speed", "loudness", "cfg_scale" }) {
         if (body.contains(k) && body[k].is_string()) {
             body[k] = std::stof(body[k].get<std::string>());
         }
@@ -6980,7 +6998,13 @@ std::unique_ptr<server_res_generator> server_routes::handle_tts_impl(const serve
     // speaker_ref in the request overrides the default voice
     const bool has_speaker_ref   = req.files.count("speaker_ref") > 0 || !json_value(body, "speaker_ref_b64", std::string()).empty();
     const std::string voice      = json_value(body, "voice", has_speaker_ref ? std::string() : params.tts_voice);
-    const std::string tts_prompt = common_chat_get_tts_prompt(meta->chat_params.tmpls.get(), prompt, lang, voice);
+    // raw_prompt: the input goes to the model as is (e.g. phonemes), the "tts" chat template is skipped
+    const bool raw_prompt        = json_value(body, "raw_prompt", false);
+    const auto g2p = [this](const std::string & word) {
+        char buf[512];
+        return mtmd_gen_audio_g2p(ctx_server.mctx, word.c_str(), buf, sizeof(buf)) > 0 ? std::string(buf) : std::string();
+    };
+    const std::string tts_prompt = raw_prompt ? std::string() : common_chat_get_tts_prompt(meta->chat_params.tmpls.get(), prompt, lang, voice, g2p);
     // a model with predefined voices only speaks with one of them
     mtmd::bitmap_ptr voice_ref;
     if (!voice.empty() && info.n_voices > 0) {
@@ -6992,6 +7016,7 @@ std::unique_ptr<server_res_generator> server_routes::handle_tts_impl(const serve
     }
     task.tts_inp.set_prompt(tts_prompt.empty() ? prompt : tts_prompt);
     task.tts_inp.set_lang(lang);
+    task.tts_inp.set_speaker_ref_text(json_value(body, "speaker_ref_text", std::string()));
     task.tts_inp.data.stream    = stream;
     task.tts_inp.data.out_type  = response_format == "pcm" || pcm16
         ? MTMD_HELPER_GEN_AUDIO_OUTTYPE_PCM
@@ -7062,8 +7087,9 @@ std::unique_ptr<server_res_generator> server_routes::handle_tts_impl(const serve
     task.id = rd.get_new_id();
     rd.post_task(std::move(task));
 
-    // raw LE mono samples; audio/L16 would imply 16-bit big-endian (RFC 2586)
-    const std::string pcm_type = "audio/pcm;rate=" + std::to_string(info.sample_rate);
+    // raw LE samples, channels interleaved; audio/L16 would imply 16-bit big-endian (RFC 2586)
+    const std::string pcm_type = "audio/pcm;rate=" + std::to_string(info.sample_rate) +
+        (info.n_channels > 1 ? ";channels=" + std::to_string(info.n_channels) : "");
     const std::string content_type = pcm16 ? pcm_type + ";encoding=signed-int;bits=16"
         : response_format == "pcm" ? pcm_type + ";encoding=float;bits=32"
         : "audio/wav";
