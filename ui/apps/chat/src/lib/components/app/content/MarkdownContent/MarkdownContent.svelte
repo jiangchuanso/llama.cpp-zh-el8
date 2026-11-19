@@ -626,7 +626,7 @@
 		if ((hasRenderedBlocks || hasUnstableBlock) && containerRef) {
 			setupCodeBlockActions();
 			setupImageErrorHandlers();
-			renderMermaidDiagrams(containerRef, mode.current === ColorMode.DARK);
+			renderMermaidDiagrams(containerRef);
 			renderSvgDiagrams(containerRef);
 		}
 	});
