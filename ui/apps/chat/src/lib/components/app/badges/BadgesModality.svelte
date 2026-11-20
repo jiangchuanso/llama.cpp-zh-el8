@@ -19,7 +19,7 @@
 	{@const ModalityIcon = MODALITY_ICONS[modality]}
 	<span
 		class={[
-			'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs font-medium',
+			'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-caption font-medium',
 			className
 		]}
 	>

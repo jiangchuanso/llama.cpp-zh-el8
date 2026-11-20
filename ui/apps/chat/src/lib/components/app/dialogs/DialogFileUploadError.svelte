@@ -30,7 +30,7 @@ interface Props {
 			<AlertDialog.Header>
 				<AlertDialog.Title>{t('File Upload Error')}</AlertDialog.Title>
 
-				<AlertDialog.Description class="text-sm text-muted-foreground">
+				<AlertDialog.Description class="text-body-sm text-muted-foreground">
 					{t('Some files cannot be uploaded with the current model.')}
 				</AlertDialog.Description>
 			</AlertDialog.Header>
@@ -38,16 +38,16 @@ interface Props {
 			<div class="!max-h-[50vh] min-h-0 flex-1 space-y-4 overflow-y-auto">
 				{#if fileErrorData.generallyUnsupported.length > 0}
 					<div class="space-y-2">
-						<h4 class="text-sm font-medium text-destructive">{t('Unsupported File Types')}</h4>
+						<h4 class="text-body-sm font-medium text-destructive">{t('Unsupported File Types')}</h4>
 
 						<div class="space-y-1">
 							{#each fileErrorData.generallyUnsupported as file (file.name)}
 								<div class="rounded-md bg-destructive/10 px-3 py-2">
-									<p class="font-mono text-sm break-all text-destructive">
+									<p class="font-mono text-body-sm break-all text-destructive">
 										{file.name}
 									</p>
 
-									<p class="mt-1 text-xs text-muted-foreground">{t('File type not supported')}</p>
+									<p class="mt-1 text-caption text-muted-foreground">{t('File type not supported')}</p>
 								</div>
 							{/each}
 						</div>
@@ -59,11 +59,11 @@ interface Props {
 						<div class="space-y-1">
 							{#each fileErrorData.modalityUnsupported as file (file.name)}
 								<div class="rounded-md bg-destructive/10 px-3 py-2">
-									<p class="font-mono text-sm break-all text-destructive">
+									<p class="font-mono text-body-sm break-all text-destructive">
 										{file.name}
 									</p>
 
-									<p class="mt-1 text-xs text-muted-foreground">
+									<p class="mt-1 text-caption text-muted-foreground">
 										{t(
 											fileErrorData.modalityReasons[file.name] ||
 												'Not supported by current model'
@@ -77,9 +77,9 @@ interface Props {
 			</div>
 
 			<div class="rounded-md bg-muted/50 p-3">
-				<h4 class="mb-2 text-sm font-medium">{t('This model supports:')}</h4>
+				<h4 class="mb-2 text-body-sm font-medium">{t('This model supports:')}</h4>
 
-				<p class="text-sm text-muted-foreground">
+				<p class="text-body-sm text-muted-foreground">
 					{fileErrorData.supportedTypes.join(', ')}
 				</p>
 			</div>

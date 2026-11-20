@@ -94,7 +94,7 @@
 <div class="space-y-4">
 	<SearchInput bind:value={searchQuery} placeholder="Search conversations..." />
 
-	<div class="flex items-center justify-between text-sm text-muted-foreground">
+	<div class="flex items-center justify-between text-body-sm text-muted-foreground">
 		<span>
 			{t('{selected} of {total} selected', {
 				selected: selectedIds.size,
@@ -119,16 +119,16 @@
 							/>
 						</th>
 
-						<th class="p-3 text-left text-sm font-medium">{t('Conversation Name')}</th>
+						<th class="p-3 text-left text-body-sm font-medium">{t('Conversation Name')}</th>
 
-						<th class="w-32 p-3 text-left text-sm font-medium">{t('Messages')}</th>
+						<th class="w-32 p-3 text-left text-body-sm font-medium">{t('Messages')}</th>
 					</tr>
 				</thead>
 
 				<tbody>
 					{#if filteredConversations.length === 0}
 						<tr>
-							<td class="p-8 text-center text-sm text-muted-foreground" colspan="3">
+							<td class="p-8 text-center text-body-sm text-muted-foreground" colspan="3">
 								{#if searchQuery}
 									{t('No conversations found matching "{query}"', { query: searchQuery })}
 								{:else}
@@ -158,7 +158,7 @@
 									/>
 								</td>
 
-								<td class="p-3 text-sm">
+								<td class="p-3 text-body-sm">
 									<div
 										class="max-w-68 truncate"
 										title={conv.name || t('Untitled conversation')}
@@ -167,7 +167,7 @@
 									</div>
 								</td>
 
-								<td class="p-3 text-sm text-muted-foreground">
+								<td class="p-3 text-body-sm text-muted-foreground">
 									{messageCountMap.get(conv.id) ?? 0}
 								</td>
 							</tr>

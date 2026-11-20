@@ -34,13 +34,13 @@
 </script>
 
 <div class="mt-3 border-t border-border/50 pt-4">
-	<p class="text-xs text-muted-foreground max-md:text-[13px]">{t('Token usage details')}</p>
+	<p class="text-caption text-muted-foreground max-md:text-body-sm">{t('Token usage details')}</p>
 
-	<div class="flex flex-col gap-4 pt-4 text-xs max-md:gap-5 max-md:text-[13px]">
+	<div class="flex flex-col gap-4 pt-4 text-caption max-md:gap-5 max-md:text-body-sm">
 		{#if hasCumulative}
 			<div>
 				<h3
-					class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70 mb-2 max-md:text-xs"
+					class="text-label-sm uppercase tracking-wide text-muted-foreground/70 mb-2 max-md:text-caption"
 				>
 					{t('Across all turns')}
 				</h3>
@@ -71,7 +71,7 @@
 		{#if hasCurrent}
 			<div>
 				<h3
-					class="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70 mb-2 max-md:text-xs"
+					class="text-label-sm uppercase tracking-wide text-muted-foreground/70 mb-2 max-md:text-caption"
 				>
 					{t('This turn · KV cache')}
 				</h3>

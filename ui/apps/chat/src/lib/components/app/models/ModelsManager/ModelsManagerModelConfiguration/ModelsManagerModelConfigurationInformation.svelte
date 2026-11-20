@@ -113,10 +113,10 @@
 
 <div class="space-y-0">
 	<div class="flex items-center gap-3 border-b border-border/30 py-2.5">
-		<span class="text-sm text-muted-foreground">{t('Model')}</span>
+		<span class="text-body-sm text-muted-foreground">{t('Model')}</span>
 
 		<span class="ml-auto flex min-w-0 flex-1 items-center gap-2">
-			<span class="min-w-0 flex-1 overflow-x-auto font-mono text-xs whitespace-nowrap">
+			<span class="min-w-0 flex-1 overflow-x-auto font-mono text-caption whitespace-nowrap">
 				{option.model}
 			</span>
 
@@ -130,7 +130,7 @@
 
 	{#each visibleRows as row (row.label)}
 		<div class="flex items-center gap-3 border-b border-border/30 py-2.5 last:border-b-0">
-			<span class="text-sm text-muted-foreground">{row.label}</span>
+			<span class="text-body-sm text-muted-foreground">{row.label}</span>
 
 			<span class="ml-auto flex min-w-0 items-center gap-2 {row.isCopyable ? 'flex-1' : ''}">
 				{#if row.value === null}
@@ -141,12 +141,12 @@
 							'min-w-0',
 							// a copyable value scrolls instead of clipping, the icon stays put
 							row.isCopyable ? 'flex-1 overflow-x-auto whitespace-nowrap' : 'truncate',
-							row.isBadge ? '' : 'text-sm',
-							row.isMono ? 'font-mono text-xs' : ''
+							row.isBadge ? '' : 'text-body-sm',
+							row.isMono ? 'font-mono text-caption' : ''
 						]}
 					>
 						{#if row.isBadge}
-							<Badge class="h-5 px-1.5 text-[10px]" variant="secondary">{row.value}</Badge>
+							<Badge class="h-5 px-1.5 text-caption-sm" variant="secondary">{row.value}</Badge>
 						{:else}
 							{row.value}
 						{/if}
@@ -165,14 +165,14 @@
 	{/each}
 
 	{#if visibleRows.length === 0}
-		<p class="py-2.5 text-sm text-muted-foreground">
+		<p class="py-2.5 text-body-sm text-muted-foreground">
 			{t('The model reports its metadata once it is loaded.')}
 		</p>
 	{/if}
 
 	{#if modalities.length > 0}
 		<div class="flex items-center gap-3 border-b border-border/30 py-2.5 last:border-b-0">
-			<span class="text-sm text-muted-foreground">{t('Modalities')}</span>
+			<span class="text-body-sm text-muted-foreground">{t('Modalities')}</span>
 
 			<span class="ml-auto flex flex-wrap gap-1"><BadgesModality {modalities} /></span>
 		</div>
@@ -180,7 +180,7 @@
 </div>
 
 {#if !serverProps}
-	<p class="pt-2 text-xs text-muted-foreground">
+	<p class="pt-2 text-caption text-muted-foreground">
 		{t(
 			'/props values - file path, slots, build info - appear once the model is loaded. Reading this page never loads a model.'
 		)}
@@ -190,11 +190,11 @@
 <div class="mt-4">
 	<CollapsibleSection triggerClass={sectionTrigger}>
 		{#snippet trigger()}
-			<span class="text-sm font-medium">{t('Chat Template')}</span>
+			<span class="text-body-sm font-medium">{t('Chat Template')}</span>
 		{/snippet}
 
 		<pre
-			class="mt-1 rounded-md bg-muted/50 p-2 text-xs whitespace-pre-wrap">{serverProps?.chat_template ??
+			class="mt-1 rounded-md bg-muted/50 p-2 text-caption whitespace-pre-wrap">{serverProps?.chat_template ??
 				gguf?.chat_template ??
 				t('Shown once the model is loaded.')}</pre>
 	</CollapsibleSection>

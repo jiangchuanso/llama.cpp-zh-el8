@@ -50,7 +50,7 @@
 <div class="flex min-h-0 flex-1 flex-col gap-2 whitespace-nowrap {className}">
 	{#if showHeader}
 		<div
-			class="text-muted-foreground flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium"
+			class="text-muted-foreground flex h-8 shrink-0 items-center rounded-md px-2 text-caption font-medium"
 		>
 			{t('Search results')}
 		</div>
@@ -87,7 +87,7 @@
 
 			{#if tree.length === 0}
 				<li class="px-2 py-4 text-center">
-					<p class="mb-4 p-4 text-sm text-muted-foreground">
+					<p class="mb-4 p-4 text-body-sm text-muted-foreground">
 						{emptyMessage}
 					</p>
 				</li>

@@ -2,16 +2,24 @@
 	import { Button } from '@ggml-org/llama-ui/ui/button';
 	import { t } from '#lib/i18n/index.ts';
 	import * as Tooltip from '@ggml-org/llama-ui/ui/tooltip';
-	import { ArrowUp } from '@lucide/svelte';
+	import { ArrowUp, LoaderCircle } from '@lucide/svelte';
 
 	interface Props {
 		canSend?: boolean;
 		disabled?: boolean;
+		/** The send is on its way: it waits for something, e.g. dictated text being refined. */
+		loading?: boolean;
 		showErrorState?: boolean;
 		tooltipLabel?: string;
 	}
 
-	let { canSend = false, disabled = false, showErrorState = false, tooltipLabel }: Props = $props();
+	let {
+		canSend = false,
+		disabled = false,
+		loading = false,
+		showErrorState = false,
+		tooltipLabel
+	}: Props = $props();
 
 	let isDisabled = $derived(!canSend || disabled);
 </script>
@@ -29,7 +37,11 @@
 	>
 		<span class="sr-only">{t('Send')}</span>
 
-		<ArrowUp class="size-icon-md" />
+		{#if loading}
+			<LoaderCircle class="size-icon-md animate-spin" />
+		{:else}
+			<ArrowUp class="size-icon-md" />
+		{/if}
 	</Button>
 {/snippet}
 

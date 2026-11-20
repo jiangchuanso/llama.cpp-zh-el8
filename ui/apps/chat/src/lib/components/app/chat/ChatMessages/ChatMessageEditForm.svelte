@@ -101,7 +101,7 @@
 
 <svelte:window onkeydown={handleGlobalKeydown} />
 
-<div class="relative w-full max-w-[80%]">
+<div class="relative w-full max-w-4/5">
 	<ChatForm
 		bind:uploadedFiles={editCtx.editedUploadedFiles}
 		attachments={editCtx.editedExtras}
@@ -117,12 +117,12 @@
 	/>
 </div>
 
-<div class="mt-2 flex w-full max-w-[80%] items-center justify-between">
+<div class="mt-2 flex w-full max-w-4/5 items-center justify-between">
 	{#if isUserMessage && editCtx.showSaveOnlyOption}
 		<div class="flex items-center gap-2">
 			<Switch bind:checked={saveWithoutRegenerate} class="scale-75" id="save-only-switch" />
 
-			<label class="cursor-pointer text-xs text-muted-foreground" for="save-only-switch">
+			<label class="cursor-pointer text-caption text-muted-foreground" for="save-only-switch">
 				{t('Update without re-sending')}
 			</label>
 		</div>
@@ -130,7 +130,7 @@
 		<div class="flex items-center gap-2">
 			<Switch bind:checked={branchAfterEdit} class="scale-75" id="branch-after-edit" />
 
-			<label class="cursor-pointer text-xs text-muted-foreground" for="branch-after-edit">
+			<label class="cursor-pointer text-caption text-muted-foreground" for="branch-after-edit">
 				{t('Branch conversation after edit')}
 			</label>
 		</div>
@@ -138,7 +138,7 @@
 		<div></div>
 	{/if}
 
-	<Button class="h-7 px-3 text-xs" onclick={attemptCancel} size="sm" variant="ghost">
+	<Button class="h-7 px-3 text-caption" onclick={attemptCancel} size="sm" variant="ghost">
 		<X class="mr-1 size-icon-md" />
 
 		{t('Cancel')}

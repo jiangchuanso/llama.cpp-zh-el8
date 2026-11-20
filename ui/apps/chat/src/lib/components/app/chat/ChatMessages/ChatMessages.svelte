@@ -262,7 +262,7 @@
 
 			{#if pendingContent}
 				<ChatMessageUserPending
-					class="mx-auto mt-12 w-full max-w-[48rem]"
+					class="mx-auto mt-12 w-full max-w-3xl"
 					content={pendingContent}
 					extras={agenticStore.getPendingSteeringMessageExtras(convId)}
 					onDelete={() => agenticStore.clearSteeringMessage(convId)}
@@ -277,7 +277,7 @@
 
 			{#if pendingContent}
 				<ChatMessageUserPending
-					class="mx-auto mt-12 w-full max-w-[48rem]"
+					class="mx-auto mt-12 w-full max-w-3xl"
 					content={pendingContent}
 					extras={chatStore.getPendingMessageExtras(convId)}
 					onDelete={() => chatStore.clearPendingMessage(convId)}

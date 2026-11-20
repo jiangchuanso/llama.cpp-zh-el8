@@ -84,7 +84,7 @@
 			onCheckedChange={onSelectAllToggle}
 		/>
 
-		<span class="truncate text-xs font-medium text-muted-foreground">
+		<span class="truncate text-caption font-medium text-muted-foreground">
 			{t('{selected} / {total} selected', { selected: selectedCount, total: visibleCount })}
 		</span>
 	</label>

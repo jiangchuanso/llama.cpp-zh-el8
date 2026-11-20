@@ -108,7 +108,7 @@
 <div class={className}>
 	<div class="mb-2 flex items-center justify-between">
 		{#if sectionLabel}
-			<span class="text-xs font-medium select-none">
+			<span class="text-caption font-medium select-none">
 				{t(sectionLabel)}
 				{#if sectionLabelOptional}
 					<span class="text-muted-foreground">{t('(optional)')}</span>
@@ -117,7 +117,7 @@
 		{/if}
 
 		<button
-			class="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+			class="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-1 text-caption text-muted-foreground hover:bg-muted hover:text-foreground"
 			onclick={addPair}
 			type="button"
 		>
@@ -143,7 +143,7 @@
 
 					<textarea
 						{@attach autoResizeTextarea}
-						class="flex-1 resize-none rounded-md border border-input bg-transparent px-3 py-2 text-base leading-5 md:text-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+						class="flex-1 resize-none rounded-md border border-input bg-transparent px-3 py-2 text-body leading-5 md:text-body-sm placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
 						maxlength={KEY_VALUE_PAIR_VALUE_MAX_LENGTH}
 						onblur={(e) => trimPairValue(index, e.currentTarget.value)}
 						oninput={(e) => {
@@ -167,6 +167,6 @@
 			{/each}
 		</div>
 	{:else}
-		<p class="select-none text-xs text-muted-foreground">{t(emptyMessage)}</p>
+		<p class="select-none text-caption text-muted-foreground">{t(emptyMessage)}</p>
 	{/if}
 </div>

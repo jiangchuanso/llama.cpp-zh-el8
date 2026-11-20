@@ -30,7 +30,7 @@
 			current: siblingInfo.currentIndex + 1,
 			total: siblingInfo.totalSiblings
 		})}
-		class="flex items-center gap-1 text-xs text-muted-foreground {className}"
+		class="flex items-center gap-1 text-caption text-muted-foreground {className}"
 		role="navigation"
 	>
 		<ActionIcon
@@ -41,7 +41,7 @@
 			tooltip={t('Previous version')}
 		/>
 
-		<span class="px-1 font-mono text-xs">
+		<span class="px-1 font-mono text-caption">
 			{siblingInfo.currentIndex + 1}/{siblingInfo.totalSiblings}
 		</span>
 

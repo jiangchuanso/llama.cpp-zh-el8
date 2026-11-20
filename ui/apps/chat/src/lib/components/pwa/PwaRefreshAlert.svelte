@@ -10,11 +10,11 @@
 {#if needRefresh}
 	<Card.Root class="overflow-hidden gap-1 py-5">
 		<Card.Header class="px-5">
-			<Card.Title class="text-sm font-medium">{t('Update available')}</Card.Title>
+			<Card.Title class="text-body-sm font-medium">{t('Update available')}</Card.Title>
 		</Card.Header>
 
 		<Card.Content class="gap-6 grid px-5">
-			<p class="text-xs text-muted-foreground">
+			<p class="text-caption text-muted-foreground">
 				{t('A new version is available. Reload to update.')}
 			</p>
 

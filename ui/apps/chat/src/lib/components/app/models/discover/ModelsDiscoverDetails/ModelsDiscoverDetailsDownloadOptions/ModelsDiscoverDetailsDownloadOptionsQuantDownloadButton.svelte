@@ -24,7 +24,7 @@
 
 	// one source, so the idle, in-flight and downloaded chip states stay identical
 	const SIDECAR_BADGE_CLASS =
-		'rounded-md bg-primary px-1 py-0.5 text-[10px] font-semibold tracking-wide text-primary-foreground uppercase';
+		'rounded-md bg-primary px-1 py-0.5 text-caption-sm font-semibold tracking-wide text-primary-foreground uppercase';
 
 	/** Queue the download; a failed attempt leaves partial files, drop them first. */
 	async function startDownload() {
@@ -120,7 +120,7 @@
 	<button
 		{...props}
 		aria-label={tooltipText}
-		class="group relative inline-flex h-auto cursor-pointer items-center gap-1 rounded-md! border px-2 py-1 text-left font-mono text-xs shadow-(--elevation-control) transition-[background-color,border-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97]
+		class="group relative inline-flex h-auto cursor-pointer items-center gap-1 rounded-md! border px-2 py-1 text-left font-mono text-caption shadow-(--elevation-control) transition-[background-color,border-color,transform] duration-200 ease-out-quint active:scale-97
 					border-green-600/25 bg-green-500/5 hover:border-destructive/50 hover:bg-destructive/10 dark:border-green-500/30 dark:bg-green-500/10 dark:hover:border-destructive/50 dark:hover:bg-destructive/15"
 		onclick={() => onRequestDelete?.(entry.repoWithTag)}
 		type="button"
@@ -134,11 +134,11 @@
 		<!-- icon slot: crossfade check -> x; touch devices show the delete affordance directly -->
 		<span class="relative inline-flex size-3.5 shrink-0 items-center justify-center">
 			<Check
-				class="absolute size-icon-sm text-green-500 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-75 group-hover:opacity-0 [@media(pointer:coarse)]:hidden"
+				class="absolute size-icon-sm text-green-500 transition-[opacity,transform] duration-150 ease-out-quint group-hover:scale-75 group-hover:opacity-0 [@media(pointer:coarse)]:hidden"
 			/>
 
 			<X
-				class="absolute size-icon-sm scale-75 text-destructive opacity-0 transition-[opacity,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-100 group-hover:opacity-100 [@media(pointer:coarse)]:scale-100 [@media(pointer:coarse)]:opacity-100"
+				class="absolute size-icon-sm scale-75 text-destructive opacity-0 transition-[opacity,transform] duration-150 ease-out-quint group-hover:scale-100 group-hover:opacity-100 [@media(pointer:coarse)]:scale-100 [@media(pointer:coarse)]:opacity-100"
 			/>
 		</span>
 	</button>
@@ -170,11 +170,11 @@
 			     spin keyframes own the transform so scale would fight them -->
 			<span class="relative inline-flex size-3.5 shrink-0 items-center justify-center">
 				<Loader2
-					class="absolute size-icon-sm animate-spin text-muted-foreground transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-0 [@media(pointer:coarse)]:hidden"
+					class="absolute size-icon-sm animate-spin text-muted-foreground transition-opacity duration-150 ease-out-quint group-hover:opacity-0 [@media(pointer:coarse)]:hidden"
 				/>
 
 				<Pause
-					class="absolute size-icon-sm opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
+					class="absolute size-icon-sm opacity-0 transition-opacity duration-150 ease-out-quint group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
 				/>
 			</span>
 		{:else}
@@ -182,11 +182,11 @@
 			     hover, the way the spinner gives way to the pause action above -->
 			<span class="relative inline-flex size-3.5 shrink-0 items-center justify-center">
 				<Pause
-					class="absolute size-icon-sm text-muted-foreground transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-0 [@media(pointer:coarse)]:hidden"
+					class="absolute size-icon-sm text-muted-foreground transition-opacity duration-150 ease-out-quint group-hover:opacity-0 [@media(pointer:coarse)]:hidden"
 				/>
 
 				<Play
-					class="absolute size-icon-sm opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
+					class="absolute size-icon-sm opacity-0 transition-opacity duration-150 ease-out-quint group-hover:opacity-100 [@media(pointer:coarse)]:opacity-100"
 				/>
 			</span>
 		{/if}
@@ -204,7 +204,7 @@
 		type="button"
 	>
 		<X
-			class="size-icon-sm transition-[opacity,transform,color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] text-destructive [@media(pointer:coarse)]:scale-100 [@media(pointer:coarse)]:opacity-100"
+			class="size-icon-sm transition-[opacity,transform,color] duration-150 ease-out-quint text-destructive [@media(pointer:coarse)]:scale-100 [@media(pointer:coarse)]:opacity-100"
 		/>
 	</button>
 {/snippet}
@@ -214,7 +214,7 @@
 	<button
 		{...props}
 		aria-label={tooltipText}
-		class="group relative inline-flex h-auto cursor-pointer items-center gap-1 overflow-hidden rounded-md! border px-2 py-1 text-left font-mono text-xs shadow-(--elevation-control) transition-[background-color,border-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97]
+		class="group relative inline-flex h-auto cursor-pointer items-center gap-1 overflow-hidden rounded-md! border px-2 py-1 text-left font-mono text-caption shadow-(--elevation-control) transition-[background-color,border-color,transform] duration-200 ease-out-quint active:scale-97
 				border-border/30 bg-background hover:bg-muted-foreground/10 dark:border-border/20 dark:bg-muted-foreground/15 dark:text-secondary-foreground dark:hover:bg-muted-foreground/25
 				{entry.isFailed ? 'border-destructive!' : ''}"
 		onclick={() => void startDownload()}
@@ -222,7 +222,7 @@
 	>
 		{#if entry.isFailed}
 			<span
-				class="rounded-md bg-(--badge-danger-background) px-1 py-0.5 text-[10px] font-semibold tracking-wide text-(--badge-danger-text) uppercase"
+				class="rounded-md bg-(--action-danger) px-1 py-0.5 text-caption-sm font-semibold tracking-wide text-(--fg-on-danger) uppercase"
 			>
 				{t('Failed')}
 			</span>
@@ -251,7 +251,7 @@
 	     inside the chip cancels the download. The X slot is reserved, so the chip
 	     never reflows when the affordance fades in -->
 	<div
-		class="group relative inline-flex h-auto items-center gap-1 overflow-hidden rounded-md! border px-2 py-1 text-left font-mono text-xs shadow-(--elevation-control) transition-[background-color,border-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97]
+		class="group relative inline-flex h-auto items-center gap-1 overflow-hidden rounded-md! border px-2 py-1 text-left font-mono text-caption shadow-(--elevation-control) transition-[background-color,border-color,transform] duration-200 ease-out-quint active:scale-97
 			{entry.isPaused
 			? 'border-yellow-600/40 bg-yellow-500/10 hover:bg-yellow-500/20 dark:border-yellow-500/30 dark:bg-yellow-500/10'
 			: 'border-border/30 bg-background hover:bg-muted-foreground/10 dark:border-border/20 dark:bg-muted-foreground/15'}"

@@ -17,9 +17,9 @@
 	class="[--settings-tabs-top:calc(var(--corner-control-top)+3rem)] flex w-full flex-col pt-(--page-top) max-md:pb-safe-4 md:pt-6"
 >
 	<div class="flex min-w-0 flex-col gap-1 px-4 pb-2 md:px-8">
-		<h1 class="text-2xl font-semibold tracking-tight">{t('Settings')}</h1>
+		<h1 class="text-heading font-semibold tracking-tight">{t('Settings')}</h1>
 
-		<p class="text-sm text-muted-foreground">{t('How the app looks, chats and talks to the server.')}</p>
+		<p class="text-body-sm text-muted-foreground">{t('How the app looks, chats and talks to the server.')}</p>
 	</div>
 
 	<SettingsChat

@@ -86,7 +86,7 @@
 			<!-- Reading stats sourced from the assistant message that followed this turn -->
 			<div class="info my-2 grid w-full justify-items-end gap-4 tabular-nums">
 				<div
-					class="inline-flex flex-wrap items-start justify-end gap-2 text-xs text-muted-foreground"
+					class="inline-flex flex-wrap items-start justify-end gap-2 text-caption text-muted-foreground"
 				>
 					<ChatMessageStatistics
 						mode={ChatMessageStatisticsMode.READING}
@@ -100,7 +100,7 @@
 			{#if liveStats}
 				<div class="info my-2 grid w-full justify-items-end gap-4 tabular-nums">
 					<div
-						class="inline-flex flex-wrap items-start justify-end gap-2 text-xs text-muted-foreground"
+						class="inline-flex flex-wrap items-start justify-end gap-2 text-caption text-muted-foreground"
 					>
 						<ChatMessageStatistics
 							isLive
@@ -114,7 +114,7 @@
 		{/if}
 
 		{#if message.timestamp}
-			<div class="max-w-[80%]">
+			<div class="max-w-4/5">
 				<ChatMessageActionIcons actionsPosition="right" justify="end" />
 			</div>
 		{/if}

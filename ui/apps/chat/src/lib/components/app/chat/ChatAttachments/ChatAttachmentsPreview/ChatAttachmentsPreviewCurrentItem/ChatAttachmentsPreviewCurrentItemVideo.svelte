@@ -23,6 +23,6 @@
 			<p class="mb-4 text-white/70">{t('Video preview not available')}</p>
 		{/if}
 
-		<p class="text-sm text-white/50">{currentItem?.name || t('Video')}</p>
+		<p class="text-body-sm text-white/50">{currentItem?.name || t('Video')}</p>
 	</div>
 </div>

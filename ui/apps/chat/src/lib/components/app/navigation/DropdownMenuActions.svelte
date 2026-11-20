@@ -46,7 +46,7 @@
 
 {#if isMobile}
 	<button
-		class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md p-0 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground {triggerClass}"
+		class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md p-0 text-label transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground {triggerClass}"
 		data-slot="dropdown-menu-trigger"
 		data-state={open ? 'open' : 'closed'}
 		onclick={(event) => {
@@ -75,7 +75,7 @@
 					{/if}
 
 					<button
-						class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-sm transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50 {action.variant ===
+						class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-body-sm transition-colors hover:bg-accent disabled:pointer-events-none disabled:opacity-50 {action.variant ===
 						'destructive'
 							? 'text-destructive'
 							: ''}"
@@ -90,7 +90,7 @@
 
 							<!-- a phone has no hover, so the hint sits under the label -->
 							{#if action.tooltip}
-								<span class="text-xs text-muted-foreground">{t(action.tooltip)}</span>
+								<span class="text-caption text-muted-foreground">{t(action.tooltip)}</span>
 							{/if}
 						</span>
 
@@ -110,7 +110,7 @@
 				{#snippet child({ props })}
 					<DropdownMenu.Trigger
 						{...props}
-						class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md p-0 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground {triggerClass}"
+						class="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md p-0 text-label transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground {triggerClass}"
 						onclick={(e) => e.stopPropagation()}
 					>
 						{@render iconComponent(triggerIcon, 'h-3 w-3')}
@@ -129,7 +129,7 @@
 			{/if}
 		</Tooltip.Root>
 
-		<DropdownMenu.Content {align} class="z-[999999] w-48" customAnchor={anchor}>
+		<DropdownMenu.Content {align} class="z-999999 w-48" customAnchor={anchor}>
 			<MenuActionsList {actions} kind={MenuKind.DROPDOWN} onClose={() => (open = false)} />
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>

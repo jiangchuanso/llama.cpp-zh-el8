@@ -178,14 +178,14 @@
 	<div>
 		{#if modelsDiscoverStore.error}
 			<div class="flex flex-col items-start gap-2 p-4">
-				<p class="text-sm text-destructive">{modelsDiscoverStore.error}</p>
+				<p class="text-body-sm text-destructive">{modelsDiscoverStore.error}</p>
 
 				<Button onclick={() => void modelsDiscoverStore.fetch()} size="sm" variant="outline">
 					{t('Retry')}
 				</Button>
 			</div>
 		{:else if !modelsDiscoverStore.loading && !modelsDiscoverStore.searching && modelsDiscoverStore.models.length === 0}
-			<p class="p-4 text-sm text-muted-foreground">{t('No models found')}</p>
+			<p class="p-4 text-body-sm text-muted-foreground">{t('No models found')}</p>
 		{:else}
 			{#if isSearching}
 				{@render catalog()}

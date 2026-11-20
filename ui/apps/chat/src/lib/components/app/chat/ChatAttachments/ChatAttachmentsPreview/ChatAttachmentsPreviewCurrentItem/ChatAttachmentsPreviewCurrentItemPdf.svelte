@@ -207,7 +207,7 @@
 	{@render status(t('Failed to load PDF images'), pdfImagesError)}
 {:else if pdfImages.length > 0}
 	{#each pdfImages as image, index (index)}
-		<p class="mb-2 text-sm text-white/50">{t('Page {number}', { number: index + 1 })}</p>
+		<p class="mb-2 text-body-sm text-white/50">{t('Page {number}', { number: index + 1 })}</p>
 
 		<img
 			alt={t('PDF Page {number}', { number: index + 1 })}
@@ -241,7 +241,7 @@
 			<p class={['text-white/70', detail && 'mb-4']}>{message}</p>
 
 			{#if detail}
-				<p class="text-sm text-white/50">{detail}</p>
+				<p class="text-body-sm text-white/50">{detail}</p>
 			{/if}
 		</div>
 	</div>

@@ -33,7 +33,7 @@
 	});
 
 	let enterClass = $derived([
-		'transition-opacity duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]',
+		'transition-opacity duration-300 ease-out-quint',
 		!hasEntered && !instant && 'opacity-0'
 	]);
 </script>
@@ -61,9 +61,9 @@
 	]}
 >
 	<div style:transition-delay="{CHAT_GREETING_ENTER_DELAY_MS}ms" class={enterClass}>
-		<h1 class="mb-2 text-2xl font-semibold tracking-tight md:text-3xl">{t('Hello there')}</h1>
+		<h1 class="mb-2 text-heading font-semibold tracking-tight md:text-display">{t('Hello there')}</h1>
 
-		<p class="text-muted-foreground md:text-lg">
+		<p class="text-muted-foreground md:text-title">
 			{serverStore.props?.modalities?.audio
 				? t('Record audio, type a message')
 				: t('Type a message')}

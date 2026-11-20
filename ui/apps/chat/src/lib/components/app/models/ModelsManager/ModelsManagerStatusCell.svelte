@@ -36,7 +36,7 @@
 	/>
 {:else}
 	<span
-		class="justify-self-center text-sm text-muted-foreground {className}"
+		class="justify-self-center text-body-sm text-muted-foreground {className}"
 		title={t('Served by this server')}
 	>
 		-

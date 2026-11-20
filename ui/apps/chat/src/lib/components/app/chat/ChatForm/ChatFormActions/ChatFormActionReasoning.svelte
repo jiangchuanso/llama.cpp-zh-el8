@@ -47,7 +47,7 @@
 
 	<button
 		aria-pressed={reasoning.isSelected(level)}
-		class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-sm transition-colors hover:bg-accent"
+		class="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-md px-3 text-left text-body-sm transition-colors hover:bg-accent"
 		onclick={() => select(level)}
 		type="button"
 	>
@@ -60,7 +60,7 @@
 		<span class="min-w-0 flex-1 truncate">{t(level.label)}</span>
 
 		{#if tokenLabel}
-			<span class="shrink-0 text-[11px] text-muted-foreground opacity-60">{tokenLabel}</span>
+			<span class="shrink-0 text-caption text-muted-foreground opacity-60">{tokenLabel}</span>
 		{/if}
 
 		{#if level.hasInfo}
@@ -76,7 +76,7 @@
 		aria-label={t('Reasoning effort')}
 		class="h-auto gap-1 rounded-sm bg-transparent! backdrop-blur-none! {isDefault
 			? 'px-1'
-			: 'px-1.75!'} py-1 text-xs max-md:h-8"
+			: 'px-1.75!'} py-1 text-caption max-md:h-8"
 		onclick={() => (isOpen = true)}
 		variant="ghost"
 	>
@@ -105,7 +105,7 @@
 					aria-label={t('Reasoning effort')}
 					class="-mr-px h-6 min-w-6 gap-1 rounded-sm bg-transparent backdrop-blur-none! {isDefault
 						? 'px-1'
-						: 'px-1.75!'} py-0 text-xs hover:bg-muted-foreground/15 data-[state=open]:bg-muted-foreground/15"
+						: 'px-1.75!'} py-0 text-caption hover:bg-muted-foreground/15 data-[state=open]:bg-muted-foreground/15"
 					variant="ghost"
 				>
 					{@render triggerLabel()}
@@ -127,7 +127,7 @@
 					<span class="min-w-0 flex-1 truncate">{t(level.label)}</span>
 
 					{#if tokenLabel}
-						<span class="shrink-0 text-[11px] text-muted-foreground opacity-60">{tokenLabel}</span>
+						<span class="shrink-0 text-caption text-muted-foreground opacity-60">{tokenLabel}</span>
 					{/if}
 
 					{#if level.hasInfo}

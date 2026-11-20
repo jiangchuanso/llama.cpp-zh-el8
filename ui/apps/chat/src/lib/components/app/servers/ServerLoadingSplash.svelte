@@ -19,9 +19,9 @@
 				<Server class="size-8 animate-pulse text-muted-foreground" />
 			</div>
 
-			<h2 class="mb-2 text-xl font-semibold">{t('Connecting to Server')}</h2>
+			<h2 class="mb-2 text-title font-semibold">{t('Connecting to Server')}</h2>
 
-			<p class="text-sm text-muted-foreground">
+			<p class="text-body-sm text-muted-foreground">
 				{t(message)}
 			</p>
 		</div>

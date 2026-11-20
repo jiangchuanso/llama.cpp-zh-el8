@@ -43,18 +43,18 @@
 	<div class="flex items-center space-x-2">
 		<div class="size-2 rounded-full {getStatusColor()}"></div>
 
-		<span class="text-sm text-muted-foreground">{t(getStatusText())}</span>
+		<span class="text-body-sm text-muted-foreground">{t(getStatusText())}</span>
 	</div>
 
 	{#if serverData && !error}
-		<Badge class="text-xs" variant="outline">
+		<Badge class="text-caption" variant="outline">
 			<Server class="mr-1 size-icon-xs" />
 
 			{model || t('Unknown Model')}
 		</Badge>
 
 		{#if serverData?.default_generation_settings?.n_ctx}
-			<Badge class="text-xs" variant="secondary">
+			<Badge class="text-caption" variant="secondary">
 				{t('ctx: {value}', {
 					value: serverData.default_generation_settings.n_ctx.toLocaleString()
 				})}

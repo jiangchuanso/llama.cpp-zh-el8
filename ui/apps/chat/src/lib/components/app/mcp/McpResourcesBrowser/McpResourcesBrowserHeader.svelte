@@ -39,5 +39,5 @@
 		</Button>
 	</div>
 
-	<h3 class="text-sm font-medium">{t('Available resources')}</h3>
+	<h3 class="text-body-sm font-medium">{t('Available resources')}</h3>
 </div>

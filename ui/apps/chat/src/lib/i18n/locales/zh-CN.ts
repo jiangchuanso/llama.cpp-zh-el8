@@ -859,6 +859,8 @@ export const ZH_CN: Record<string, string> = {
 	'Page {number}': '第 {number} 页',
 	'PDF Page {number}': 'PDF 第 {number} 页',
 	'No PDF pages available': '暂无 PDF 页面',
+	'Transcript: ': '转录：',
+	'Transcribing...': '正在转录…',
 
 	// ── Settings / sidebar / PWA ─────────────────────────────────────────────
 	'Applies to new conversations. Tool picks inside a chat only affect that chat.':

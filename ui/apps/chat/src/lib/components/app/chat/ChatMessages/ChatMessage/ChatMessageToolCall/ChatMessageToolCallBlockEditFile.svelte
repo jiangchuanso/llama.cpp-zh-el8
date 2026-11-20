@@ -46,7 +46,7 @@
 				</span>
 
 				{#if editFileMeta?.errorMessage}
-					<span class="shrink-0 text-xs italic text-muted-foreground/70">{t('(failed)')}</span>
+					<span class="shrink-0 text-caption italic text-muted-foreground/70">{t('(failed)')}</span>
 				{/if}
 			</span>
 		</span>
@@ -55,7 +55,7 @@
 	{#snippet children(_meta, ctx)}
 		{#if editFileBody?.errorMessage}
 			<div
-				class="flex items-start gap-2 rounded bg-surface-danger p-2 text-xs text-fg-danger italic"
+				class="flex items-start gap-2 rounded bg-surface-danger p-2 text-caption text-fg-danger italic"
 			>
 				<XCircle class="mt-0.5 size-icon-xs shrink-0" />
 
@@ -64,7 +64,7 @@
 		{:else if editFileBody?.edits.length}
 			{#each editDiffs as diffLines, ei (ei)}
 				<div class={ei === 0 ? '' : 'mt-3'}>
-					<div class="mb-1.5 text-xs text-muted-foreground/70 italic">
+					<div class="mb-1.5 text-caption text-muted-foreground/70 italic">
 						{t('Edit {index} of {total}', {
 							index: ei + 1,
 							total: editFileBody.edits.length
@@ -89,7 +89,7 @@
 				</div>
 			{/each}
 
-			<div class="mt-1.5 text-xs text-muted-foreground/70 italic">
+			<div class="mt-1.5 text-caption text-muted-foreground/70 italic">
 				{#if editFileBody.resultMessage}
 					{editFileBody.resultMessage}{editFileBody.editsApplied != null
 						? RESULT_STAT_SEPARATOR
@@ -109,11 +109,11 @@
 				streaming={ctx.isCodeStreaming}
 			/>
 		{:else if ctx.isStreaming}
-			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
+			<div class="rounded bg-muted/20 p-2 text-caption text-muted-foreground/70 italic">
 				{t('Receiving arguments...')}
 			</div>
 		{:else}
-			<div class="rounded bg-muted/20 p-2 text-xs text-muted-foreground/70 italic">
+			<div class="rounded bg-muted/20 p-2 text-caption text-muted-foreground/70 italic">
 				{t('No edits')}
 			</div>
 		{/if}
@@ -125,13 +125,13 @@
 		overflow: auto;
 		border-radius: 0.75rem;
 		border-width: 1px;
-		border-color: color-mix(in oklch, var(--border) 30%, transparent);
-		background: var(--code-background);
+		border-color: color-mix(in oklch, var(--line-default) 30%, transparent);
+		background: var(--surface-code);
 		box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	}
 
 	:global(.dark) .diff-block {
-		border-color: color-mix(in oklch, var(--border) 20%, transparent);
+		border-color: color-mix(in oklch, var(--line-default) 20%, transparent);
 	}
 
 	/* Each row is a 4-column grid: old-line#, marker, new-line#, text.
@@ -150,13 +150,13 @@
 		text-align: right;
 		padding-right: 0.5rem;
 		user-select: none;
-		color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+		color: color-mix(in oklch, var(--fg-muted) 70%, transparent);
 		font-variant-numeric: tabular-nums;
 	}
 
 	.diff-marker {
 		text-align: center;
-		color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+		color: color-mix(in oklch, var(--fg-muted) 70%, transparent);
 		user-select: none;
 	}
 

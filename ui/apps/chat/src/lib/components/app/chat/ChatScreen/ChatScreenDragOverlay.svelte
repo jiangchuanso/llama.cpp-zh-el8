@@ -11,8 +11,8 @@
 	>
 		<Upload class="mb-4 size-12 text-muted-foreground" />
 
-		<p class="text-lg font-medium text-foreground">{t('Attach a file')}</p>
+		<p class="text-title font-medium text-foreground">{t('Attach a file')}</p>
 
-		<p class="text-sm text-muted-foreground">{t('Drop your files here to upload')}</p>
+		<p class="text-body-sm text-muted-foreground">{t('Drop your files here to upload')}</p>
 	</div>
 </div>

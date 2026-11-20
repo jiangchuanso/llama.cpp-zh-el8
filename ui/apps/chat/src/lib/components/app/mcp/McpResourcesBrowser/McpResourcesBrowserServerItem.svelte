@@ -93,7 +93,7 @@
 		{@const folderCount = countTreeResources(node)}
 		<Collapsible.Root onOpenChange={() => onToggleFolder(folderId)} open={isFolderExpanded}>
 			<Collapsible.Trigger
-				class="flex w-full items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted/50"
+				class="flex w-full items-center gap-2 rounded px-2 py-1 text-body-sm hover:bg-muted/50"
 			>
 				{#if isFolderExpanded}
 					<ChevronDown class="size-icon-xs" />
@@ -105,7 +105,7 @@
 
 				<span class="font-medium">{node.name}</span>
 
-				<span class="text-xs text-muted-foreground">({folderCount})</span>
+				<span class="text-caption text-muted-foreground">({folderCount})</span>
 			</Collapsible.Trigger>
 
 			<Collapsible.Content>
@@ -134,7 +134,7 @@
 
 			<button
 				class={[
-					'flex flex-1 items-center gap-2 rounded px-2 py-1 text-left text-sm transition-colors',
+					'flex flex-1 items-center gap-2 rounded px-2 py-1 text-left text-body-sm transition-colors',
 					'hover:bg-muted/50',
 					isSelected && 'bg-muted'
 				]}
@@ -153,7 +153,7 @@
 
 <Collapsible.Root onOpenChange={onToggleServer} open={isExpanded}>
 	<Collapsible.Trigger
-		class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted/50"
+		class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-body-sm hover:bg-muted/50"
 	>
 		{#if isExpanded}
 			<ChevronDown class="size-icon-sm" />
@@ -171,7 +171,7 @@
 				/>
 			</div>
 
-			<span class="text-xs text-muted-foreground">
+			<span class="text-caption text-muted-foreground">
 				({t('{count} resources', { count: serverRes.resources.length })}{#if hasTemplates},
 					{t('{count} templates', { count: serverRes.templates.length })}{/if})
 			</span>
@@ -185,11 +185,11 @@
 	<Collapsible.Content>
 		<div class="ml-4 flex flex-col gap-0.5 border-l border-border/50 pl-2">
 			{#if serverRes.error}
-				<div class="py-1 text-xs text-fg-danger">
+				<div class="py-1 text-caption text-fg-danger">
 					{t('Error:')} {serverRes.error}
 				</div>
 			{:else if !hasContent}
-				<div class="py-1 text-xs text-muted-foreground">{t('No resources')}</div>
+				<div class="py-1 text-caption text-muted-foreground">{t('No resources')}</div>
 			{:else}
 				{#if hasResources}
 					{#each sortTreeChildren( [...resourceTree.children.values()] ) as child (child.resource?.uri || `${serverName}:${child.name}`)}
@@ -203,7 +203,7 @@
 					{/if}
 
 					<div
-						class="py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase"
+						class="py-0.5 text-label-sm font-medium tracking-wide text-muted-foreground/70 uppercase"
 					>
 						{t('Templates')}
 					</div>
@@ -211,7 +211,7 @@
 					{#each templateInfos as template (template.uriTemplate)}
 						<button
 							class={[
-								'flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm transition-colors',
+								'flex w-full items-center gap-2 rounded px-2 py-1 text-left text-body-sm transition-colors',
 								'hover:bg-muted/50',
 								selectedTemplateUri === template.uriTemplate && 'bg-muted'
 							]}
