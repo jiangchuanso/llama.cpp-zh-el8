@@ -26,7 +26,6 @@
 	import type { ToolGroup } from '#lib/types/index.ts';
 	import type { Component, Snippet } from 'svelte';
 	import { t } from '#lib/i18n/index.ts';
-	import type { Snippet } from 'svelte';
 
 	interface Props {
 		class?: string;

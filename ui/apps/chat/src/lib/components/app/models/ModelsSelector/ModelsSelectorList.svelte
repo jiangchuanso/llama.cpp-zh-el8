@@ -17,7 +17,6 @@
 	} from '#lib/constants/index.ts';
 	import { ModelDownloadConfirmAction } from '#lib/enums/index.ts';
 	import { modelsStore, settingsStore, voiceStore } from '#lib/stores/index.ts';
-	import { modelsStore, settingsStore } from '#lib/stores/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 	import {
 		type GroupedModelOptions,

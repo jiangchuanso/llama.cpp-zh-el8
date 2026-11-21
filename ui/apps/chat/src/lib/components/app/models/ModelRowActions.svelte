@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Heart, HeartOff, Info, Mic } from '@lucide/svelte';
-	import { Heart, HeartOff, Info } from '@lucide/svelte';
 	import { t } from '#lib/i18n/index.ts';
 	import { ActionIcon } from '#lib/components/app/index.ts';
 	import { VOICE_DICTATION_MODEL_LABEL } from '#lib/constants/index.ts';

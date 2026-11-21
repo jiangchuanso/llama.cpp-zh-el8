@@ -231,9 +231,10 @@ manager's other entry points -->
 			<DropdownMenu.Item class="gap-2" onSelect={handleManageModels}>
 				<MODEL_ICON class="size-icon-md shrink-0 text-muted-foreground" />
 
-			{t('Manage models')}
-		</DropdownMenu.Item>
-	</DropdownMenu.Group>
+				{t('Manage models')}
+			</DropdownMenu.Item>
+		</DropdownMenu.Group>
+	{/if}
 {/snippet}
 
 {#snippet pickerContent(listClass: string)}

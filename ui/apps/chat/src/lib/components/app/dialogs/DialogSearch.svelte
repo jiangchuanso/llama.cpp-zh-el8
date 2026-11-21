@@ -45,7 +45,6 @@
 	import { goto } from '$app/navigation';
 	import { type Component, untrack } from 'svelte';
 	import { t } from '#lib/i18n/index.ts';
-	import type { Component } from 'svelte';
 
 	interface Props {
 		open: boolean;

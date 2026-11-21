@@ -18,7 +18,6 @@
 	import { useShowContextGauge } from '#lib/hooks/use-context-gauge.svelte.ts';
 	import { ChatService } from '#lib/services/index.ts';
 	import { conversationsStore, deviceStore, settingsStore, toolsStore } from '#lib/stores/index.ts';
-	import { abbreviateWorkingDir } from '#lib/utils/index.ts';
 	import { abbreviateWorkingDir, getFileTypeCategory } from '#lib/utils/index.ts';
 	import { t } from '#lib/i18n/index.ts';
 
