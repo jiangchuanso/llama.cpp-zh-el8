@@ -153,6 +153,8 @@ export class ModelStatusManager {
 	private listedSidecarsByRepo = $derived.by(() =>
 		ModelsService.draftSidecarsByRepo(this.host.routerModels)
 	);
+	/** Models whose load the user cancelled; the failure the force-kill triggers is intentional, not a load failure. */
+	private loadCancelRequests = new SvelteSet<string>();
 	private loadingStates = new SvelteMap<string, boolean>();
 	private loadProgress = new SvelteMap<string, ModelLoadProgress>();
 	/** Paused downloads with their last reported progress, or null when none arrived before the pause. */
@@ -199,8 +201,8 @@ export class ModelStatusManager {
 	});
 	// /models/sse feed state, the single source of truth for status and load progress
 	private statusAbort: AbortController | null = null;
-	private statusReaderActive = false;
 
+	private statusReaderActive = false;
 	private statusWaiters = new SvelteMap<
 		string,
 		{ target: ServerModelStatus; resolve: () => void; reject: (e: Error) => void }[]
@@ -270,11 +272,16 @@ export class ModelStatusManager {
 
 		this.subscribe();
 
+		// mark before the kill: the feed can report the child's death before
+		// this request returns, and load() must not toast it as a failure
+		this.loadCancelRequests.add(modelId);
+
 		try {
 			await ModelsService.unload(modelId);
-			toast.info(`Load cancelled: ${this.host.toDisplayName(modelId)}`);
+			toast.info(t('Load cancelled: {name}', { name: this.host.toDisplayName(modelId) }));
 		} catch (error) {
-			toast.error(`Failed to cancel load: ${this.host.toDisplayName(modelId)}`);
+			this.loadCancelRequests.delete(modelId);
+			toast.error(t('Failed to cancel load: {name}', { name: this.host.toDisplayName(modelId) }));
 
 			throw error;
 		}
@@ -517,11 +524,17 @@ export class ModelStatusManager {
 			toast.success(t('Model loaded: {name}', { name: this.host.toDisplayName(modelId) }));
 		} catch (error) {
 			this.rejectStatus(modelId, error instanceof Error ? error : new Error('load failed'));
-			this.host.error = error instanceof Error ? error.message : 'Failed to load model';
-			toast.error(t('Failed to load model: {name}', { name: this.host.toDisplayName(modelId) }));
+
+			// a user cancel force-kills the child, which settles this waiter as a
+			// failure; cancelLoad already reported the cancel, so stay silent
+			if (!this.loadCancelRequests.delete(modelId)) {
+				this.host.error = error instanceof Error ? error.message : 'Failed to load model';
+				toast.error(t('Failed to load model: {name}', { name: this.host.toDisplayName(modelId) }));
+			}
 
 			throw error;
 		} finally {
+			this.loadCancelRequests.delete(modelId);
 			this.loadingStates.set(modelId, false);
 		}
 	}

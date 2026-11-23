@@ -838,6 +838,9 @@ export const ZH_CN: Record<string, string> = {
 	'Model unloaded: {name}': '模型已卸载：{name}',
 	'Failed to load model: {name}': '加载模型失败：{name}',
 	'Failed to unload model: {name}': '卸载模型失败：{name}',
+	'Load cancelled: {name}': '已取消加载：{name}',
+	'Failed to cancel load: {name}': '取消加载失败：{name}',
+	'Cancel loading model': '取消加载模型',
 	'Failed to save favorite models to local storage': '无法将收藏的模型保存到本地存储',
 	'Failed to load favorite models from local storage': '无法从本地存储读取收藏的模型',
 
