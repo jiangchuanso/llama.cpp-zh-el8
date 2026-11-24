@@ -1,26 +1,16 @@
 <script lang="ts">
-	import type { UseProcessingStateReturn } from '#lib/hooks/use-processing-state.svelte.ts';
+	// One status row for a reply that is waiting on the server: loading the
+	// model, processing the prompt. It has the same box as a trace row, so
+	// the row that comes next takes its place without moving what is below.
 	import { t } from '#lib/i18n/index.ts';
-	import { fade } from 'svelte/transition';
 
 	interface Props {
-		modelLoadingText: string | null;
-		processingState: UseProcessingStateReturn;
-		position: 'top' | 'bottom';
+		text: string;
 	}
 
-	let { modelLoadingText, position, processingState }: Props = $props();
-
-	const marginClass = $derived(position === 'top' ? 'mt-6' : 'mt-4');
+	let { text }: Props = $props();
 </script>
 
-<div in:fade class="{marginClass} w-full max-w-3xl">
-	<div class="flex flex-col items-start gap-2">
-		<span class="shimmer-text text-body-sm">
-			{modelLoadingText ??
-				processingState.getPromptProgressText() ??
-				processingState.getProcessingMessage() ??
-				t('Processing...')}
-		</span>
-	</div>
+<div class="py-1.5 text-body-sm">
+	<span class="shimmer-text font-medium">{t(text)}</span>
 </div>

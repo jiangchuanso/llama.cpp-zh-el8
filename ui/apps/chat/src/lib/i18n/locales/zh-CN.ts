@@ -420,6 +420,8 @@ export const ZH_CN: Record<string, string> = {
 	'More allow options': '更多允许选项',
 	'Always allow': '始终允许',
 	'Always allow all tools from {server}': '始终允许来自 {server} 的所有工具',
+	'Shown argument': '显示的参数',
+	"The argument a call's line shows when the call has it": '调用有该参数时在调用行中显示的参数',
 	'Approve all tools from {provider}': '批准来自 {provider} 的所有工具',
 	'Allow use of {tool} from {server}?': '允许使用来自 {server} 的 {tool}？',
 	'Allow use of {tool}?': '允许使用 {tool}？',

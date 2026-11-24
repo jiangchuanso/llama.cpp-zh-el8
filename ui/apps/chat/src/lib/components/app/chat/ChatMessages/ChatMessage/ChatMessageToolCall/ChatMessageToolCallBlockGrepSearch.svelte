@@ -21,9 +21,9 @@
 </script>
 
 <ToolCallBlock {isStreaming} meta={grepMeta} {onToggle} {open} {section}>
-	{#snippet titleSnippet()}
+	{#snippet titleSnippet(phrase)}
 		{#if grepMeta}
-			<span class="text-muted-foreground">{t('Search for')}&nbsp;</span>
+			<span class="text-muted-foreground">{t(phrase.label)}&nbsp;</span>
 
 			<span class="font-mono">{grepMeta.pattern}</span>
 

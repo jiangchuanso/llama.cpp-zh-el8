@@ -21,11 +21,9 @@
 </script>
 
 <ToolCallBlock {isStreaming} meta={fileGlobMeta} {onToggle} {open} {section}>
-	{#snippet titleSnippet()}
+	{#snippet titleSnippet(phrase)}
 		{#if fileGlobMeta}
-			<span class="text-muted-foreground"
-				>{fileGlobMeta.include === '**' ? t('List files') : t('Search files')}&nbsp;</span
-			>
+			<span class="text-muted-foreground">{t(phrase.label)}&nbsp;</span>
 
 			{#if fileGlobMeta.include !== '**'}
 				<span class="font-mono">{fileGlobMeta.include}</span>

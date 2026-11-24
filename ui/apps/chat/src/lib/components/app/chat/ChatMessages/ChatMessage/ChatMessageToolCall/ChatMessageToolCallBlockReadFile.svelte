@@ -2,6 +2,7 @@
 	import { parseReadFileMeta } from './parsers/read-file';
 	import { t } from '#lib/i18n/index.ts';
 	import ToolCallBlock from './ToolCallBlock.svelte';
+	import ToolCallTitle from './ToolCallTitle.svelte';
 	import { SyntaxHighlightedCode } from '#lib/components/app/index.ts';
 	import { CODE_BLOCK, MAX_HEIGHT_CODE_BLOCK } from '#lib/constants/index.ts';
 	import type { AgenticSection } from '#lib/types/index.ts';
@@ -19,23 +20,17 @@
 </script>
 
 <ToolCallBlock {isStreaming} meta={readFileMeta} {onToggle} {open} {section}>
-	{#snippet titleSnippet()}
-		<span class="flex min-w-0 flex-wrap items-baseline gap-x-1">
-			<span class="shrink-0 text-muted-foreground">{t('Read file')}</span>
-
-			<span class="flex min-w-0 items-baseline gap-1.5">
-				<span class="min-w-0 overflow-x-auto font-mono">{readFileMeta?.fileName}</span>
-
-				{#if readFileMeta?.lineRange}
-					<span class="shrink-0 text-muted-foreground">
-						{t('(lines {start}-{end})', {
-							end: readFileMeta.lineRange.end,
-							start: readFileMeta.lineRange.start
-						})}
-					</span>
-				{/if}
+	{#snippet titleSnippet(phrase)}
+		<ToolCallTitle label={phrase.label} target={readFileMeta?.fileName}>
+		{#if readFileMeta?.lineRange}
+			<span class="shrink-0 text-muted-foreground">
+				{t('(lines {start}-{end})', {
+					start: readFileMeta.lineRange.start,
+					end: readFileMeta.lineRange.end
+				})}
 			</span>
-		</span>
+		{/if}
+		</ToolCallTitle>
 	{/snippet}
 
 	{#snippet children(_meta, _ctx)}

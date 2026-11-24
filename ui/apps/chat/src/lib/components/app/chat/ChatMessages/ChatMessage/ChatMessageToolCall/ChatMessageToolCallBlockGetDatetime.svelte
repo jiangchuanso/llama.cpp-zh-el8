@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Clock, Loader2 } from '@lucide/svelte';
+	import { Loader2 } from '@lucide/svelte';
 	import { t } from '#lib/i18n/index.ts';
 	import { AgenticSectionType } from '#lib/enums/index.ts';
 	import type { AgenticSection } from '#lib/types/index.ts';
@@ -44,8 +44,6 @@
 </script>
 
 <div class="text-muted-foreground flex items-center gap-2 py-1.5">
-	<Clock class="text-muted-foreground/60 size-icon-sm shrink-0" />
-
 	{#if showSpinner}
 		<span class="text-foreground/80 text-body-sm font-medium">{t('Current time')}</span>
 
