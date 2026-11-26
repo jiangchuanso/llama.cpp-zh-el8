@@ -3,10 +3,10 @@
 	// Renders section.toolArgs / section.toolResult directly using the
 	// shared chrome shell.
 
-	import { simpleToolArgFields } from './parsers/tool-call-phrasing';
 	import ToolCallBlock from './ToolCallBlock.svelte';
 	import { t } from '#lib/i18n/index.ts';
 	import ToolCallTitle from './ToolCallTitle.svelte';
+	import { simpleToolArgFields } from '@ggml-org/llama-harness';
 	import { Loader2 } from '@lucide/svelte';
 	import { MarkdownContent, SyntaxHighlightedCode } from '#lib/components/app/index.ts';
 	import { MAX_HEIGHT_CODE_BLOCK } from '#lib/constants/index.ts';

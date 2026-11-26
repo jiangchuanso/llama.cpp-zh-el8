@@ -51,6 +51,7 @@
 		/** The chat's working directory, which the + menu names. */
 		workingDirectory?: string | null;
 		onFileUpload?: () => void;
+		onFilesSelect?: (files: File[]) => void;
 		onMicClick?: () => void;
 		onStop?: () => void;
 		onSystemPromptClick?: () => void;
@@ -67,6 +68,7 @@
 		isSendWaiting = false,
 		isVoiceRefining = false,
 		micWarning = null,
+		onFilesSelect,
 		onFileUpload,
 		onMicClick,
 		onStop,
@@ -133,6 +135,9 @@
 		get hasVisionModality() {
 			return hasVisionModality;
 		},
+		get onFilesSelect() {
+			return onFilesSelect;
+		},
 		get onFileUpload() {
 			return onFileUpload;
 		},
@@ -142,10 +147,13 @@
 		get onWorkingDirectoryClick() {
 			return onWorkingDirectoryClick;
 		},
-		get workingDirectoryLabel() {
+		get workingDirectory() {
 			return workingDirectory
 				? abbreviateWorkingDir(workingDirectory, toolsStore.serverHome)
-				: SET_WORKING_DIRECTORY_LABEL;
+				: null;
+		},
+		get workingDirectoryLabel() {
+			return this.workingDirectory ?? SET_WORKING_DIRECTORY_LABEL;
 		}
 	});
 </script>

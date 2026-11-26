@@ -14,8 +14,9 @@
 	import { ChatMessageStatisticsBadge } from '#lib/components/app/index.ts';
 	import { DEFAULT_PERFORMANCE_TIME, MS_PER_SECOND } from '#lib/constants/index.ts';
 	import { ChatMessageStatisticsMode, ChatMessageStatsView } from '#lib/enums/index.ts';
+	import { useNow } from '#lib/hooks/use-now.svelte.ts';
 	import type { ChatMessageAgenticTimings } from '#lib/types/chat.js';
-	import { formatPerformanceTime } from '#lib/utils/index.ts';
+	import { formatElapsedTime, formatPerformanceTime } from '#lib/utils/index.ts';
 	import type { Component } from 'svelte';
 
 	interface Props {
@@ -30,6 +31,8 @@
 		onActiveViewChange?: (view: ChatMessageStatsView) => void;
 		hideSummary?: boolean;
 		mode?: ChatMessageStatisticsMode;
+		/** Start of a running task (ms since epoch): the task time ticks from it. */
+		taskStartedAt?: number | null;
 	}
 
 	let {
@@ -43,7 +46,8 @@
 		predictedMs,
 		predictedTokens,
 		promptMs,
-		promptTokens
+		promptTokens,
+		taskStartedAt = null
 	}: Props = $props();
 
 	let isSwitchable = $derived(mode === ChatMessageStatisticsMode.SWITCHABLE);
@@ -139,6 +143,17 @@
 	);
 
 	let formattedAgenticTotalTime = $derived(formatPerformanceTime(agenticTotalTimeMs));
+
+	const now = useNow(() => taskStartedAt !== null);
+
+	// the whole reply, from the prompt to the answer: live while it runs, then as recorded
+	let formattedTaskTime = $derived(
+		taskStartedAt !== null
+			? formatElapsedTime(now.current - taskStartedAt)
+			: agenticTimings?.totalMs !== undefined
+				? formatPerformanceTime(agenticTimings.totalMs)
+				: undefined
+	);
 
 	const fixedFormatter = new Intl.NumberFormat(undefined, {
 		maximumFractionDigits: 2,
@@ -241,12 +256,12 @@
 				value={formattedTime}
 			/>
 
-			{#if hasAgenticStats && agenticTimings!.totalMs !== undefined}
+			{#if formattedTaskTime !== undefined}
 				<ChatMessageStatisticsBadge
 					class="bg-transparent"
 					icon={Hourglass}
 					tooltipLabel="Total task time, from the prompt to the answer"
-					value={formattedAgenticTotalTime}
+					value={formattedTaskTime}
 				/>
 			{/if}
 

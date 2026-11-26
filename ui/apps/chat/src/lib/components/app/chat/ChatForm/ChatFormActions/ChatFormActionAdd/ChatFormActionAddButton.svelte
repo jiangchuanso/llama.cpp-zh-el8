@@ -3,7 +3,8 @@
 	import { t } from '#lib/i18n/index.ts';
 	import * as Tooltip from '@ggml-org/llama-ui/ui/tooltip';
 	import { Plus } from '@lucide/svelte';
-	import { ATTACHMENT_TOOLTIP_TEXT, ICON_CLASS_DEFAULT } from '#lib/constants/index.ts';
+	import { attachmentTooltipText, ICON_CLASS_DEFAULT } from '#lib/constants/index.ts';
+	import { agenticMode } from '#lib/stores/agentic-mode.svelte.ts';
 
 	interface Props {
 		disabled?: boolean;
@@ -22,13 +23,13 @@
 			type="button"
 			variant="ghost"
 		>
-			<span class="sr-only">{t(ATTACHMENT_TOOLTIP_TEXT)}</span>
+			<span class="sr-only">{t(attachmentTooltipText(agenticMode.enabled))}</span>
 
 			<Plus class={ICON_CLASS_DEFAULT} />
 		</Button>
 	</Tooltip.Trigger>
 
 	<Tooltip.Content>
-		<p>{t(ATTACHMENT_TOOLTIP_TEXT)}</p>
+		<p>{t(attachmentTooltipText(agenticMode.enabled))}</p>
 	</Tooltip.Content>
 </Tooltip.Root>

@@ -125,9 +125,9 @@
 
 <CollapsibleContentBlock
 	class="my-2"
-	inlineChevron
 	{onToggle}
 	{open}
+	pinnedChevron
 	{shimmerTitle}
 	subtitle={subtitle ? t(subtitle) : subtitle}
 	title={t(title)}

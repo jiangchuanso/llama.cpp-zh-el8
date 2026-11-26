@@ -27,7 +27,7 @@
 				<div class="px-3 py-4 text-center text-body-sm text-muted-foreground">
 					<Loader2 class="mx-auto mb-1 {ICON_CLASS_DEFAULT} animate-spin" />
 
-					{t('Loading tools...')}
+					{t(ATTACHMENT_MENU_TEXT.LOADING_TOOLS)}
 				</div>
 			{:else if toolsStore.isToolsEndpointUnreachable}
 				<div class="grid gap-2.5 px-3 py-4 text-body-sm text-muted-foreground">
@@ -41,8 +41,8 @@
 						</span>
 					</span>
 
-					<!-- only while MCP shows: with it hidden, there is nowhere to add a server -->
-					{#if uiStore.isMcpShown}
+					<!-- only while MCP is on -->
+					{#if uiStore.isMcpEnabled}
 						<span class="flex gap-2">
 							<Info class="mt-0.5 {ICON_CLASS_DEFAULT} shrink-0" />
 
@@ -55,7 +55,9 @@
 					{/if}
 				</div>
 			{:else if toolsStore.error}
-				<div class="px-3 py-4 text-center text-body-sm text-muted-foreground">{t('Failed to load tools')}</div>
+				<div class="px-3 py-4 text-center text-body-sm text-muted-foreground">
+					{t(ATTACHMENT_MENU_TEXT.TOOLS_FAILED)}
+				</div>
 			{:else if toolsPanel.noToolsInfoMessage}
 				<div class="flex gap-2 px-3 py-4 text-body-sm text-muted-foreground">
 					<Info class="mt-0.5 {ICON_CLASS_DEFAULT} shrink-0" />
@@ -63,7 +65,9 @@
 					<span>{t(toolsPanel.noToolsInfoMessage)}</span>
 				</div>
 			{:else}
-				<div class="px-3 py-4 text-center text-body-sm text-muted-foreground">{t('No tools available')}</div>
+				<div class="px-3 py-4 text-center text-body-sm text-muted-foreground">
+					{t(ATTACHMENT_MENU_TEXT.NO_TOOLS)}
+				</div>
 			{/if}
 		{:else}
 			<div class="max-h-80 overflow-y-auto p-2 pr-1">

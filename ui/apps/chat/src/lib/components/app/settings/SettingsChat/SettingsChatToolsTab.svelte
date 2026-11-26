@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { t } from '#lib/i18n/index.ts';
 	import { Checkbox } from '@ggml-org/llama-ui/ui/checkbox';
 	import * as Collapsible from '@ggml-org/llama-ui/ui/collapsible';
 	import * as Select from '@ggml-org/llama-ui/ui/select';
@@ -6,69 +7,18 @@
 	import { McpServerIdentity, TruncatedText } from '#lib/components/app/index.ts';
 	import {
 		ICON_CLASS_DEFAULT,
-		SETTINGS_KEYS,
-		TOOL_CALL_SHOWN_ARG_NONE
+		TOOL_SETTINGS_TEXT,
+		TOOL_SHOWN_ARG_PICK
 	} from '#lib/constants/index.ts';
-	import { ToolSource } from '#lib/enums/tools.enums.ts';
-	import {
-		conversationsStore,
-		mcpStore,
-		permissionsStore,
-		settingsStore,
-		toolsStore
-	} from '#lib/stores/index.ts';
-	import { t } from '#lib/i18n/index.ts';
-	import type { OpenAIToolDefinition } from '#lib/types/index.ts';
-	import { getToolUi, parseToolCallShownArgOverrides } from '#lib/utils/index.ts';
+	import { useToolSettings } from '#lib/hooks/use-tool-settings.svelte.ts';
+	import { conversationsStore, mcpStore, permissionsStore, toolsStore } from '#lib/stores/index.ts';
+	import { getToolArgNames, getToolDisplay } from '#lib/utils/index.ts';
 	import { SvelteSet } from 'svelte/reactivity';
 
-	// the shown-argument picks: a tool follows the global setting until it gets one of its own
-	const SHOWN_ARG_DEFAULT = '__default__';
-	const SHOWN_ARG_NONE = '__none__';
+	const toolSettings = useToolSettings();
 
 	let expandedGroups = new SvelteSet<string>();
 	let groups = $derived(toolsStore.toolGroups);
-	let shownArgOverrides = $derived(
-		parseToolCallShownArgOverrides(
-			settingsStore.config[SETTINGS_KEYS.TOOL_CALL_SHOWN_ARG_OVERRIDES]
-		)
-	);
-	let globalShownArg = $derived(
-		String(settingsStore.config[SETTINGS_KEYS.TOOL_CALL_SHOWN_ARG] ?? '').trim()
-	);
-
-	function argNames(definition: OpenAIToolDefinition): string[] {
-		const properties = (definition.function.parameters as { properties?: object } | undefined)
-			?.properties;
-
-		return properties ? Object.keys(properties) : [];
-	}
-
-	function shownArgPick(toolName: string): string {
-		const own = shownArgOverrides[toolName];
-
-		if (own === undefined) return SHOWN_ARG_DEFAULT;
-
-		return own === TOOL_CALL_SHOWN_ARG_NONE ? SHOWN_ARG_NONE : own;
-	}
-
-	function shownArgLabel(pick: string): string {
-		if (pick === SHOWN_ARG_NONE) return 'None';
-
-		if (pick === SHOWN_ARG_DEFAULT)
-			return globalShownArg ? `Default (${globalShownArg})` : 'Default';
-
-		return pick;
-	}
-
-	function setShownArg(toolName: string, pick: string) {
-		const next = { ...shownArgOverrides };
-
-		if (pick === SHOWN_ARG_DEFAULT) delete next[toolName];
-		else next[toolName] = pick === SHOWN_ARG_NONE ? TOOL_CALL_SHOWN_ARG_NONE : pick;
-
-		settingsStore.updateConfig(SETTINGS_KEYS.TOOL_CALL_SHOWN_ARG_OVERRIDES, JSON.stringify(next));
-	}
 
 	function toggleExpanded(key: string) {
 		if (expandedGroups.has(key)) {
@@ -80,15 +30,13 @@
 </script>
 
 {#if groups.length === 0}
-	<div class="py-8 text-center text-body-sm text-muted-foreground">{t('No tools available')}</div>
+	<div class="py-8 text-center text-body-sm text-muted-foreground">
+		{t(TOOL_SETTINGS_TEXT.NO_TOOLS)}
+	</div>
 {:else}
 	<div class="space-y-2">
 		<p class="text-body-sm text-muted-foreground">
-			{#if conversationsStore.activeConversation}
-				Applies to this conversation.
-			{:else}
-				Applies to new conversations. Tool picks inside a chat only affect that chat.
-			{/if}
+			{toolSettings.scopeNote}
 		</p>
 
 		{#each groups as group (group.key)}
@@ -121,12 +69,12 @@
 								showVersion={false}
 							/>
 						{:else}
-							<TruncatedText class="font-medium" text={t(group.label)} />
+							<TruncatedText class="font-medium" text={group.label} />
 						{/if}
 					</span>
 
 					<span class="ml-auto shrink-0 text-caption text-muted-foreground">
-						{t('{count} tools', { count: group.tools.length })}
+						{group.tools.length} tool{group.tools.length !== 1 ? 's' : ''}
 					</span>
 				</Collapsible.Trigger>
 
@@ -138,28 +86,25 @@
 
 							<span class="w-16 shrink-0 text-center">{t('Enabled')}</span>
 
-						<span class="w-20 shrink-0 text-center">{t('Always allow')}</span>
+							<span class="w-20 shrink-0 text-center">{t('Always allow')}</span>
 
-						<span
-							class="w-32 shrink-0"
-							title={t("The argument a call's line shows when the call has it")}
-						>
-							{t('Shown argument')}
-						</span>
+							<span
+								class="w-32 shrink-0"
+								title={t("The argument a call's line shows when the call has it")}
+							>
+								Shown argument
+							</span>
 						</div>
 
 						{#each group.tools as entry (entry.key)}
 							{@const toolName = entry.definition.function.name}
-							{@const toolUi =
-								entry.source === ToolSource.SERVER || entry.source === ToolSource.BROWSER
-									? getToolUi(toolName)
-									: null}
-							{@const displayLabel = toolUi?.label ?? toolName}
-							{@const IconComponent = toolUi?.icon ?? null}
+							{@const display = getToolDisplay(entry)}
+							{@const displayLabel = display.label}
+							{@const IconComponent = display.icon}
 							{@const isEnabled = conversationsStore.preferences.isToolEnabled(entry.key)}
 							{@const permissionKey = entry.key}
 							{@const isAlwaysAllowed = permissionsStore.hasTool(permissionKey)}
-							{@const shownArg = shownArgPick(toolName)}
+							{@const shownArg = toolSettings.shownArgPick(toolName)}
 
 							<div
 								class="flex items-center gap-2 rounded px-2 py-1.5 text-body-sm hover:bg-muted/50"
@@ -197,7 +142,7 @@
 
 								<div class="w-32 shrink-0">
 									<Select.Root
-										onValueChange={(value) => setShownArg(toolName, value)}
+										onValueChange={(value) => toolSettings.setShownArg(toolName, value)}
 										type="single"
 										value={shownArg}
 									>
@@ -207,21 +152,28 @@
 											size="sm"
 										>
 											<span class="truncate">
-												{shownArg === SHOWN_ARG_DEFAULT ? 'Default' : shownArgLabel(shownArg)}
+												{shownArg === TOOL_SHOWN_ARG_PICK.DEFAULT
+													? TOOL_SETTINGS_TEXT.SHOWN_ARG_DEFAULT
+													: toolSettings.shownArgLabel(shownArg)}
 											</span>
 										</Select.Trigger>
 
 										<Select.Content>
 											<Select.Item
-												label={shownArgLabel(SHOWN_ARG_DEFAULT)}
-												value={SHOWN_ARG_DEFAULT}
+												label={toolSettings.shownArgLabel(TOOL_SHOWN_ARG_PICK.DEFAULT)}
+												value={t(TOOL_SHOWN_ARG_PICK.DEFAULT)}
 											>
-												{shownArgLabel(SHOWN_ARG_DEFAULT)}
+												{toolSettings.shownArgLabel(TOOL_SHOWN_ARG_PICK.DEFAULT)}
 											</Select.Item>
 
-											<Select.Item label="None" value={SHOWN_ARG_NONE}>None</Select.Item>
+											<Select.Item
+												label={t(TOOL_SETTINGS_TEXT.SHOWN_ARG_NONE)}
+												value={t(TOOL_SHOWN_ARG_PICK.NONE)}
+											>
+												{t(TOOL_SETTINGS_TEXT.SHOWN_ARG_NONE)}
+											</Select.Item>
 
-											{#each argNames(entry.definition) as arg (arg)}
+											{#each getToolArgNames(entry.definition) as arg (arg)}
 												<Select.Item label={arg} value={arg}>
 													<span class="font-mono">{arg}</span>
 												</Select.Item>
