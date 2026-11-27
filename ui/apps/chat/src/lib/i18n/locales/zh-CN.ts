@@ -1086,4 +1086,5 @@ export const ZH_CN: Record<string, string> = {
 	'New chat in {name}': '在 {name} 中新建对话',
 	'Counterpart of the conversation title radio; stored and synced without a dedicated UI field.': '与对话标题单选项对应；会存储并同步，但没有独立的界面字段。',
 	'Find models on Hugging Face and download them to the server.': '在 Hugging Face 上查找模型并下载到服务器。',
+	'Share': '分享',
 };

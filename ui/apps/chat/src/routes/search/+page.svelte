@@ -1,16 +1,11 @@
 <script lang="ts">
-	import {
-		DialogConversationDelete,
-		SearchInput,
-		SidebarNavigationSearchResults
-	} from '#lib/components/app/index.ts';
+	import { SearchInput, SidebarNavigationSearchResults } from '#lib/components/app/index.ts';
 	import { ROUTES } from '#lib/constants/index.ts';
 	import { RouterService } from '#lib/services/router.service.ts';
 	import { chatStore, conversationsStore, deviceStore } from '#lib/stores/index.ts';
 	import { browser } from '$app/env';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { t } from '#lib/i18n/index.ts';
 
 	let searchQuery = $state('');
 	let searchInputRef = $state<HTMLInputElement | null>(null);
@@ -37,44 +32,6 @@
 		await goto(RouterService.chat(id));
 	}
 
-	async function handleEditConversation(id: string) {
-		const conversation = conversationsStore.conversations.find((c) => c.id === id);
-
-		if (!conversation) return;
-
-		const newName = window.prompt(t('Rename conversation'), conversation.name);
-
-		if (newName && newName.trim()) {
-			await conversationsStore.updateConversationName(id, newName.trim());
-		}
-	}
-
-	let deleteDialogOpen = $state(false);
-	let deleteTargetId = $state<string | null>(null);
-
-	function handleDeleteConversation(id: string) {
-		const conversation = conversationsStore.conversations.find((c) => c.id === id);
-
-		if (!conversation) return;
-
-deleteTargetId = conversation.id;
-deleteDialogOpen = true;
-}
-
-	async function handleDeleteConfirm() {
-		const id = deleteTargetId;
-
-		deleteDialogOpen = false;
-
-		if (!id) return;
-
-		await conversationsStore.deleteConversation(id, { deleteWithForks: false });
-	}
-
-	function handleDeleteCancel() {
-		deleteDialogOpen = false;
-	}
-
 	function handleStopGeneration(id: string) {
 		chatStore.stopGenerationForChat(id);
 	}
@@ -89,7 +46,7 @@ deleteDialogOpen = true;
 </script>
 
 <svelte:head>
-	<title>{t('Search')} · llama.cpp</title>
+	<title>Search · llama.cpp</title>
 </svelte:head>
 
 <div class="fixed top-0 z-10 left-0 right-0 p-2">
@@ -98,7 +55,7 @@ deleteDialogOpen = true;
 		bind:value={searchQuery}
 		autofocus
 		onClose={handleBack}
-		placeholder={t('Search conversations...')}
+		placeholder="Search conversations..."
 	/>
 </div>
 
@@ -106,16 +63,8 @@ deleteDialogOpen = true;
 	<SidebarNavigationSearchResults
 		{currentChatId}
 		{filteredConversations}
-		onDelete={handleDeleteConversation}
-		onEdit={handleEditConversation}
 		onSelect={selectConversation}
 		onStop={handleStopGeneration}
 		{searchQuery}
 	/>
 </div>
-
-<DialogConversationDelete
-	bind:open={deleteDialogOpen}
-	onCancel={handleDeleteCancel}
-	onConfirm={handleDeleteConfirm}
-/>

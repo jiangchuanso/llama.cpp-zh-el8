@@ -21,6 +21,7 @@
 		SettingsChatFieldsInset,
 		SettingsChatImportExportTab,
 		SettingsChatVoiceTab,
+		SettingsHuggingFaceAccount,
 		SettingsMcpServers
 	} from '#lib/components/app/settings/index.ts';
 	import {
@@ -357,6 +358,8 @@
 		/>
 
 		{#if slug === SETTINGS_SECTION_SLUGS.GENERAL}
+			<SettingsHuggingFaceAccount inset />
+
 			<InsetList title={t(SETTINGS_SHEET_TEXT.APP)}>
 				<InsetListRow icon={RefreshCw} onclick={() => window.location.reload()}>
 					{t(SETTINGS_SHEET_TEXT.RELOAD_APP)}
