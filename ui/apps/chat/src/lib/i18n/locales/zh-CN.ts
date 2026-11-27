@@ -438,6 +438,7 @@ export const ZH_CN: Record<string, string> = {
 	'Search prompts...': '搜索提示词…',
 	'Reset working directory': '重置工作目录',
 	'Choose working directory': '选择工作目录',
+	'Type a folder name or path after {cmd}': '在 {cmd} 后输入文件夹名称或路径',
 	'Set working directory': '设置工作目录',
 	'Context usage': '上下文用量',
 	'Context window usage of the model the chat runs': '当前对话所用模型的上下文窗口占用',

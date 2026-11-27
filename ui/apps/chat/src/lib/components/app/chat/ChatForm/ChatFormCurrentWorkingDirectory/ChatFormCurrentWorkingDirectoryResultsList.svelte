@@ -3,7 +3,7 @@
 	import { t } from '#lib/i18n/index.ts';
 	import { Folder } from '@lucide/svelte';
 	import { UI_DATA_ATTRS } from '#lib/constants/index.ts';
-	import { highlightMatch } from '#lib/utils/index.ts';
+	import { hasPointerMoved, highlightMatch } from '#lib/utils/index.ts';
 	import { fly } from 'svelte/transition';
 
 	// Fly-in transition for the results list.
@@ -54,7 +54,9 @@
 				)}
 				data-highlighted={index === hoveredIndex ? '' : undefined}
 				onclick={() => onCommit?.(path)}
-				onmouseenter={() => onHover?.(index)}
+				onmousemove={(event) => {
+					if (hasPointerMoved(event)) onHover?.(index);
+				}}
 			>
 				<Folder class="size-4 shrink-0 text-muted-foreground" />
 
